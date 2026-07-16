@@ -1,0 +1,134 @@
+/* Liquid Cities — 소개 홈페이지 공통 스타일
+   앱과 동일 톤: 흰 배경 · 검정 · Helvetica · 얇은 라인 · 13px 타이포 위계 */
+:root {
+  --bg: #ffffff; --panel: #f4f4f5; --line: #e2e2e4; --ink: #111; --dim: #6b7076;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300; -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+
+/* ---- 공통 헤더 (앱과 동일: 1행 로고 / 2행 메뉴, 좌우 26px 풀폭 라인) ----
+   항상 화면 상단에 고정 */
+.hdr { width: 100%; background: var(--bg); position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding-top: 26px; font-size: 13px; color: rgba(0,0,0,0.75); }
+/* 고정 헤더 높이만큼 본문을 아래로 밀기 (JS가 --hdrH 설정) */
+body { padding-top: var(--hdrH, 96px); }
+.hdr-row { width: 100%; margin: 0; padding: 9px 26px; display: flex;
+  justify-content: space-between; align-items: center; }
+.hdr-logo { font-weight: 500; font-size: 13px;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.hdr-logo a { text-decoration: none; }
+.hdr-menu { border-bottom: 1px solid var(--line); display: flex; gap: 8px; }
+.hdr-link { flex: 1; font-weight: 400; font-size: 13px; cursor: pointer;
+  color: rgba(0,0,0,0.75); text-decoration: underline; text-underline-offset: 3px; }
+.hdr-link:hover { opacity: 0.6; }
+.hdr-link.active { font-weight: 500; }
+
+/* ---- 공통 콘텐츠 폭·타이포 ---- */
+.wrap { width: 100%; padding: 34px 26px 90px; }
+.narrow { max-width: 680px; }
+h1 { font-size: 13px; font-weight: 500; letter-spacing: 0; margin: 0 0 8px; }
+h2 { font-size: 13px; font-weight: 500; margin: 30px 0 8px; }
+.sub { color: var(--dim); font-size: 13px; font-weight: 300; margin: 0 0 24px; line-height: 1.6; }
+p { font-size: 13px; font-weight: 300; line-height: 1.75; }
+.caption { font-size: 11px; color: var(--dim); }
+
+button, .btn {
+  background: #fff; color: var(--ink); border: 1px solid var(--ink);
+  padding: 11px 20px; border-radius: 3px; font-size: 13px; font-weight: 400;
+  cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block;
+}
+button:hover:not(:disabled), .btn:hover { background: var(--ink); color: #fff; }
+button.secondary { border-color: var(--line); color: var(--dim); }
+button:disabled { opacity: 0.35; cursor: default; }
+input[type=text], input[type=email], input[type=password], textarea, select {
+  width: 100%; background: #fff; border: 1px solid var(--line); color: var(--ink);
+  padding: 12px 14px; border-radius: 3px; font-size: 16px; font-family: inherit; font-weight: 300;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--ink); }
+textarea { min-height: 220px; resize: vertical; line-height: 1.7; }
+
+/* ---- 메인: 스크롤 등장 사진 흐름 ---- */
+.hero { min-height: 78vh; display: flex; flex-direction: column; justify-content: center;
+  padding: 0 26px; }
+.hero .kicker { font-size: 13px; color: var(--dim); margin: 0 0 14px; }
+.hero .head { font-size: clamp(28px, 6vw, 64px); font-weight: 300; line-height: 1.05;
+  letter-spacing: -0.02em; margin: 0; }
+.hero .head b { font-weight: 500; }
+.scroll-hint { margin-top: 40px; font-size: 12px; color: var(--dim); }
+
+/* ---- 제자리 확대 교체 (heatbureau 레퍼런스) ----
+   화면은 그대로 고정된 채, 한 자리(중앙)에서 사진이 작게 튀어나와 커지고
+   다음 사진으로 교체된다. 스크롤은 "재생 타임라인" 역할만 한다.
+   .zoomflow가 세로로 긴 스크롤 길이를 갖고, 그 안 .zoom-stage가 sticky로
+   화면에 고정되며, JS가 스크롤 진행도로 현재 사진과 scale을 정한다. */
+.zoomflow { position: relative; }
+.zoom-stage { position: sticky; top: 0;
+  height: calc(100vh - var(--hdrH, 96px) - 52px); overflow: hidden;
+  display: flex; align-items: center; justify-content: center; background: var(--bg); }
+.zoom-photo { position: absolute; text-align: center; will-change: transform, opacity;
+  opacity: 0; pointer-events: none; }
+.zoom-photo.on { pointer-events: auto; }
+.zoom-photo img { display: block; margin: 0 auto; max-width: 18vw; max-height: 20vh;
+  width: auto; height: auto; background: transparent; } /* 투명 PNG · 격자 분산(겹침·잘림 없음) */
+@media (max-width: 600px) {
+  .zoom-photo img { max-width: 40vw; max-height: 18vh; }
+}
+/* 시퀀스 대형 텍스트 (인트로/아웃트로) — 무대 중앙 고정 */
+.seq-text { position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center; padding: 0 26px;
+  pointer-events: none; opacity: 0; will-change: opacity, transform; }
+.seq-text span { font-size: clamp(32px, 8vw, 92px); font-weight: 500; letter-spacing: -0.02em;
+  line-height: 1.02; text-align: center; }
+#introText { z-index: 5; }     /* 인트로: 사진보다 아래(중앙은 비워둠) */
+#outroText { z-index: 100; }   /* 아웃트로: 맨 위 */
+.scroll-hint { position: fixed; bottom: 62px; left: 0; right: 0; text-align: center;
+  font-size: 12px; color: var(--dim); z-index: 60; transition: opacity 0.4s; }
+
+/* ---- 리스트(블로그/에세이) ---- */
+.post-row { display: block; padding: 26px 0; border-bottom: 1px solid var(--line);
+  text-decoration: none; }
+.post-row:hover .post-title { opacity: 0.6; }
+.post-title { font-size: 13px; font-weight: 500; text-decoration: underline;
+  text-underline-offset: 3px; margin: 0 0 8px; }
+.post-date { font-size: 11px; color: var(--dim); }
+.post-excerpt { font-size: 13px; font-weight: 300; color: var(--ink); line-height: 1.7;
+  margin: 8px 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---- 개별 글 본문 (마크다운 렌더) ---- */
+.article { max-width: 680px; }
+.article h1 { font-size: 21px; font-weight: 500; margin: 0 0 6px; letter-spacing: -0.01em; }
+.article .post-date { margin-bottom: 30px; display: block; }
+.article-body { font-size: 15px; font-weight: 300; line-height: 1.85; }
+.article-body h2 { font-size: 16px; margin: 34px 0 10px; }
+.article-body h3 { font-size: 14px; margin: 26px 0 8px; }
+.article-body p { font-size: 15px; margin: 0 0 18px; }
+.article-body img { max-width: 100%; display: block; margin: 24px 0; }
+.article-body a { text-decoration: underline; text-underline-offset: 3px; }
+.article-body blockquote { margin: 18px 0; padding-left: 16px; border-left: 2px solid var(--line);
+  color: var(--dim); }
+.article-body ul, .article-body ol { padding-left: 20px; }
+
+/* ---- 맵 임베드 (풀스크린) ---- */
+.map-frame { position: fixed; left: 0; right: 0; bottom: 0; top: var(--hdrH, 96px);
+  width: 100%; border: none; }
+
+.status { font-size: 13px; color: var(--dim); margin-top: 12px; }
+.err { color: #c0392b; font-size: 13px; margin-top: 12px; }
+/* 항상 화면 하단에 고정 */
+.footer { position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; background: var(--bg);
+  padding: 12px 26px; border-top: 1px solid var(--line); font-size: 11px; color: var(--dim); }
+/* 고정 푸터에 콘텐츠가 가리지 않게 하단 여백 */
+body { padding-bottom: 52px; }
+/* 맵(iframe 풀스크린) 페이지는 푸터 숨김 */
+body.map-page .footer { display: none; }
+body.map-page { padding-bottom: 0; }
+
+@media (max-width: 600px) {
+  .hero .head { font-size: 30px; }
+  .photo-item { margin: 10vh 0; }
+}

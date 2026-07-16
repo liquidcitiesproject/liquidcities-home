@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Map — Liquid Cities Project</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  html, body { height: 100%; overflow: hidden; }
+</style>
+</head>
+<body class="map-page">
+<header id="site-header"></header>
+
+<div id="mapHost"></div>
+
+<script src="app.js"></script>
+<script>
+renderHeader('map');
+(function () {
+  const host = document.getElementById('mapHost');
+  if (FEATURED_BOARD_UID) {
+    const f = document.createElement('iframe');
+    f.className = 'map-frame';
+    f.src = APP_BASE + '?board=' + encodeURIComponent(FEATURED_BOARD_UID);
+    f.setAttribute('title', 'Liquid Cities shared board');
+    f.setAttribute('loading', 'lazy');
+    host.appendChild(f);
+  } else {
+    // 아직 대표 보드 uid가 설정되지 않음 — 안내
+    const w = document.createElement('main');
+    w.className = 'wrap narrow';
+    w.innerHTML = '<h1>Map</h1>' +
+      '<p class="sub">The shared board is not connected yet.</p>' +
+      '<p>Open the app, share a board, and the map will appear here.</p>' +
+      '<div class="row" style="margin-top:24px"><a class="btn" href="' + APP_BASE + '" target="_blank" rel="noopener">Open the app →</a></div>';
+    host.appendChild(w);
+  }
+})();
+</script>
+</body>
+</html>

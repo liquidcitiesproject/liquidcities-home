@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About — Liquid Cities Project</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<header id="site-header"></header>
+
+<main class="wrap narrow article" id="aboutMain">
+  <!-- admin에서 편집한 About(kind='page')이 있으면 그걸, 없으면 아래 기본 소개글 -->
+  <div id="aboutBody">
+    <h1>About</h1>
+    <p class="sub">Liquid Cities is a project about building identity — the moments people map onto the buildings of a city.</p>
+
+    <p>Every day we move through cities that seem fixed — concrete, glass, stone. But a city is also
+    liquid: it is remade by the feelings, memories and moments each of us pours into it. Liquid Cities
+    asks a simple question — <em>where are you from?</em> — and lets people answer not with a place name,
+    but with a moment.</p>
+
+    <h2>How it works</h2>
+    <p>In the app, you search for a building, confirm its real 3D mass, and map a photo or a short video
+    of a moment onto it. Each mapped moment becomes a node on a shared map — a board, a flat map, or a
+    rotating globe — where your city meets everyone else's.</p>
+
+    <div class="row" style="margin-top:34px">
+      <a class="btn" href="https://liquidcitiesproject.github.io/liquidcities/" target="_blank" rel="noopener">Open the app →</a>
+    </div>
+  </div>
+</main>
+
+<div class="footer">Liquid Cities Project</div>
+
+<script src="app.js"></script>
+<script>
+renderHeader('about');
+(async () => {
+  const page = await loadPage();
+  if (page) {
+    document.title = (page.title || 'About') + ' — Liquid Cities Project';
+    document.getElementById('aboutBody').innerHTML =
+      '<h1>' + escapeHtml(page.title || 'About') + '</h1>' +
+      (page.cover ? '<img src="' + escapeHtml(page.cover) + '" style="max-width:100%;display:block;margin:0 0 24px">' : '') +
+      '<div class="article-body">' + renderMarkdown(page.body) + '</div>';
+  }
+})();
+</script>
+</body>
+</html>

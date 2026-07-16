@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liquid Cities Project</title>
+<meta name="description" content="Liquid Cities — where are you from? A living map of moments mapped onto the buildings of the city.">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<header id="site-header"></header>
+
+<!-- 3단계: (1) Where are you from? 가운데 크게 → (2) 사진 랜덤 등장 → (3) Liquid Cities. 가운데 크게 -->
+<section class="zoomflow" id="zoomflow">
+  <div class="zoom-stage" id="zoomStage">
+    <div class="seq-text" id="introText" style="opacity:1"><span>Where are you from?</span></div>
+    <!-- 사진들은 JS가 여기에 추가 -->
+    <div class="seq-text" id="outroText"><span>Liquid Cities.</span></div>
+    <div class="status" id="flowStatus"></div>
+  </div>
+  <p class="scroll-hint" id="scrollHint">↓ scroll</p>
+</section>
+
+<div class="footer">
+  Liquid Cities Project — building identity through the moments people map onto the city.
+  <a href="about.html" style="text-decoration:underline; text-underline-offset:3px">About the project →</a>
+</div>
+
+<script src="app.js"></script>
+<script>
+renderHeader('');
+(async () => {
+  const flow = document.getElementById('zoomflow');
+  const stage = document.getElementById('zoomStage');
+  const status = document.getElementById('flowStatus');
+  const introText = document.getElementById('introText');
+  const outroText = document.getElementById('outroText');
+  const scrollHint = document.getElementById('scrollHint');
+  const photos = await loadSharedPhotos(10); // 최대 10개
+  if (!photos.length) {
+    status.textContent = 'No shared moments yet — be the first to map one in the app.';
+    return;
+  }
+  status.remove();
+
+  const els = photos.map((p) => {
+    const photo = document.createElement('div');
+    photo.className = 'zoom-photo';
+    const img = document.createElement('img');
+    img.src = p.thumb; img.loading = 'lazy'; img.alt = p.word || 'mapped moment';
+    photo.appendChild(img);
+    stage.insertBefore(photo, outroText); // 아웃트로(Liquid Cities.) 앞
+    return photo;
+  });
+
+  const N = photos.length;
+  const SEG = N + 2;                    // 인트로(1) + 사진들(N) + 아웃트로(1)
+  const PER = 0.6;                      // 구간 하나당 스크롤 길이(vh 배율) — 작을수록 빠름
+  // 여유를 넉넉히 줘서 마지막 "Liquid Cities."가 완전히 등장·머물게
+  flow.style.height = (SEG * PER * 100 + 130) + 'vh';
+
+  // 미리 정해둔 균형 잡힌 고정 배치 (랜덤 아님) — 중앙(텍스트 자리)은 비우고
+  // 화면 안에 확실히 들어오게. [dx(vw), dy(vh)]. 등장은 이 순서대로.
+  const LAYOUT = [
+    [-34, -18], [ 34, -18],   // 위 좌우
+    [-38,   2], [ 38,   2],   // 중간 바깥 좌우
+    [-16, -20], [ 16, -20],   // 위 안쪽 좌우
+    [-34,  22], [ 34,  22],   // 아래 좌우
+    [  0, -21],               // 위 중앙
+    [  0,  24],               // 아래 중앙
+    [-24,  20], [ 24,  20],   // 여유 (11,12번째)
+  ];
+  els.forEach((el, i) => {
+    const [dx, dy] = LAYOUT[i % LAYOUT.length];
+    el.dataset.dx = String(dx);
+    el.dataset.dy = String(dy);
+    el.style.zIndex = String(i + 1);
+  });
+
+  const MIN = 0.4, MAX = 1.0;
+  let ticking = false;
+  function update() {
+    const rect = flow.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const scrolledPx = Math.min(Math.max(-rect.top, 0), rect.height - vh);
+    const pos = scrolledPx / (vh * PER);       // 0 .. SEG (구간 인덱스, PER로 속도 조절)
+
+    // (2) 사진들: 인트로(구간0) 다음부터 각 사진이 등장 (pos-1-i)
+    els.forEach((el, i) => {
+      const local = (pos - 1) - i;
+      if (local < 0) { el.style.opacity = 0; return; }
+      const t = Math.min(1, local);
+      const scale = MIN + (MAX - MIN) * t;
+      const op = local < 0.18 ? (local / 0.18) : 1;
+      const dx = el.dataset.dx || 0, dy = el.dataset.dy || 0;
+      el.style.opacity = op;
+      el.style.transform = 'translate(' + dx + 'vw,' + dy + 'vh) scale(' + scale.toFixed(3) + ')';
+    });
+
+    // (1)→(3) 순차 전환: 사진이 다 나온 뒤 Where are you from? 이 먼저 완전히 사라지고,
+    //        그다음 Liquid Cities. 만 등장 (겹치는 구간 없음).
+    const outroLocal = pos - (N + 1);          // 0 이하: 사진 구간(인트로 유지)
+    const introOp = outroLocal <= 0 ? 1 : Math.max(0, 1 - outroLocal / 0.45);   // 앞 45%: 인트로 아웃
+    const outroOp = outroLocal <= 0.5 ? 0 : Math.min(1, (outroLocal - 0.5) / 0.45); // 뒤: 아웃트로 인
+    introText.style.opacity = String(introOp);
+    introText.style.transform = 'scale(1)'; // 위치·크기 고정 (움직이지 않음)
+    outroText.style.opacity = String(outroOp);
+    outroText.style.transform = 'scale(' + (0.92 + outroOp * 0.08).toFixed(3) + ')';
+
+    if (scrollHint) scrollHint.style.opacity = pos < 0.4 ? 1 : 0;
+    ticking = false;
+  }
+  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+})();
+</script>
+</body>
+</html>

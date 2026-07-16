@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liquid Cities Project</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<header id="site-header"></header>
+
+<main class="wrap article" id="article">
+  <div class="status" id="status">Loading…</div>
+</main>
+
+<div class="footer">Liquid Cities Project</div>
+
+<script src="app.js"></script>
+<script>
+(async () => {
+  const id = new URLSearchParams(location.search).get('id');
+  const article = document.getElementById('article');
+  const post = id ? await loadPost(id) : null;
+  if (!post) { document.getElementById('status').textContent = 'Post not found.'; renderHeader(''); return; }
+  renderHeader(post.kind === 'essay' ? 'essays' : 'blog');
+  document.title = post.title + ' — Liquid Cities Project';
+  article.innerHTML =
+    '<h1>' + escapeHtml(post.title) + '</h1>' +
+    '<span class="post-date">' + fmtDate(post.created_at) + '</span>' +
+    (post.cover ? '<img src="' + escapeHtml(post.cover) + '" style="max-width:100%; display:block; margin:0 0 24px">' : '') +
+    '<div class="article-body">' + renderMarkdown(post.body) + '</div>' +
+    '<p style="margin-top:40px"><a href="' + (post.kind === 'essay' ? 'essays.html' : 'blog.html') +
+      '" style="text-decoration:underline; text-underline-offset:3px">← Back</a></p>';
+})();
+</script>
+</body>
+</html>

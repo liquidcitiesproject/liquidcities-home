@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin — Liquid Cities Project</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  .adm-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .adm-row > * { flex: 1; min-width: 140px; }
+  .adm-item { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .adm-item .t { flex: 1; font-size: 13px; }
+  .adm-item .t .d { color: var(--dim); font-size: 11px; }
+  .adm-item button { flex: 0 0 auto; padding: 6px 12px; font-size: 12px; }
+  .pill { font-size: 11px; border: 1px solid var(--line); border-radius: 2px; padding: 1px 6px; color: var(--dim); }
+</style>
+</head>
+<body>
+<header id="site-header"></header>
+
+<main class="wrap narrow">
+  <h1>Admin</h1>
+
+  <!-- 로그인 -->
+  <div id="loginBox">
+    <p class="sub">Sign in to write and publish posts.</p>
+    <input type="email" id="email" placeholder="email" autocomplete="email">
+    <div class="adm-row"><input type="password" id="pw" placeholder="password" autocomplete="current-password"></div>
+    <div class="adm-row"><button id="loginBtn">Sign in</button></div>
+    <div class="status" id="loginStatus"></div>
+  </div>
+
+  <!-- 편집기 -->
+  <div id="editorBox" style="display:none">
+    <div class="adm-row" style="justify-content:space-between; align-items:center">
+      <span class="status" id="who"></span>
+      <button class="secondary" id="logoutBtn" style="flex:0 0 auto">Sign out</button>
+    </div>
+
+    <h2 id="editorTitle">New post</h2>
+    <input type="hidden" id="postId">
+    <input type="text" id="title" placeholder="Title">
+    <div class="adm-row">
+      <select id="kind">
+        <option value="blog">Blog</option>
+        <option value="essay">Essay</option>
+        <option value="page">Page (About)</option>
+      </select>
+      <select id="published">
+        <option value="false">Draft</option>
+        <option value="true">Published</option>
+      </select>
+    </div>
+    <div class="adm-row"><input type="text" id="cover" placeholder="Cover image URL (optional)"></div>
+    <div class="adm-row" style="align-items:center">
+      <label class="btn secondary" style="flex:0 0 auto; text-align:center">
+        Upload cover <input type="file" id="coverFile" accept="image/*" style="display:none">
+      </label>
+      <label class="btn secondary" style="flex:0 0 auto; text-align:center">
+        Insert image into body <input type="file" id="bodyFile" accept="image/*" style="display:none">
+      </label>
+      <span class="status" id="uploadStatus" style="margin:0"></span>
+    </div>
+    <textarea id="body" placeholder="Write in Markdown…  # Heading  **bold**  [link](url)  ![img](url)"></textarea>
+    <div class="adm-row">
+      <button id="saveBtn">Save</button>
+      <button class="secondary" id="newBtn" style="flex:0 0 auto">New</button>
+    </div>
+    <div class="status" id="saveStatus"></div>
+
+    <h2>All posts</h2>
+    <div id="postList"></div>
+  </div>
+</main>
+
+<script src="app.js"></script>
+<script>
+renderHeader('');
+const c = sb();
+const $ = id => document.getElementById(id);
+
+async function refreshSession() {
+  const { data } = await c.auth.getSession();
+  const user = data && data.session && data.session.user;
+  $('loginBox').style.display = user ? 'none' : 'block';
+  $('editorBox').style.display = user ? 'block' : 'none';
+  if (user) { $('who').textContent = 'Signed in as ' + (user.email || user.id); loadList(); }
+}
+
+$('loginBtn').addEventListener('click', async () => {
+  const email = $('email').value.trim(), pw = $('pw').value;
+  const st = $('loginStatus');
+  if (!email || !pw) { st.textContent = 'Enter email and password.'; return; }
+  st.textContent = '…';
+  const { error } = await c.auth.signInWithPassword({ email, password: pw });
+  st.textContent = error ? ('Sign in failed — ' + error.message) : '';
+  if (!error) refreshSession();
+});
+$('logoutBtn').addEventListener('click', async () => { await c.auth.signOut(); refreshSession(); });
+
+function clearEditor() {
+  $('postId').value = ''; $('title').value = ''; $('body').value = '';
+  $('cover').value = ''; $('kind').value = 'blog'; $('published').value = 'false';
+  $('editorTitle').textContent = 'New post';
+}
+$('newBtn').addEventListener('click', clearEditor);
+
+// ---- 이미지 업로드 (Supabase Storage 'blog-images' 공개 버킷) ----
+async function uploadImage(file) {
+  const us = $('uploadStatus');
+  us.textContent = 'Uploading…';
+  // 파일명: 시간 + 안전한 이름
+  const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const path = Date.now() + '-' + safe;
+  const { error } = await c.storage.from('blog-images').upload(path, file, {
+    upsert: false, contentType: file.type || 'image/jpeg',
+  });
+  if (error) { us.textContent = 'Upload failed — ' + error.message; return null; }
+  const { data } = c.storage.from('blog-images').getPublicUrl(path);
+  us.textContent = 'Uploaded.';
+  return data && data.publicUrl;
+}
+$('coverFile').addEventListener('change', async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const url = await uploadImage(f);
+  if (url) $('cover').value = url;
+  e.target.value = '';
+});
+$('bodyFile').addEventListener('change', async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const url = await uploadImage(f);
+  if (url) {
+    // 커서 위치에 마크다운 이미지 삽입
+    const ta = $('body');
+    const md = '\n![](' + url + ')\n';
+    const pos = ta.selectionStart || ta.value.length;
+    ta.value = ta.value.slice(0, pos) + md + ta.value.slice(pos);
+  }
+  e.target.value = '';
+});
+
+$('saveBtn').addEventListener('click', async () => {
+  const st = $('saveStatus');
+  const title = $('title').value.trim();
+  if (!title) { st.textContent = 'Title required.'; return; }
+  const { data: u } = await c.auth.getUser();
+  const uid = u && u.user && u.user.id;
+  const row = {
+    kind: $('kind').value, title, body: $('body').value,
+    cover: $('cover').value.trim() || null,
+    published: $('published').value === 'true',
+    updated_at: new Date().toISOString(),
+  };
+  st.textContent = 'Saving…';
+  try {
+    const id = $('postId').value;
+    if (id) {
+      const { error } = await c.from('posts').update(row).eq('id', id);
+      if (error) throw error;
+    } else {
+      row.author_id = uid;
+      const { error } = await c.from('posts').insert(row);
+      if (error) throw error;
+    }
+    st.textContent = 'Saved.';
+    clearEditor(); loadList();
+  } catch (e) { st.textContent = 'Save failed — ' + e.message; }
+});
+
+async function loadList() {
+  const box = $('postList');
+  box.innerHTML = '';
+  const { data, error } = await c.from('posts').select('id, kind, title, published, created_at')
+    .order('created_at', { ascending: false });
+  if (error) { box.textContent = error.message; return; }
+  (data || []).forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'adm-item';
+    row.innerHTML =
+      '<div class="t">' + escapeHtml(p.title) +
+      ' <span class="pill">' + p.kind + '</span> <span class="pill">' + (p.published ? 'published' : 'draft') + '</span>' +
+      '<div class="d">' + fmtDate(p.created_at) + '</div></div>';
+    const edit = document.createElement('button'); edit.className = 'secondary'; edit.textContent = 'Edit';
+    edit.addEventListener('click', () => openEdit(p.id));
+    const del = document.createElement('button'); del.className = 'secondary'; del.textContent = 'Delete';
+    del.addEventListener('click', async () => {
+      if (!confirm('Delete this post?')) return;
+      await c.from('posts').delete().eq('id', p.id); loadList();
+    });
+    row.appendChild(edit); row.appendChild(del);
+    box.appendChild(row);
+  });
+}
+
+async function openEdit(id) {
+  const { data, error } = await c.from('posts').select('*').eq('id', id).single();
+  if (error) return;
+  $('postId').value = data.id; $('title').value = data.title; $('body').value = data.body || '';
+  $('cover').value = data.cover || ''; $('kind').value = data.kind; $('published').value = String(data.published);
+  $('editorTitle').textContent = 'Edit post';
+  window.scrollTo(0, 0);
+}
+
+refreshSession();
+</script>
+</body>
+</html>

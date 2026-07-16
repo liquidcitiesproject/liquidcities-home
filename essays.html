@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Essays — Liquid Cities Project</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<header id="site-header"></header>
+
+<main class="wrap narrow">
+  <h1>Essays</h1>
+  <p class="sub">Longer writing on cities, identity, and the moments in between.</p>
+  <div id="list"></div>
+  <div class="status" id="status"></div>
+</main>
+
+<div class="footer">Liquid Cities Project</div>
+
+<script src="app.js"></script>
+<script>
+renderHeader('essays');
+(async () => {
+  const list = document.getElementById('list');
+  const status = document.getElementById('status');
+  const posts = await loadPosts('essay');
+  if (!posts.length) { status.textContent = 'No essays yet.'; return; }
+  for (const p of posts) {
+    const a = document.createElement('a');
+    a.className = 'post-row';
+    a.href = 'post.html?id=' + encodeURIComponent(p.id);
+    const excerpt = (p.body || '').replace(/[#>*_`\[\]]/g, '').slice(0, 160);
+    a.innerHTML =
+      '<div class="post-title">' + escapeHtml(p.title) + '</div>' +
+      '<div class="post-date">' + fmtDate(p.created_at) + '</div>' +
+      '<div class="post-excerpt">' + escapeHtml(excerpt) + '</div>';
+    list.appendChild(a);
+  }
+})();
+</script>
+</body>
+</html>
