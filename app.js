@@ -44,8 +44,17 @@ function renderHeader(active) {
     client.auth.getSession().then(({ data }) => {
       if (data && data.session) {
         const slot = document.getElementById('hdrEdit');
-        if (slot) slot.innerHTML =
-          `<a href="admin.html" style="text-decoration:underline; text-underline-offset:3px; font-size:12px; color:var(--dim)">✎ Edit</a>`;
+        if (slot) {
+          slot.innerHTML =
+            `<a href="admin.html" style="text-decoration:underline; text-underline-offset:3px; font-size:12px; color:var(--dim)">✎ Edit</a>` +
+            `<a id="hdrSignout" href="#" style="text-decoration:underline; text-underline-offset:3px; font-size:12px; color:var(--dim); margin-left:12px">Sign out</a>`;
+          const so = document.getElementById('hdrSignout');
+          if (so) so.addEventListener('click', async (ev) => {
+            ev.preventDefault();
+            try { await client.auth.signOut(); } catch (e) {}
+            location.reload();
+          });
+        }
       }
     }).catch(() => {});
   }
