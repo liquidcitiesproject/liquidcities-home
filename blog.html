@@ -30,7 +30,7 @@ renderHeader('blog');
   for (const p of posts) {
     const a = document.createElement('a');
     a.className = 'post-row';
-    a.href = 'post.html?id=' + encodeURIComponent(p.id);
+    a.href = 'post?id=' + encodeURIComponent(p.id);
     const excerpt = (p.body || '').replace(/[#>*_`\[\]]/g, '').slice(0, 160);
     a.innerHTML =
       '<div class="post-title">' + escapeHtml(p.title) + '</div>' +

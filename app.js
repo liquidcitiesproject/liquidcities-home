@@ -20,16 +20,16 @@ function sb() {
 function renderHeader(active) {
   // 로고(→ Liquid Cities Project)가 곧 홈 링크 — 메뉴에 별도 Home 없음
   const links = [
-    { href: 'about.html', label: 'About', key: 'about' },
-    { href: 'map.html', label: 'Map', key: 'map' },
-    { href: 'blog.html', label: 'Blog', key: 'blog' },
-    { href: 'essays.html', label: 'Essays', key: 'essays' },
+    { href: 'about', label: 'About', key: 'about' },
+    { href: 'map', label: 'Map', key: 'map' },
+    { href: 'blog', label: 'Blog', key: 'blog' },
+    { href: 'essays', label: 'Essays', key: 'essays' },
   ];
   const el = document.getElementById('site-header');
   if (!el) return;
   el.className = 'hdr';
   el.innerHTML =
-    '<div class="hdr-row hdr-logo"><span><a href="index.html" style="text-decoration:none">→ Liquid Cities Project</a></span>' +
+    '<div class="hdr-row hdr-logo"><span><a href="/" style="text-decoration:none">→ Liquid Cities Project</a></span>' +
     '<span id="hdrEdit"></span></div>' +
     '<nav class="hdr-row hdr-menu">' +
     links.map(l => `<a class="hdr-link${l.key === active ? ' active' : ''}" href="${l.href}">${l.label}</a>`).join('') +

@@ -30,7 +30,7 @@
     '<span class="post-date">' + fmtDate(post.created_at) + '</span>' +
     (post.cover ? '<img src="' + escapeHtml(post.cover) + '" style="max-width:100%; display:block; margin:0 0 24px">' : '') +
     '<div class="article-body">' + renderMarkdown(post.body) + '</div>' +
-    '<p style="margin-top:40px"><a href="' + (post.kind === 'essay' ? 'essays.html' : 'blog.html') +
+    '<p style="margin-top:40px"><a href="' + (post.kind === 'essay' ? 'essays' : 'blog') +
       '" style="text-decoration:underline; text-underline-offset:3px">← Back</a></p>';
 })();
 </script>
