@@ -66,7 +66,8 @@
     <textarea id="body" placeholder="Write in Markdown…  # Heading  **bold**  [link](url)  ![img](url)"></textarea>
     <div class="adm-row">
       <button id="saveBtn">Save</button>
-      <button class="secondary" id="newBtn" style="flex:0 0 auto">New</button>
+      <button class="secondary" id="newBtn" style="flex:0 0 auto">New post</button>
+      <button class="secondary" id="editAboutBtn" style="flex:0 0 auto">Edit About page</button>
     </div>
     <div class="status" id="saveStatus"></div>
 
@@ -106,6 +107,23 @@ function clearEditor() {
   $('editorTitle').textContent = 'New post';
 }
 $('newBtn').addEventListener('click', clearEditor);
+
+// About 편집 — 기존 About(kind='page') 있으면 불러오고, 없으면 새 About 폼
+$('editAboutBtn').addEventListener('click', async () => {
+  const { data } = await c.from('posts').select('*').eq('kind', 'page')
+    .order('updated_at', { ascending: false }).limit(1);
+  const p = data && data[0];
+  if (p) {
+    $('postId').value = p.id; $('title').value = p.title || 'About';
+    $('body').value = p.body || ''; $('cover').value = p.cover || '';
+    $('kind').value = 'page'; $('published').value = String(p.published);
+  } else {
+    $('postId').value = ''; $('title').value = 'About'; $('body').value = '';
+    $('cover').value = ''; $('kind').value = 'page'; $('published').value = 'true';
+  }
+  $('editorTitle').textContent = 'Edit About page';
+  window.scrollTo(0, 0);
+});
 
 // ---- 이미지 업로드 (Supabase Storage 'blog-images' 공개 버킷) ----
 async function uploadImage(file) {

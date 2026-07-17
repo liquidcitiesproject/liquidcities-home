@@ -43,10 +43,9 @@ function renderHeader(active) {
   if (client) {
     client.auth.getSession().then(({ data }) => {
       if (data && data.session) {
-        const editHref = active === 'about' ? 'about-edit.html' : 'admin.html';
         const slot = document.getElementById('hdrEdit');
         if (slot) slot.innerHTML =
-          `<a href="${editHref}" style="text-decoration:underline; text-underline-offset:3px; font-size:12px; color:var(--dim)">✎ Edit</a>`;
+          `<a href="admin.html" style="text-decoration:underline; text-underline-offset:3px; font-size:12px; color:var(--dim)">✎ Edit</a>`;
       }
     }).catch(() => {});
   }
