@@ -29,7 +29,8 @@ function renderHeader(active) {
   if (!el) return;
   el.className = 'hdr';
   el.innerHTML =
-    '<div class="hdr-row hdr-logo"><span><a href="index.html" style="text-decoration:none">→ Liquid Cities Project</a></span></div>' +
+    '<div class="hdr-row hdr-logo"><span><a href="index.html" style="text-decoration:none">→ Liquid Cities Project</a></span>' +
+    '<span id="hdrEdit"></span></div>' +
     '<nav class="hdr-row hdr-menu">' +
     links.map(l => `<a class="hdr-link${l.key === active ? ' active' : ''}" href="${l.href}">${l.label}</a>`).join('') +
     '</nav>';
@@ -37,6 +38,18 @@ function renderHeader(active) {
   requestAnimationFrame(() => {
     document.documentElement.style.setProperty('--hdrH', el.offsetHeight + 'px');
   });
+  // 관리자로 로그인돼 있으면 헤더에 "Edit" 링크 표시 (About이면 about-edit, 그 외 admin)
+  const client = sb();
+  if (client) {
+    client.auth.getSession().then(({ data }) => {
+      if (data && data.session) {
+        const editHref = active === 'about' ? 'about-edit.html' : 'admin.html';
+        const slot = document.getElementById('hdrEdit');
+        if (slot) slot.innerHTML =
+          `<a href="${editHref}" style="text-decoration:underline; text-underline-offset:3px; font-size:12px; color:var(--dim)">✎ Edit</a>`;
+      }
+    }).catch(() => {});
+  }
 }
 
 /* ---- 스크롤 등장 옵저버 ---- */
