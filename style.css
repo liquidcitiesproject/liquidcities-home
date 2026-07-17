@@ -113,9 +113,11 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.7; }
   color: var(--dim); }
 .article-body ul, .article-body ol { padding-left: 20px; }
 
-/* ---- 맵 임베드 (풀스크린) ---- */
+/* ---- 맵 임베드 (풀스크린) ----
+   iframe은 replaced element라 top+bottom만으론 안 늘어남(기본 높이 150px가 이김).
+   height를 명시해 헤더 아래 화면 전체를 채운다. */
 .map-frame { position: fixed; left: 0; right: 0; bottom: 0; top: var(--hdrH, 96px);
-  width: 100%; border: none; }
+  width: 100%; height: calc(100vh - var(--hdrH, 96px)); border: none; display: block; }
 
 .status { font-size: 13px; color: var(--dim); margin-top: 12px; }
 .err { color: #c0392b; font-size: 13px; margin-top: 12px; }
