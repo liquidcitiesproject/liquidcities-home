@@ -28,9 +28,9 @@ function renderHeader(active) {
   const el = document.getElementById('site-header');
   if (!el) return;
   el.className = 'hdr';
+  // 방문자용 헤더 — 관리 기능(편집/로그아웃) 링크는 노출하지 않음
   el.innerHTML =
-    '<div class="hdr-row hdr-logo"><span><a href="index.html" style="text-decoration:none">→ Liquid Cities Project</a></span>' +
-    '<span id="hdrEdit"></span></div>' +
+    '<div class="hdr-row hdr-logo"><span><a href="index.html" style="text-decoration:none">→ Liquid Cities Project</a></span></div>' +
     '<nav class="hdr-row hdr-menu">' +
     links.map(l => `<a class="hdr-link${l.key === active ? ' active' : ''}" href="${l.href}">${l.label}</a>`).join('') +
     '</nav>';
@@ -38,26 +38,6 @@ function renderHeader(active) {
   requestAnimationFrame(() => {
     document.documentElement.style.setProperty('--hdrH', el.offsetHeight + 'px');
   });
-  // 관리자로 로그인돼 있으면 헤더에 "Edit" 링크 표시 (About이면 about-edit, 그 외 admin)
-  const client = sb();
-  if (client) {
-    client.auth.getSession().then(({ data }) => {
-      if (data && data.session) {
-        const slot = document.getElementById('hdrEdit');
-        if (slot) {
-          slot.innerHTML =
-            `<a href="admin.html" style="text-decoration:underline; text-underline-offset:3px; font-size:12px; color:var(--dim)">✎ Edit</a>` +
-            `<a id="hdrSignout" href="#" style="text-decoration:underline; text-underline-offset:3px; font-size:12px; color:var(--dim); margin-left:12px">Sign out</a>`;
-          const so = document.getElementById('hdrSignout');
-          if (so) so.addEventListener('click', async (ev) => {
-            ev.preventDefault();
-            try { await client.auth.signOut(); } catch (e) {}
-            location.reload();
-          });
-        }
-      }
-    }).catch(() => {});
-  }
 }
 
 /* ---- 스크롤 등장 옵저버 ---- */
