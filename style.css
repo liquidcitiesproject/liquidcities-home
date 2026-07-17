@@ -126,7 +126,8 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.7; }
 body { padding-bottom: 52px; }
 /* 맵(iframe 풀스크린) 페이지는 푸터 숨김 */
 body.map-page .footer { display: none; }
-body.map-page { padding-bottom: 0; }
+/* 맵은 fixed iframe이 화면을 꽉 채우므로 body 여백 제거 (잘림 방지) */
+body.map-page { padding-top: 0; padding-bottom: 0; }
 
 @media (max-width: 600px) {
   .hero .head { font-size: 30px; }
