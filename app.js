@@ -5,8 +5,8 @@
 const SB_URL = 'https://yntccmzrayqbvzusdlud.supabase.co';
 const SB_KEY = 'sb_publishable_JyyBBJXaB2KW15biPR-8tA_ar3M3KO4'; // 공개 가능 키 (RLS가 보호)
 
-// 앱 공유 보드 뷰어 주소 (Map iframe 및 링크에 사용)
-const APP_BASE = 'https://liquidcitiesproject.github.io/liquidcities/';
+// 앱 공유 보드 뷰어 주소 (Map iframe 및 링크에 사용) — 앱 도메인 liquidcities.io
+const APP_BASE = 'https://liquidcities.io/';
 // Map에 노출할 대표 보드 uid — 값이 없으면 map 페이지가 안내를 표시.
 const FEATURED_BOARD_UID = '310d9356-cd15-42cd-8c85-4e9988233a64'; // thinkjanepark 대표 보드
 
