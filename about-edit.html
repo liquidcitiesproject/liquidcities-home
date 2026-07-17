@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Edit About — Liquid Cities Project</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  .adm-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+</style>
+</head>
+<body>
+<header id="site-header"></header>
+
+<main class="wrap narrow">
+  <h1>Edit About page</h1>
+
+  <!-- 로그인 -->
+  <div id="loginBox">
+    <p class="sub">Sign in to edit the About page.</p>
+    <input type="email" id="email" placeholder="email" autocomplete="email">
+    <div class="adm-row"><input type="password" id="pw" placeholder="password" autocomplete="current-password"></div>
+    <div class="adm-row"><button id="loginBtn">Sign in</button></div>
+    <div class="status" id="loginStatus"></div>
+  </div>
+
+  <!-- 편집기 -->
+  <div id="editorBox" style="display:none">
+    <div class="adm-row" style="justify-content:space-between">
+      <span class="status" id="who"></span>
+      <button class="secondary" id="logoutBtn" style="flex:0 0 auto">Sign out</button>
+    </div>
+
+    <p class="sub" style="margin-top:20px">Write the About page in Markdown. It appears at
+      <a href="about.html" style="text-decoration:underline">about.html</a>.</p>
+
+    <input type="text" id="title" placeholder="Title (e.g. About)" value="About">
+    <div class="adm-row" style="margin-top:10px">
+      <label class="btn secondary" style="flex:0 0 auto; text-align:center">
+        Insert image <input type="file" id="imgFile" accept="image/*" style="display:none">
+      </label>
+      <span class="status" id="uploadStatus" style="margin:0"></span>
+    </div>
+    <textarea id="body" style="margin-top:10px; min-height:340px"
+      placeholder="# About&#10;&#10;Liquid Cities is…&#10;&#10;## How it works&#10;…"></textarea>
+
+    <div class="adm-row">
+      <button id="saveBtn">Save & Publish</button>
+      <a class="btn secondary" href="about.html" target="_blank" style="flex:0 0 auto">Preview →</a>
+    </div>
+    <div class="status" id="saveStatus"></div>
+  </div>
+</main>
+
+<div class="footer">Liquid Cities Project</div>
+
+<script src="app.js"></script>
+<script>
+renderHeader('about');
+const c = sb();
+const $ = id => document.getElementById(id);
+let currentId = null; // 기존 About 글 id (있으면 update)
+
+async function refreshSession() {
+  const { data } = await c.auth.getSession();
+  const user = data && data.session && data.session.user;
+  $('loginBox').style.display = user ? 'none' : 'block';
+  $('editorBox').style.display = user ? 'block' : 'none';
+  if (user) {
+    $('who').textContent = 'Signed in as ' + (user.email || user.id);
+    loadExisting();
+  }
+}
+
+async function loadExisting() {
+  // 기존 About(kind='page') 글이 있으면 불러와 편집기에 채움
+  try {
+    const { data } = await c.from('posts').select('*').eq('kind', 'page')
+      .order('updated_at', { ascending: false }).limit(1);
+    const p = data && data[0];
+    if (p) {
+      currentId = p.id;
+      $('title').value = p.title || 'About';
+      $('body').value = p.body || '';
+    }
+  } catch (e) {}
+}
+
+$('loginBtn').addEventListener('click', async () => {
+  const email = $('email').value.trim(), pw = $('pw').value;
+  const st = $('loginStatus');
+  if (!email || !pw) { st.textContent = 'Enter email and password.'; return; }
+  st.textContent = '…';
+  const { error } = await c.auth.signInWithPassword({ email, password: pw });
+  st.textContent = error ? ('Sign in failed — ' + error.message) : '';
+  if (!error) refreshSession();
+});
+$('logoutBtn').addEventListener('click', async () => { await c.auth.signOut(); refreshSession(); });
+
+// 이미지 업로드 → 본문에 마크다운 삽입
+$('imgFile').addEventListener('change', async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const us = $('uploadStatus'); us.textContent = 'Uploading…';
+  const path = Date.now() + '-' + f.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const { error } = await c.storage.from('blog-images').upload(path, f, { upsert: false, contentType: f.type || 'image/jpeg' });
+  if (error) { us.textContent = 'Upload failed — ' + error.message; e.target.value = ''; return; }
+  const { data } = c.storage.from('blog-images').getPublicUrl(path);
+  const ta = $('body'); const md = '\n![](' + (data && data.publicUrl) + ')\n';
+  const pos = ta.selectionStart || ta.value.length;
+  ta.value = ta.value.slice(0, pos) + md + ta.value.slice(pos);
+  us.textContent = 'Inserted.'; e.target.value = '';
+});
+
+$('saveBtn').addEventListener('click', async () => {
+  const st = $('saveStatus');
+  const title = $('title').value.trim() || 'About';
+  const body = $('body').value;
+  const { data: u } = await c.auth.getUser();
+  const uid = u && u.user && u.user.id;
+  st.textContent = 'Saving…';
+  try {
+    if (currentId) {
+      const { error } = await c.from('posts').update({
+        title, body, kind: 'page', published: true, updated_at: new Date().toISOString(),
+      }).eq('id', currentId);
+      if (error) throw error;
+    } else {
+      const { data, error } = await c.from('posts').insert({
+        author_id: uid, title, body, kind: 'page', published: true,
+      }).select('id').single();
+      if (error) throw error;
+      currentId = data.id;
+    }
+    st.textContent = 'Saved & published. ';
+  } catch (e) { st.textContent = 'Save failed — ' + e.message; }
+});
+
+refreshSession();
+</script>
+</body>
+</html>
