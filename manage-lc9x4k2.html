@@ -49,10 +49,13 @@
         <option value="page">Page (About)</option>
       </select>
       <select id="published">
-        <option value="false">Draft</option>
-        <option value="true">Published</option>
+        <option value="false">Draft (숨김)</option>
+        <option value="true">Published (공개)</option>
       </select>
-      <input type="date" id="postDate" title="Post date (leave empty for today)" style="flex:0 0 auto">
+    </div>
+    <div class="adm-row" style="align-items:center">
+      <label style="flex:0 0 auto; font-size:13px; color:var(--dim)">Post date</label>
+      <input type="date" id="postDate" title="비우면 오늘 날짜">
     </div>
     <div class="adm-row"><input type="text" id="cover" placeholder="Cover image URL (optional)"></div>
     <div class="adm-row" style="align-items:center">
