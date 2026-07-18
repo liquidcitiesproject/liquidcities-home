@@ -52,6 +52,7 @@
         <option value="false">Draft</option>
         <option value="true">Published</option>
       </select>
+      <input type="date" id="postDate" title="Post date (leave empty for today)" style="flex:0 0 auto">
     </div>
     <div class="adm-row"><input type="text" id="cover" placeholder="Cover image URL (optional)"></div>
     <div class="adm-row" style="align-items:center">
@@ -104,6 +105,7 @@ $('logoutBtn').addEventListener('click', async () => { await c.auth.signOut(); r
 function clearEditor() {
   $('postId').value = ''; $('title').value = ''; $('body').value = '';
   $('cover').value = ''; $('kind').value = 'blog'; $('published').value = 'false';
+  $('postDate').value = '';
   $('editorTitle').textContent = 'New post';
 }
 $('newBtn').addEventListener('click', clearEditor);
@@ -117,9 +119,11 @@ $('editAboutBtn').addEventListener('click', async () => {
     $('postId').value = p.id; $('title').value = p.title || 'About';
     $('body').value = p.body || ''; $('cover').value = p.cover || '';
     $('kind').value = 'page'; $('published').value = String(p.published);
+    $('postDate').value = p.created_at ? new Date(p.created_at).toISOString().slice(0, 10) : '';
   } else {
     $('postId').value = ''; $('title').value = 'About'; $('body').value = '';
     $('cover').value = ''; $('kind').value = 'page'; $('published').value = 'true';
+    $('postDate').value = '';
   }
   $('editorTitle').textContent = 'Edit About page';
   window.scrollTo(0, 0);
@@ -171,6 +175,9 @@ $('saveBtn').addEventListener('click', async () => {
     published: $('published').value === 'true',
     updated_at: new Date().toISOString(),
   };
+  // 글쓴 날짜(created_at) — 입력하면 그 날짜(정오), 비우면 서버 기본값(지금)
+  const dv = $('postDate').value;
+  if (dv) row.created_at = new Date(dv + 'T12:00:00').toISOString();
   st.textContent = 'Saving…';
   try {
     const id = $('postId').value;
@@ -217,6 +224,7 @@ async function openEdit(id) {
   if (error) return;
   $('postId').value = data.id; $('title').value = data.title; $('body').value = data.body || '';
   $('cover').value = data.cover || ''; $('kind').value = data.kind; $('published').value = String(data.published);
+  $('postDate').value = data.created_at ? new Date(data.created_at).toISOString().slice(0, 10) : '';
   $('editorTitle').textContent = 'Edit post';
   window.scrollTo(0, 0);
 }
