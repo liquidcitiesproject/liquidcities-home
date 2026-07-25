@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Contact — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260726q">
+<link rel="stylesheet" href="style.css?v=20260726r">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260726q"></script>
+<script src="app.js?v=20260726r"></script>
 <script>
 renderHeader('contact');
 applyI18n();
@@ -33,12 +33,12 @@ function draw(filter) {
   const main = document.getElementById('contactMain');
   if (filter === 'instagram') {
     main.innerHTML =
-      '<p><a href="#" target="_blank" rel="noopener" style="text-decoration:underline; text-underline-offset:3px">' +
-      t('contactInsta') + '</a></p>';
+      '<p><a href="https://www.instagram.com/liquidcities.project/" target="_blank" rel="noopener" ' +
+      'style="text-decoration:underline; text-underline-offset:3px">@liquidcities.project</a></p>';
   } else {
     main.innerHTML =
-      '<p><a href="mailto:" style="text-decoration:underline; text-underline-offset:3px">' +
-      t('contactEmail') + '</a></p>';
+      '<p><a href="mailto:liquidcities.project@gmail.com" ' +
+      'style="text-decoration:underline; text-underline-offset:3px">liquidcities.project@gmail.com</a></p>';
   }
 }
 
