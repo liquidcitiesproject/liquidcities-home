@@ -36,6 +36,11 @@ const I18N = {
   pfEmotionalMap: { en: 'Emotional map', ko: 'Emotional map' },
   pfVol1:         { en: 'Vol.1',         ko: 'Vol.1' },
   projComingSoon: { en: 'Coming soon.',  ko: '준비 중입니다.' },
+  // Projects 3행 세부 분류(예시 태그 — 추후 실제 분류로 교체)
+  ptSolo:         { en: 'Solo',          ko: 'Solo' },
+  ptGroup:        { en: 'Group',         ko: 'Group' },
+  ptCollab:       { en: 'Collaboration', ko: 'Collaboration' },
+  ptResidency:    { en: 'Residency',     ko: 'Residency' },
   // Making Spaces 페이지 (필터 라벨은 영어 유지)
   wfAll:      { en: 'All',      ko: 'All' },
   wfEssays:   { en: 'Essays',   ko: 'Essays' },

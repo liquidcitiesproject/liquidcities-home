@@ -1,7 +1,7 @@
 /* Liquid Cities — 소개 홈페이지 공통 스타일
    앱과 동일 톤: 흰 배경 · 검정 · Helvetica · 얇은 라인 · 13px 타이포 위계 */
 :root {
-  --bg: #ffffff; --panel: #f4f4f5; --line: #e2e2e4; --ink: #111; --dim: #6b7076;
+  --bg: #ffffff; --panel: #f4f4f5; --line: #e2e2e4; --ink: #000; --dim: #6b7076;
 }
 * { box-sizing: border-box; }
 html, body {
@@ -52,6 +52,12 @@ body { padding-top: var(--hdrH, 96px); }
 .filter-link.active { color: var(--ink); text-decoration: underline; }
 .filter-bar::-webkit-scrollbar { display: none; }
 .filter-bar { scrollbar-width: none; }
+
+/* 3행 세부 태그 바 — 필터 바 바로 아래 sticky. renderFilterBar가 .filter-bar
+   클래스를 붙이므로, #tag-bar로 top 오프셋만 필터 바 높이만큼 더 내린다. */
+#tag-bar { top: calc(var(--hdrH, 96px) + var(--filterH, 45px)); z-index: 890;
+  gap: 14px; }
+#tag-bar .filter-link { font-size: 13px; }
 
 /* Projects의 감정맵 iframe — 헤더 + 필터 바 아래 화면을 채움
    (map.html의 .map-frame과 달리 헤더/필터 바를 남긴다) */

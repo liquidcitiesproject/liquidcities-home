@@ -10,6 +10,7 @@
 <body>
 <header id="site-header"></header>
 <div id="filter-bar"></div>
+<div id="tag-bar"></div>
 
 <main id="projects-content" class="wrap narrow"></main>
 
@@ -28,6 +29,17 @@ const FILTERS = [
 ];
 let currentFilter = new URLSearchParams(location.search).get('filter') || 'all';
 if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'all';
+
+// 3행 세부 분류(예시 태그 — 추후 실제 분류로 교체). 'all'은 전체.
+const TAGS = [
+  { key: 'all',       i18n: 'pfAll' },
+  { key: 'solo',      i18n: 'ptSolo' },
+  { key: 'group',     i18n: 'ptGroup' },
+  { key: 'collab',    i18n: 'ptCollab' },
+  { key: 'residency', i18n: 'ptResidency' },
+];
+let currentTag = new URLSearchParams(location.search).get('tag') || 'all';
+if (!TAGS.some(tg => tg.key === currentTag)) currentTag = 'all';
 
 const content = document.getElementById('projFooter');
 
@@ -83,17 +95,43 @@ function draw(filter) {
   if (emoLink) emoLink.addEventListener('click', (ev) => { ev.preventDefault(); onSelect('emotional-map'); });
 }
 
+// 3행 태그 바 렌더 — emotional-map(전체화면 iframe)일 땐 숨긴다.
+function renderTags() {
+  const bar = document.getElementById('tag-bar');
+  if (!bar) return;
+  if (currentFilter === 'emotional-map') { bar.style.display = 'none'; return; }
+  bar.style.display = '';
+  renderFilterBar('tag-bar', TAGS, currentTag, onTagSelect);
+}
+
 function onSelect(key) {
-  history.replaceState(null, '', 'projects?filter=' + key);
+  currentFilter = key;
+  history.replaceState(null, '', 'projects?filter=' + key + (currentTag !== 'all' ? '&tag=' + currentTag : ''));
   renderFilterBar('filter-bar', FILTERS, key, onSelect);
+  renderTags();
   draw(key);
 }
 
+function onTagSelect(key) {
+  currentTag = key;
+  history.replaceState(null, '', 'projects?filter=' + currentFilter + (key !== 'all' ? '&tag=' + key : ''));
+  renderTags();
+  // 세부 태그별 콘텐츠는 추후 — 지금은 all이 아니면 '준비 중' 안내
+  const main = document.getElementById('projects-content');
+  if (key !== 'all' && currentFilter !== 'emotional-map') {
+    main.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
+  } else {
+    draw(currentFilter);
+  }
+}
+
 renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
+renderTags();
 draw(currentFilter);
 
 window._lcRerender = () => {
   renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
+  renderTags();
   draw(currentFilter);
 };
 </script>
