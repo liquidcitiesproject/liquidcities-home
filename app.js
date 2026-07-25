@@ -87,6 +87,7 @@ const I18N = {
   afAbout:      { en: 'About',      ko: 'About' },
   afProjects:   { en: 'Project',    ko: 'Project' },
   afResearch:   { en: 'Researcher', ko: 'Researcher' },
+  afManifesto:  { en: 'Manifesto',  ko: 'Manifesto' },
   researchSoon: { en: 'Researcher — coming soon.', ko: 'Researcher — 준비 중입니다.' },
   // blog
   blogTitle:  { en: 'Blog', ko: '블로그' },

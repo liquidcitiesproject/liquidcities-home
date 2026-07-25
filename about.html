@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727j">
+<link rel="stylesheet" href="style.css?v=20260727k">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -35,7 +35,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260727j"></script>
+<script src="app.js?v=20260727k"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -46,6 +46,7 @@ applyI18n();
 const FILTERS = [
   { key: 'projects', i18n: 'afProjects' },
   { key: 'research', i18n: 'afResearch' },
+  { key: 'manifesto', i18n: 'afManifesto' },
 ];
 // About 클릭 시 하위 Projects가 기본 선택된 채 랜딩 (소개글은 Projects 하위에 표시)
 let currentFilter = new URLSearchParams(location.search).get('filter') || 'projects';
@@ -55,7 +56,8 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
   const defaultBody = document.getElementById('aboutBody').innerHTML; // 정적 소개글(data-i18n 포함)
   // 섹션 표시 순서 = 목록 순서. 목록에 없는 제목은 맨 뒤에 날짜순.
   const PROJ_SECTIONS = ['Background', 'Research Question', 'Theoretical Framework',
-    'Methodology', 'Fieldwork Labs & Expansion', 'Manifesto'];
+    'Methodology', 'Fieldwork Labs & Expansion'];
+  const MANI_SECTIONS = ['Manifesto']; // Manifesto는 별도 탭
   const RES_SECTIONS = ['Jane Park', 'About', 'Education', 'Awards', 'Contact'];
   // 화면에서 제외할 섹션 (글은 남아 있음 — manage에서 삭제 가능)
   const HIDDEN = ['how it works'];
@@ -70,7 +72,9 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
   };
   const [page, projPosts, resPosts] = await Promise.all([
     loadPage(), loadPosts('project'), loadPosts('researcher')]);
-  const projSections = canonSort(projPosts, PROJ_SECTIONS);
+  const isManifesto = p => (p.title || '').trim().toLowerCase() === 'manifesto';
+  const projSections = canonSort(projPosts.filter(p => !isManifesto(p)), PROJ_SECTIONS);
+  const maniSections = canonSort(projPosts.filter(isManifesto), MANI_SECTIONS);
   const resSections = canonSort(resPosts, RES_SECTIONS);
 
   function storyHtml(title, dateline, cover, bodyHtml) {
@@ -138,6 +142,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
   function draw(filter) {
     currentFilter = filter;
     if (filter === 'research') renderMagazine(resSections, RES_SECTIONS, false);
+    else if (filter === 'manifesto') renderMagazine(maniSections, MANI_SECTIONS, false);
     else renderMagazine(projSections, PROJ_SECTIONS, true);
   }
 
