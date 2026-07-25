@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727m">
+<link rel="stylesheet" href="style.css?v=20260727n">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -35,7 +35,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260727m"></script>
+<script src="app.js?v=20260727n"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -143,8 +143,34 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
   function draw(filter) {
     currentFilter = filter;
     if (filter === 'research') renderMagazine(resSections, RES_SECTIONS, false);
-    else if (filter === 'manifesto') renderMagazine(maniSections, MANI_SECTIONS, false);
+    else if (filter === 'manifesto') renderManifesto();
     else renderMagazine(projSections, PROJ_SECTIONS, true);
+  }
+
+  // Manifesto — 항목(1. 2. 3.…)마다 가로선으로 나뉜 필드, 본문 굵기 + 타이틀 크기
+  function renderManifesto() {
+    const main = document.getElementById('aboutMain');
+    const body = document.getElementById('aboutBody');
+    const p = maniSections[0];
+    if (!p) {
+      main.className = 'wrap narrow article';
+      body.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
+      return;
+    }
+    const raw = (pickLangBody(p) || '').replace(/\r\n/g, '\n');
+    const items = [];
+    raw.split('\n').forEach(line => {
+      const m = line.match(/^\s*(\d+)[.)]\s*(.*)$/);
+      if (m) items.push({ n: m[1], text: m[2] });
+      else if (line.trim() && items.length) items[items.length - 1].text += ' ' + line.trim();
+    });
+    if (!items.length) { renderMagazine(maniSections, MANI_SECTIONS, false); return; } // 번호 없으면 기존 방식
+    main.className = 'wrap';
+    body.innerHTML = '<div class="mani-list">' +
+      items.map(it =>
+        '<div class="mani-item"><span class="mani-num">' + escapeHtml(it.n) + '</span>' +
+        '<p class="mani-text">' + escapeHtml(it.text) + '</p></div>').join('') +
+      '</div>';
   }
 
   function onSelect(key) {

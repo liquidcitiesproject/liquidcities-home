@@ -312,3 +312,14 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
   .arch-list { display: none; }
   .arch-grid { grid-template-columns: repeat(2, 1fr); padding: 20px 18px 90px; }
 }
+
+/* ---- Manifesto: 항목별 필드 (가로선 구분, 본문 굵기 + 타이틀 크기) ---- */
+.mani-list { padding: 4px 0 70px; }
+.mani-item { display: flex; gap: 26px; padding: 30px 0; border-bottom: 1px solid var(--ink);
+  align-items: baseline; }
+.mani-num { flex: 0 0 auto; font-size: 26px; font-weight: 500; }
+.mani-text { font-size: 26px; font-weight: 400; line-height: 1.5; margin: 0; max-width: 980px; }
+@media (max-width: 640px) {
+  .mani-item { gap: 14px; padding: 22px 0; }
+  .mani-num, .mani-text { font-size: 20px; }
+}
