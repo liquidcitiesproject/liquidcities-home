@@ -83,6 +83,12 @@ body { padding-top: var(--hdrH, 96px); }
 @media (max-width: 640px) {
   .stories { display: block; height: auto; overflow: visible; }
   .story { columns: auto; height: auto; width: auto !important; padding: 24px 18px; }
+  /* 모바일 가독성: 본문·타이틀 폰트 확대 */
+  .story .story-title { font-size: 28px; }
+  .story .article-body, .story .article-body p { font-size: 16px; }
+  .story .article-body h2 { font-size: 22px; }
+  .story .article-body h3 { font-size: 18px; }
+  .story .article-body h4 { font-size: 16px; }
 }
 
 /* ---- About 현장 편집 (관리자 세션에서만 표시) ---- */
@@ -228,4 +234,6 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
   .filter-bar > :last-child { margin-right: auto; }
   .filter-link { flex: 0 0 auto; font-size: 14px; }
   .wrap { padding-left: 18px; padding-right: 18px; }
+  p { font-size: 15px; }
+  .sub { font-size: 15px; }
 }
