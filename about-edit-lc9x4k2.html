@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>About Editor — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260725e">
+<link rel="stylesheet" href="style.css?v=20260725f">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260725e"></script>
+<script src="app.js?v=20260725f"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -54,8 +54,13 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
 
 (async () => {
   const defaultBody = document.getElementById('aboutBody').innerHTML; // 정적 소개글(data-i18n 포함)
+  // 섹션 표시 순서 = 이 목록의 순서. 목록에 없는 제목은 맨 뒤에 날짜순.
   const PLACEHOLDERS = ['Background', 'Theoretical Framework', 'Methodology',
-    'Fieldwork Labs & Expansion', 'Manifesto', 'How it works'];
+    'How it works', 'Fieldwork Labs & Expansion', 'Manifesto'];
+  const orderOf = p => {
+    const i = PLACEHOLDERS.findIndex(n => n.toLowerCase() === (p.title || '').trim().toLowerCase());
+    return i === -1 ? PLACEHOLDERS.length : i;
+  };
 
   // 소개글(page) + 프로젝트 섹션 글(kind='project') 로드.
   // 섹션 순서 = postDate(created_at) 오름차순 — 관리자가 날짜로 순서를 지정한다.
@@ -63,7 +68,8 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
   async function loadData() {
     const [p, posts] = await Promise.all([loadPage(), loadPosts('project')]);
     page = p;
-    sections = posts.slice().sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    sections = posts.slice().sort((a, b) =>
+      (orderOf(a) - orderOf(b)) || (new Date(a.created_at) - new Date(b.created_at)));
   }
   await loadData();
 
