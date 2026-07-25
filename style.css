@@ -67,8 +67,13 @@ body { padding-top: var(--hdrH, 96px); }
   line-height: 1.15; margin: 0 0 6px; }
 .story .story-date { font-size: 12px; color: var(--dim); margin: 0 0 20px;
   font-family: ui-monospace, Menlo, monospace; }
-.story .article-body { font-size: 14px; line-height: 1.8; }
+.story { color: #000; } /* 스토리 텍스트는 순수 블랙 */
+.story .article-body { font-size: 14px; line-height: 1.8; color: #000; }
 .story .article-body p { margin: 0 0 14px; font-size: 14px; }
+/* 편집기 사이즈 단계 (# 크게 / ## 중간) — 전역 h2·h3(13px)가 아닌 매거진 크기로 */
+.story .article-body h2 { font-size: 20px; font-weight: 500; margin: 20px 0 8px; }
+.story .article-body h3 { font-size: 16px; font-weight: 500; margin: 16px 0 6px; }
+.story .article-body h4 { font-size: 14px; font-weight: 600; margin: 14px 0 6px; }
 .story img { max-width: 100%; display: block; margin: 12px 0; break-inside: avoid; }
 /* 모바일: 가로 읽기는 불편 — 일반 세로 스택으로 전환 */
 @media (max-width: 640px) {

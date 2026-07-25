@@ -101,7 +101,8 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       // 2) 프로젝트 섹션들 (없으면 5개 섹션명 플레이스홀더로 레이아웃 노출)
       if (sections.length) {
         for (const p of sections) {
-          html += storyHtml(pickLangTitle(p), fmtDate(p.created_at), p.cover,
+          // 날짜는 표시하지 않음 (created_at은 섹션 순서 정렬에만 사용)
+          html += storyHtml(pickLangTitle(p), null, p.cover,
             renderMarkdown(pickLangBody(p)));
         }
       } else {

@@ -131,7 +131,8 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       // 2) 프로젝트 섹션들
       for (const p of sections) {
         metas.push({ type: 'section', post: p });
-        html += storyHtml(pickLangTitle(p), fmtDate(p.created_at), p.cover,
+        // 날짜는 표시하지 않음 (created_at은 섹션 순서 정렬에만 사용)
+        html += storyHtml(pickLangTitle(p), null, p.cover,
           renderMarkdown(pickLangBody(p)));
       }
       // 3) 플레이스홀더 — 글이 하나도 없으면 모두에게 레이아웃 노출,
@@ -201,6 +202,46 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     const bodyEl = field('본문 EN (Markdown)', 'textarea', post && post.body,
       m.type === 'intro' && !post ? '저장하면 기본 소개글 대신 이 내용이 표시됩니다' : '');
     const bodyKoEl = field('본문 KO (Markdown) — 비우면 EN으로 표시', 'textarea', post && post.body_ko);
+
+    // 서식 툴바 — 마크다운을 선택 영역에 적용 (B=**볼드**, I=*이탤릭*, 사이즈=# 제목 단계)
+    function addToolbar(ta) {
+      const bar = document.createElement('div');
+      bar.style.cssText = 'display:flex; gap:6px; margin:6px 0 4px; flex-wrap:wrap';
+      const mk = (labelText, fn, css) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = labelText;
+        b.style.cssText = 'padding:3px 10px; font-size:12px;' + (css || '');
+        b.addEventListener('click', () => { fn(); ta.focus(); });
+        bar.appendChild(b);
+      };
+      // 선택 영역을 mark로 감싼다 (선택 없으면 자리표시 텍스트 삽입)
+      const wrapSel = (mark) => {
+        const s0 = ta.selectionStart, e0 = ta.selectionEnd;
+        const sel = ta.value.slice(s0, e0) || '텍스트';
+        ta.value = ta.value.slice(0, s0) + mark + sel + mark + ta.value.slice(e0);
+        ta.selectionStart = s0 + mark.length;
+        ta.selectionEnd = s0 + mark.length + sel.length;
+      };
+      // 커서가 있는 줄(들)의 크기 지정 — 줄 앞 #를 원하는 단계로 교체
+      const setSize = (prefix) => {
+        const s0 = ta.selectionStart, e0 = ta.selectionEnd, v = ta.value;
+        const ls = v.lastIndexOf('\n', s0 - 1) + 1;
+        let le = v.indexOf('\n', e0); if (le === -1) le = v.length;
+        const block = v.slice(ls, le).split('\n')
+          .map(l => prefix + l.replace(/^#{1,3}\s+/, '')).join('\n');
+        ta.value = v.slice(0, ls) + block + v.slice(le);
+        ta.selectionStart = ta.selectionEnd = ls + block.length;
+      };
+      mk('B', () => wrapSel('**'), 'font-weight:700');
+      mk('I', () => wrapSel('*'), 'font-style:italic');
+      mk('크게', () => setSize('# '));
+      mk('중간', () => setSize('## '));
+      mk('본문', () => setSize(''));
+      ta.before(bar);
+    }
+    addToolbar(bodyEl);
+    addToolbar(bodyKoEl);
 
     const st = document.createElement('div');
     st.className = 'status';
