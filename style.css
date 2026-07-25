@@ -314,12 +314,15 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
 }
 
 /* ---- Manifesto: 항목별 필드 (가로선 구분, 본문 굵기 + 타이틀 크기) ---- */
-.mani-list { padding: 4px 0 70px; }
-.mani-item { display: flex; gap: 26px; padding: 30px 0; border-bottom: 1px solid var(--ink);
+/* 구분선이 화면 끝까지 닿도록 wrap 좌우 패딩을 상쇄하고 항목 안쪽에 패딩 */
+.mani-list { padding: 4px 0 70px; margin: 0 -26px; }
+.mani-item { display: flex; gap: 26px; padding: 30px 26px; border-bottom: 1px solid var(--ink);
   align-items: baseline; }
-.mani-num { flex: 0 0 auto; font-size: 26px; font-weight: 500; }
-.mani-text { font-size: 26px; font-weight: 400; line-height: 1.5; margin: 0; max-width: 980px; }
+.mani-num, .mani-text { font-size: 26px; font-weight: 400; line-height: 1.5; } /* 번호·본문 동일 */
+.mani-num { flex: 0 0 auto; }
+.mani-text { margin: 0; max-width: 980px; }
 @media (max-width: 640px) {
-  .mani-item { gap: 14px; padding: 22px 0; }
+  .mani-list { margin: 0 -18px; }
+  .mani-item { gap: 14px; padding: 22px 18px; }
   .mani-num, .mani-text { font-size: 20px; }
 }
