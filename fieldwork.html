@@ -4,25 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fieldwork — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260726s">
+<link rel="stylesheet" href="style.css?v=20260726t">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 <header id="site-header"></header>
 
-<main class="wrap narrow article" id="fieldworkMain">
-  <p class="sub" id="fieldworkSoon"></p>
+<main id="fieldworkMain">
+  <div id="fieldList"></div>
 </main>
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260726s"></script>
+<script src="app.js?v=20260726t"></script>
 <script>
 renderHeader('fieldwork');
 applyI18n();
 
+// 필드워크 도시 목록 — 가로 선으로 구분된 행. 도시가 늘면 여기에 추가.
+const CITIES = [
+  { key: 'seoul', en: 'Seoul', ko: '서울' },
+];
+
 function draw() {
-  document.getElementById('fieldworkSoon').textContent = t('fieldworkSoon');
+  const list = document.getElementById('fieldList');
+  list.innerHTML = '';
+  CITIES.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'field-row';
+    row.textContent = (LANG === 'ko' ? c.ko : c.en);
+    list.appendChild(row);
+  });
 }
 draw();
 window._lcRerender = draw;
