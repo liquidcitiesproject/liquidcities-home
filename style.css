@@ -60,20 +60,21 @@ body { padding-top: var(--hdrH, 96px); }
    칼럼 높이 = 화면(헤더·필터바·푸터 제외)에 고정. 섹션은 한 칼럼 고정 폭이고
    긴 글은 옆으로 늘어나지 않고 섹션 안에서 세로 스크롤된다. */
 .stories { display: flex; align-items: stretch; overflow-x: auto; overflow-y: hidden;
-  height: calc(100vh - var(--hdrH, 96px) - var(--filterH, 45px) - 52px);
+  /* 푸터 라인까지 이어지도록 살짝 겹침(고정 푸터가 위를 덮음) — 세로 구분선 끊김 방지 */
+  height: calc(100vh - var(--hdrH, 96px) - var(--filterH, 45px) - 38px);
   scrollbar-width: thin; }
 .story { flex: 0 0 376px; height: 100%; overflow-y: auto;
   padding: 26px 28px 190px; scrollbar-width: thin; } /* 하단 여백 ~5cm — 끝까지 스크롤해도 숨 쉴 공간 */
 .story { background: #fff; border-right: 1px solid var(--ink); } /* 톤 교차 대신 선으로 구분 */
 .story:last-child { border-right: none; }
-.story .story-title { font-size: 26px; font-weight: 500; letter-spacing: -0.01em;
+.story .story-title { font-size: 16px; font-weight: 500; letter-spacing: -0.01em;
   line-height: 1.15; margin: 2px 0 10px; text-align: left; white-space: nowrap; }
   /* 한 줄 고정 — 긴 타이틀은 JS가 폰트를 줄여 맞춤 → 본문 시작 위치 동일 */
 .story .story-date { font-size: 12px; color: var(--dim); margin: 0 0 20px;
   font-family: ui-monospace, Menlo, monospace; }
 .story { color: #000; } /* 스토리 텍스트는 순수 블랙 */
-.story .article-body { font-size: 14px; line-height: 1.8; color: #000; }
-.story .article-body p { margin: 0 0 14px; font-size: 14px; }
+.story .article-body { font-size: 16px; line-height: 1.8; color: #000; }
+.story .article-body p { margin: 0 0 14px; font-size: 16px; }
 /* 편집기 사이즈 단계 (# 크게 / ## 중간) — 전역 h2·h3(13px)가 아닌 매거진 크기로 */
 .story .article-body h2 { font-size: 20px; font-weight: 500; margin: 20px 0 8px; }
 .story .article-body h3 { font-size: 16px; font-weight: 500; margin: 16px 0 6px; }
@@ -85,9 +86,6 @@ body { padding-top: var(--hdrH, 96px); }
   .story { columns: auto; height: auto; width: auto !important; padding: 24px 18px; }
   .story { border-right: none; border-bottom: 1px solid var(--ink); } /* 세로 스택은 가로 구분선 */
   .story:last-child { border-bottom: none; }
-  /* 모바일 가독성: 본문·타이틀 폰트 확대 */
-  .story .story-title { font-size: 28px; }
-  .story .article-body, .story .article-body p { font-size: 16px; }
   .story .article-body h2 { font-size: 22px; }
   .story .article-body h3 { font-size: 18px; }
   .story .article-body h4 { font-size: 16px; }
