@@ -242,6 +242,6 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
 }
 
 /* ---- Fieldwork: 가로 선으로 구분된 도시 목록 ---- */
-.field-row { padding: 22px 28px; font-size: 26px; font-weight: 500;
+.field-row { padding: 22px 28px; font-size: 52px; font-weight: 500;
   border-bottom: 1px solid var(--ink); }
-@media (max-width: 640px) { .field-row { padding: 18px 18px; font-size: 22px; } }
+@media (max-width: 640px) { .field-row { padding: 18px 18px; font-size: 44px; } }
