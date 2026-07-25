@@ -85,21 +85,6 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     return;
   }
 
-  // 칼럼 넘침 폭 보정 — column-fill:auto의 오버플로 칼럼이 flex 항목 폭에 반영되지
-  // 않아 다음 story와 겹칠 수 있다. 렌더/이미지 로드/리사이즈 때 실측 폭을 지정.
-  function fixStoryWidths() {
-    if (window.matchMedia('(max-width: 640px)').matches) return; // 모바일은 세로 스택
-    // 1칼럼 폭(320 + 좌우 패딩 28×2)으로 고정한 뒤, 넘침 칼럼의 실측 극단(scrollWidth)으로
-    // 폭을 확정한다. (auto 폭에서 multicol의 max-content 계산이 부정확해 과대 측정됨)
-    const ONE_COL = 320 + 28 * 2;
-    document.querySelectorAll('.story').forEach(s => {
-      if (s.classList.contains('editing')) return; // 편집 중인 칼럼은 고정 폭 유지
-      s.style.width = ONE_COL + 'px';
-      const need = s.scrollWidth;
-      s.style.width = (need > ONE_COL ? need + 28 : ONE_COL) + 'px';
-    });
-  }
-
   function storyHtml(title, dateline, cover, bodyHtml) {
     return '<article class="story">' +
       (title ? '<h2 class="story-title">' + escapeHtml(title) + '</h2>' : '') +
@@ -156,13 +141,17 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
           s.prepend(b);
         });
       }
-      fixStoryWidths();
-      body.querySelectorAll('.story img').forEach(img =>
-        img.addEventListener('load', fixStoryWidths, { once: true })); // 이미지 로드 후 폭 재계산
-      // 데스크톱: 세로 휠 → 가로 스크롤 변환 (편집 폼 위에서는 변환하지 않음)
+      // 데스크톱 휠: 커서가 있는 섹션이 세로로 더 스크롤되면 그걸 우선(기본 동작),
+      // 섹션 끝에 닿으면 가로 스크롤로 전환. 편집 폼 위에서는 변환하지 않음.
       const wrap = document.getElementById('storiesWrap');
       wrap.addEventListener('wheel', (e) => {
         if (e.target.closest && e.target.closest('.story.editing')) return;
+        const story = e.target.closest && e.target.closest('.story');
+        if (story) {
+          const canDown = story.scrollTop + story.clientHeight < story.scrollHeight - 1;
+          const canUp = story.scrollTop > 0;
+          if ((e.deltaY > 0 && canDown) || (e.deltaY < 0 && canUp)) return;
+        }
         if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { wrap.scrollLeft += e.deltaY; e.preventDefault(); }
       }, { passive: false });
     } else {
@@ -181,7 +170,6 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     if (!m || !s) return;
     const post = m.post || null;
     s.classList.add('editing');
-    s.style.width = '560px';
     s.innerHTML = '';
     const ed = document.createElement('div');
     ed.className = 'story-editor';
@@ -344,7 +332,6 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
 
   renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
   draw(currentFilter);
-  window.addEventListener('resize', () => { if (currentFilter === 'projects') fixStoryWidths(); });
 
   window._lcRerender = () => {
     renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
