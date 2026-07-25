@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727g">
+<link rel="stylesheet" href="style.css?v=20260727h">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">Liquid Cities Project</div>
 
-<script src="app.js?v=20260727g"></script>
+<script src="app.js?v=20260727h"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -106,6 +106,7 @@ function draw(filter) {
 }
 
 // ---- Archiving 목록 (Tambourine 스타일: 좌 인덱스 / 우 그리드) ----
+let _gridIO = null; // 그리드 고화질 레이지 로더 (재렌더 시 이전 옵저버 해제)
 function drawArchList(main, recs) {
   const split = document.createElement('div');
   split.className = 'arch-split';
@@ -130,6 +131,20 @@ function drawArchList(main, recs) {
     r.momentWord, r.momentWordEn, archMassName(r), r.address, archDate(r),
     r.momentThought, Array.isArray(r.emoTags) ? r.emoTags.join(' ') : ''
   ].filter(Boolean).join(' ').toLowerCase()));
+
+  // 화면에 들어온 셀부터 고화질 이미지로 교체 (썸네일 → out4)
+  if (_gridIO) _gridIO.disconnect();
+  _gridIO = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      _gridIO.unobserve(en.target);
+      const sa = en.target.dataset.sa;
+      fetchOutputUrl(sa, 'out4').then(url => {
+        const img = en.target.querySelector('img');
+        if (url && img) img.src = url;
+      });
+    });
+  }, { root: grid, rootMargin: '300px' });
 
   function renderItems(q) {
     const tokens = (q || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -159,11 +174,13 @@ function drawArchList(main, recs) {
       const cell = document.createElement('a');
       cell.className = 'arch-cell';
       cell.href = href;
+      cell.dataset.sa = r.savedAt;
       cell.addEventListener('click', (e) => { e.preventDefault(); openArchPanel(r); });
       cell.innerHTML =
         (r.massThumb ? '<img src="' + r.massThumb + '" alt="">' : '<div class="noimg"></div>') +
         '<div class="cap">' + escapeHtml(archWord(r)) + '</div>';
       grid.appendChild(cell);
+      if (r.massThumb) _gridIO.observe(cell); // 보이는 셀부터 고화질(out4)로 교체
     });
   }
   input.addEventListener('input', () => renderItems(input.value));
@@ -244,15 +261,21 @@ function buildArchDetailHtml(r) {
 }
 
 // 산출물(비공개 버킷) — 앱 뷰어와 동일하게 anon으로 내려받아 재생/표시
+const _outUrlCache = new Map(); // savedAt-kind → objectURL (재검색/재렌더 시 재다운로드 방지)
 async function fetchOutputUrl(savedAt, kind) {
+  const key = savedAt + '-' + kind;
+  if (_outUrlCache.has(key)) return _outUrlCache.get(key);
+  let url = null;
   try {
     const client = sb();
-    if (!client) return null;
-    const { data, error } = await client.storage.from('outputs')
-      .download(FEATURED_BOARD_UID + '/' + savedAt + '-' + kind);
-    if (error || !data) return null;
-    return URL.createObjectURL(data);
-  } catch (e) { return null; }
+    if (client) {
+      const { data, error } = await client.storage.from('outputs')
+        .download(FEATURED_BOARD_UID + '/' + savedAt + '-' + kind);
+      if (!error && data) url = URL.createObjectURL(data);
+    }
+  } catch (e) {}
+  _outUrlCache.set(key, url);
+  return url;
 }
 
 function openArchPanel(r) {
