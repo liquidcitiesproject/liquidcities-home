@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727l">
+<link rel="stylesheet" href="style.css?v=20260727m">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">Liquid Cities Project</div>
 
-<script src="app.js?v=20260727l"></script>
+<script src="app.js?v=20260727m"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -62,6 +62,17 @@ function archRecs() {
     new Date(a.mediaDate || a.savedAt) - new Date(b.mediaDate || b.savedAt));
 }
 
+let _howtoCache;
+async function loadHowto() {
+  if (_howtoCache === undefined) {
+    try {
+      const posts = await loadPosts('project');
+      _howtoCache = posts.find(x => (x.title || '').trim().toLowerCase() === 'methodology') || null;
+    } catch (e) { _howtoCache = null; }
+  }
+  return _howtoCache;
+}
+
 function draw(filter) {
   currentFilter = filter;
   closeArchPanel(true);
@@ -71,8 +82,26 @@ function draw(filter) {
   document.body.classList.remove('proj-map');
   main.innerHTML = '';
 
-  if (filter === 'howto' || filter === 'insight') {
-    // How to? / Insight — 콘텐츠는 추후
+  if (filter === 'howto') {
+    // How to? — About에서 이동해 온 Methodology 글 (kind='project', 제목 Methodology)
+    main.className = '';
+    main.innerHTML = '';
+    loadHowto().then(p => {
+      if (currentFilter !== 'howto') return;
+      if (!p) {
+        main.className = 'wrap narrow';
+        main.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
+        return;
+      }
+      main.innerHTML = '<div class="stories"><article class="story">' +
+        '<h2 class="story-title">' + escapeHtml(pickLangTitle(p)) + '</h2>' +
+        (p.cover ? '<img src="' + escapeHtml(p.cover) + '">' : '') +
+        '<div class="article-body">' + renderMarkdown(pickLangBody(p)) + '</div></article></div>';
+    });
+    return;
+  }
+  if (filter === 'insight') {
+    // Insight — 콘텐츠는 추후
     main.className = 'wrap narrow';
     main.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
     return;
