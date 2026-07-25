@@ -53,29 +53,12 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
 
 (async () => {
   const defaultBody = document.getElementById('aboutBody').innerHTML; // 정적 소개글(data-i18n 포함)
-  const PLACEHOLDERS = ['Background', 'Theoretical Framework', 'Methodology',
-    'Fieldwork Labs & Expansion', 'Manifesto'];
-
   // 소개글(page) + 프로젝트 섹션 글(kind='project') 로드.
   // 섹션 순서 = postDate(created_at) 오름차순 — 관리자가 날짜로 순서를 지정한다.
-  let page = null, sections = [];
-  async function loadData() {
-    const [p, posts] = await Promise.all([loadPage(), loadPosts('project')]);
-    page = p;
-    sections = posts.slice().sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-  }
-  await loadData();
-
-  // 관리자 세션 — manage 페이지에서 로그인해 두면 같은 브라우저에서 감지된다.
-  // 세션이 있으면 각 칼럼에 ✎ Edit 버튼을 붙여 이 화면에서 바로 쓰고 저장한다.
-  let adminUid = null;
-  try {
-    const client = sb();
-    if (client) {
-      const { data } = await client.auth.getSession();
-      adminUid = data && data.session ? data.session.user.id : null;
-    }
-  } catch (e) {}
+  const [page, projectPosts] = await Promise.all([loadPage(), loadPosts('project')]);
+  const sections = projectPosts.slice().sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  const PLACEHOLDERS = ['Background', 'Theoretical Framework', 'Methodology',
+    'Fieldwork Labs & Expansion', 'Manifesto'];
 
   // 칼럼 넘침 폭 보정 — column-fill:auto의 오버플로 칼럼이 flex 항목 폭에 반영되지
   // 않아 다음 story와 겹칠 수 있다. 렌더/이미지 로드/리사이즈 때 실측 폭을 지정.
@@ -85,7 +68,6 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     // 폭을 확정한다. (auto 폭에서 multicol의 max-content 계산이 부정확해 과대 측정됨)
     const ONE_COL = 320 + 28 * 2;
     document.querySelectorAll('.story').forEach(s => {
-      if (s.classList.contains('editing')) return; // 편집 중인 칼럼은 고정 폭 유지
       s.style.width = ONE_COL + 'px';
       const need = s.scrollWidth;
       s.style.width = (need > ONE_COL ? need + 28 : ONE_COL) + 'px';
@@ -101,8 +83,6 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       '</article>';
   }
 
-  let metas = []; // 화면의 story 순서와 1:1 — 현장 편집이 어떤 글을 저장할지 여기서 찾는다
-
   function draw(filter) {
     currentFilter = filter;
     const main = document.getElementById('aboutMain');
@@ -110,50 +90,33 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     if (filter === 'projects') {
       // 가로 읽기 매거진 — narrow wrap 해제(풀폭), 세로 스크롤 없음
       main.className = '';
-      metas = [];
       let html = '';
       // 1) 소개글 = 첫 칼럼 그룹
-      metas.push({ type: 'intro', post: page });
       if (page) {
         html += storyHtml(pickLangTitle(page) || 'About', null, page.cover,
           renderMarkdown(pickLangBody(page)));
       } else {
         html += '<article class="story">' + defaultBody + '</article>';
       }
-      // 2) 프로젝트 섹션들
-      for (const p of sections) {
-        metas.push({ type: 'section', post: p });
-        html += storyHtml(pickLangTitle(p), fmtDate(p.created_at), p.cover,
-          renderMarkdown(pickLangBody(p)));
-      }
-      // 3) 플레이스홀더 — 글이 하나도 없으면 모두에게 레이아웃 노출,
-      //    일부만 있으면 아직 안 쓴 섹션을 관리자에게만 노출(이어서 쓰도록)
-      const remaining = PLACEHOLDERS.filter(name =>
-        !sections.some(p => (p.title || '').trim().toLowerCase() === name.toLowerCase()));
-      const showPh = sections.length ? (adminUid ? remaining : []) : PLACEHOLDERS;
-      for (const name of showPh) {
-        metas.push({ type: 'placeholder', name, index: PLACEHOLDERS.indexOf(name) });
-        html += storyHtml(name, t('projComingSoon'), null, null);
+      // 2) 프로젝트 섹션들 (없으면 5개 섹션명 플레이스홀더로 레이아웃 노출)
+      if (sections.length) {
+        for (const p of sections) {
+          html += storyHtml(pickLangTitle(p), fmtDate(p.created_at), p.cover,
+            renderMarkdown(pickLangBody(p)));
+        }
+      } else {
+        for (const name of PLACEHOLDERS) {
+          html += storyHtml(name, t('projComingSoon'), null, null);
+        }
       }
       body.innerHTML = '<div class="stories" id="storiesWrap">' + html + '</div>';
       if (!page) applyI18n(body); // 정적 소개글 다국어
-      // 관리자: 각 칼럼에 ✎ Edit 버튼
-      if (adminUid) {
-        body.querySelectorAll('.story').forEach((s, i) => {
-          const b = document.createElement('button');
-          b.className = 'story-edit';
-          b.textContent = '✎ Edit';
-          b.addEventListener('click', () => openEditor(i));
-          s.prepend(b);
-        });
-      }
       fixStoryWidths();
       body.querySelectorAll('.story img').forEach(img =>
         img.addEventListener('load', fixStoryWidths, { once: true })); // 이미지 로드 후 폭 재계산
-      // 데스크톱: 세로 휠 → 가로 스크롤 변환 (편집 폼 위에서는 변환하지 않음)
+      // 데스크톱: 세로 휠 → 가로 스크롤 변환
       const wrap = document.getElementById('storiesWrap');
       wrap.addEventListener('wheel', (e) => {
-        if (e.target.closest && e.target.closest('.story.editing')) return;
         if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { wrap.scrollLeft += e.deltaY; e.preventDefault(); }
       }, { passive: false });
     } else {
@@ -161,130 +124,6 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       main.className = 'wrap narrow article';
       body.innerHTML = '<p class="sub">' + t('researchSoon') + '</p>';
     }
-  }
-
-  // ---- 현장 편집 (관리자 전용) ----
-  // 칼럼을 그 자리에서 편집 폼으로 바꾸고, 저장하면 posts에 반영 후 다시 그린다.
-  // 플레이스홀더 저장 = kind='project' 새 글 생성, 순서(created_at)는 섹션 인덱스로 자동 지정.
-  function openEditor(i) {
-    const m = metas[i];
-    const s = document.querySelectorAll('#aboutBody .story')[i];
-    if (!m || !s) return;
-    const post = m.post || null;
-    s.classList.add('editing');
-    s.style.width = '560px';
-    s.innerHTML = '';
-    const ed = document.createElement('div');
-    ed.className = 'story-editor';
-
-    function field(labelText, tag, value, placeholder) {
-      const l = document.createElement('label');
-      l.textContent = labelText;
-      const el = document.createElement(tag === 'textarea' ? 'textarea' : 'input');
-      el.value = value || '';
-      if (placeholder) el.placeholder = placeholder;
-      ed.appendChild(l); ed.appendChild(el);
-      return el;
-    }
-    const titleEl = field('Title (EN)', 'input',
-      post ? post.title : (m.type === 'placeholder' ? m.name : 'About'));
-    const titleKoEl = field('제목 (KO) — 비우면 EN으로 표시', 'input', post && post.title_ko);
-    const coverEl = field('Cover 이미지 URL (선택)', 'input', post && post.cover);
-    const bodyEl = field('본문 EN (Markdown)', 'textarea', post && post.body,
-      m.type === 'intro' && !post ? '저장하면 기본 소개글 대신 이 내용이 표시됩니다' : '');
-    const bodyKoEl = field('본문 KO (Markdown) — 비우면 EN으로 표시', 'textarea', post && post.body_ko);
-
-    const st = document.createElement('div');
-    st.className = 'status';
-
-    // 이미지: 커버 업로드 / 본문 커서 위치에 삽입 (Storage 'blog-images' 공개 버킷)
-    async function uploadImage(file) {
-      const client = sb();
-      st.textContent = '이미지 업로드 중…';
-      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const path = Date.now() + '-' + safe;
-      const { error } = await client.storage.from('blog-images').upload(path, file, {
-        upsert: false, contentType: file.type || 'image/jpeg',
-      });
-      if (error) { st.textContent = '업로드 실패 — ' + error.message; return null; }
-      st.textContent = '';
-      return client.storage.from('blog-images').getPublicUrl(path).data.publicUrl;
-    }
-    function fileBtn(text, onFile) {
-      const lab = document.createElement('label');
-      lab.className = 'btn secondary';
-      lab.style.cssText = 'flex:0 0 auto; font-size:12px; padding:6px 12px; text-align:center';
-      lab.textContent = text;
-      const inp = document.createElement('input');
-      inp.type = 'file'; inp.accept = 'image/*'; inp.style.display = 'none';
-      inp.addEventListener('change', async (e) => {
-        const f = e.target.files[0];
-        if (f) await onFile(f);
-        e.target.value = '';
-      });
-      lab.appendChild(inp);
-      return lab;
-    }
-    const upRow = document.createElement('div');
-    upRow.style.cssText = 'display:flex; gap:8px; margin-top:10px; flex-wrap:wrap';
-    upRow.appendChild(fileBtn('커버 업로드', async (f) => {
-      const url = await uploadImage(f);
-      if (url) coverEl.value = url;
-    }));
-    upRow.appendChild(fileBtn('본문에 이미지 삽입', async (f) => {
-      const url = await uploadImage(f);
-      if (url) {
-        const pos = bodyEl.selectionStart || bodyEl.value.length;
-        bodyEl.value = bodyEl.value.slice(0, pos) + '\n![](' + url + ')\n' + bodyEl.value.slice(pos);
-      }
-    }));
-    ed.appendChild(upRow);
-
-    const btnRow = document.createElement('div');
-    btnRow.style.cssText = 'display:flex; gap:10px; margin-top:14px';
-    const saveBtn = document.createElement('button');
-    saveBtn.textContent = '저장';
-    const cancelBtn = document.createElement('button');
-    cancelBtn.className = 'secondary';
-    cancelBtn.textContent = '취소';
-    btnRow.appendChild(saveBtn); btnRow.appendChild(cancelBtn);
-    ed.appendChild(btnRow); ed.appendChild(st);
-    s.appendChild(ed);
-
-    cancelBtn.addEventListener('click', () => draw('projects'));
-    saveBtn.addEventListener('click', async () => {
-      const client = sb();
-      if (!client) { st.textContent = '연결 없음'; return; }
-      st.textContent = '저장 중…';
-      const row = {
-        title: titleEl.value.trim() || (m.type === 'placeholder' ? m.name : 'About'),
-        title_ko: titleKoEl.value.trim() || null,
-        body: bodyEl.value,
-        body_ko: bodyKoEl.value.trim() || null,
-        cover: coverEl.value.trim() || null,
-        updated_at: new Date().toISOString(),
-      };
-      try {
-        let error;
-        if (post && post.id) {
-          ({ error } = await client.from('posts').update(row).eq('id', post.id));
-        } else {
-          row.author_id = adminUid;
-          row.published = true;
-          if (m.type === 'placeholder') {
-            row.kind = 'project';
-            // 순서 자동 지정 — 섹션 인덱스를 날짜(1월 1일+i)로 변환 (오름차순 정렬 기준)
-            row.created_at = new Date(Date.UTC(2026, 0, 1 + m.index, 12)).toISOString();
-          } else {
-            row.kind = 'page';
-          }
-          ({ error } = await client.from('posts').insert(row));
-        }
-        if (error) throw error;
-        await loadData();
-        draw('projects');
-      } catch (e) { st.textContent = '저장 실패 — ' + (e.message || e); }
-    });
   }
 
   function onSelect(key) {
