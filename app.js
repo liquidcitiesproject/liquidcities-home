@@ -21,7 +21,7 @@ function sb() {
 const I18N = {
   // 헤더/메뉴 — 새 상위 메뉴(라벨은 KO에서도 영어 유지)
   navAbout:    { en: 'About',         ko: 'About' },
-  navProjects: { en: 'Autoethnographic', ko: 'Autoethnographic' },
+  navProjects: { en: 'Research',      ko: 'Research' },
   navFieldwork:{ en: 'Fieldwork',     ko: 'Fieldwork' },
   fieldworkSoon:{ en: 'Fieldwork — coming soon.', ko: 'Fieldwork — 준비 중입니다.' },
   navContact:  { en: 'Contact',       ko: 'Contact' },
@@ -36,6 +36,8 @@ const I18N = {
   // Projects 페이지 (필터 라벨은 영어 유지)
   pfAll:          { en: 'All',           ko: 'All' },
   pfExhibitions:  { en: 'Archiving', ko: 'Archiving' },
+  pfHowTo:        { en: 'How to?',   ko: 'How to?' },
+  pfInsight:      { en: 'Insight',   ko: 'Insight' },
   pfEmotionalMap: { en: 'Emotional map', ko: 'Emotional map' },
   pfVol1:         { en: 'Vol.1',         ko: 'Vol.1' },
   projComingSoon: { en: 'Coming soon.',  ko: '준비 중입니다.' },

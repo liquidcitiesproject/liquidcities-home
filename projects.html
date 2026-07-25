@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727k">
+<link rel="stylesheet" href="style.css?v=20260727l">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,15 +15,17 @@
 
 <div class="footer" id="projFooter">Liquid Cities Project</div>
 
-<script src="app.js?v=20260727k"></script>
+<script src="app.js?v=20260727l"></script>
 <script>
 renderHeader('projects');
 applyI18n();
 
 // Projects 하위 필터: 전시(Exhibitions) / Emotional map (전시 우선)
 const FILTERS = [
+  { key: 'howto',         i18n: 'pfHowTo' },
   { key: 'exhibitions',   i18n: 'pfExhibitions' },
   { key: 'emotional-map', i18n: 'pfEmotionalMap' },
+  { key: 'insight',       i18n: 'pfInsight' },
 ];
 let currentFilter = new URLSearchParams(location.search).get('filter') || 'exhibitions';
 if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'exhibitions';
@@ -69,6 +71,12 @@ function draw(filter) {
   document.body.classList.remove('proj-map');
   main.innerHTML = '';
 
+  if (filter === 'howto' || filter === 'insight') {
+    // How to? / Insight — 콘텐츠는 추후
+    main.className = 'wrap narrow';
+    main.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
+    return;
+  }
   if (filter === 'emotional-map') {
     if (FEATURED_BOARD_UID) {
       document.body.classList.add('proj-map'); // 푸터 숨김(전체화면 iframe)
