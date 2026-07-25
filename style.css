@@ -9,7 +9,7 @@ html, body {
   margin: 0; padding: 0; background: var(--bg); color: var(--ink);
   /* 영문은 Helvetica 계열, 한글 글리프는 Noto Sans KR로 폴백 */
   font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans KR", sans-serif;
-  font-weight: 300; -webkit-font-smoothing: antialiased;
+  font-weight: 400; -webkit-font-smoothing: antialiased;
 }
 a { color: inherit; }
 
@@ -102,10 +102,8 @@ body { padding-top: var(--hdrH, 96px); }
 .narrow { max-width: 680px; }
 h1 { font-size: 13px; font-weight: 500; letter-spacing: 0; margin: 0 0 8px; }
 h2 { font-size: 13px; font-weight: 500; margin: 30px 0 8px; }
-.sub { color: var(--dim); font-size: 13px; font-weight: 300; margin: 0 0 24px; line-height: 1.6; }
-p { font-size: 13px; font-weight: 300; line-height: 1.75; }
-/* 한국어 모드: 본문 굵기 400 (Noto Sans KR 300은 가늘어서) — 영문 모드는 300 유지 */
-html[lang="ko"] body, html[lang="ko"] p, html[lang="ko"] .sub { font-weight: 400; }
+.sub { color: var(--dim); font-size: 13px; font-weight: 400; margin: 0 0 24px; line-height: 1.6; }
+p { font-size: 13px; font-weight: 400; line-height: 1.75; }
 .caption { font-size: 11px; color: var(--dim); }
 
 button, .btn {
