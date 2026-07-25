@@ -53,6 +53,28 @@ body { padding-top: var(--hdrH, 96px); }
 .filter-bar::-webkit-scrollbar { display: none; }
 .filter-bar { scrollbar-width: none; }
 
+/* ---- About>Projects: 가로 읽기 매거진 (Untold Stories 스타일) ----
+   칼럼 높이 = 화면(헤더·필터바·푸터 제외)에 고정. 긴 글은 아래로 넘치지 않고
+   CSS multi-column으로 다음 칼럼에 흘러간다(신문 조판식). 세로 스크롤 없음. */
+.stories { display: flex; align-items: stretch; overflow-x: auto; overflow-y: hidden;
+  height: calc(100vh - var(--hdrH, 96px) - var(--filterH, 45px) - 52px);
+  scrollbar-width: thin; }
+.story { flex: 0 0 auto; height: 100%; columns: 320px; column-gap: 28px;
+  column-fill: auto; padding: 26px 28px; }
+.story:nth-child(even) { background: var(--panel); } /* 레퍼런스의 칼럼 톤 교차 */
+.story .story-title { font-size: 26px; font-weight: 500; letter-spacing: -0.01em;
+  line-height: 1.15; margin: 0 0 6px; }
+.story .story-date { font-size: 12px; color: var(--dim); margin: 0 0 20px;
+  font-family: ui-monospace, Menlo, monospace; }
+.story .article-body { font-size: 14px; line-height: 1.8; }
+.story .article-body p { margin: 0 0 14px; font-size: 14px; }
+.story img { max-width: 100%; display: block; margin: 12px 0; break-inside: avoid; }
+/* 모바일: 가로 읽기는 불편 — 일반 세로 스택으로 전환 */
+@media (max-width: 640px) {
+  .stories { display: block; height: auto; overflow: visible; }
+  .story { columns: auto; height: auto; width: auto !important; padding: 24px 18px; }
+}
+
 /* Projects의 감정맵 iframe — 헤더 + 필터 바 아래 화면을 채움
    (map.html의 .map-frame과 달리 헤더/필터 바를 남긴다) */
 .map-frame-inline { position: fixed; left: 0; right: 0; bottom: 0;
