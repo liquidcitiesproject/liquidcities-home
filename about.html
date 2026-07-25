@@ -9,6 +9,7 @@
 </head>
 <body>
 <header id="site-header"></header>
+<div id="filter-bar"></div>
 
 <main class="wrap narrow article" id="aboutMain">
   <!-- admin에서 편집한 About(kind='page')이 있으면 그걸, 없으면 아래 기본 소개글 -->
@@ -38,10 +39,21 @@
 <script>
 renderHeader('about');
 applyI18n();
+
+// About 2행 필터 — 처음부터 노출 (About / Projects / Researcher)
+const FILTERS = [
+  { key: 'about',      i18n: 'afAbout' },
+  { key: 'projects',   i18n: 'afProjects' },
+  { key: 'researcher', i18n: 'afResearcher' },
+];
+let currentFilter = new URLSearchParams(location.search).get('filter') || 'about';
+if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'about';
+
 (async () => {
   const page = await loadPage();
   const defaultBody = document.getElementById('aboutBody').innerHTML; // 정적 소개글(data-i18n 포함)
-  function draw() {
+
+  function drawAbout() {
     const body = document.getElementById('aboutBody');
     if (page) {
       const title = pickLangTitle(page);
@@ -55,8 +67,35 @@ applyI18n();
       applyI18n(body); // 정적 소개글을 현재 언어로
     }
   }
-  draw();
-  window._lcRerender = draw; // 언어 전환 시 다시 그림
+
+  function draw(filter) {
+    currentFilter = filter;
+    const body = document.getElementById('aboutBody');
+    if (filter === 'about') {
+      drawAbout();
+    } else if (filter === 'projects') {
+      // Projects는 별도 페이지가 있으므로 그리로 안내
+      body.innerHTML =
+        '<p class="sub">' + t('afProjects') + '</p>' +
+        '<p><a href="projects" style="text-decoration:underline; text-underline-offset:3px">' + t('afProjects') + ' →</a></p>';
+    } else if (filter === 'researcher') {
+      body.innerHTML = '<p class="sub">' + t('researcherSoon') + '</p>';
+    }
+  }
+
+  function onSelect(key) {
+    history.replaceState(null, '', 'about' + (key !== 'about' ? '?filter=' + key : ''));
+    renderFilterBar('filter-bar', FILTERS, key, onSelect);
+    draw(key);
+  }
+
+  renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
+  draw(currentFilter);
+
+  window._lcRerender = () => {
+    renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
+    draw(currentFilter);
+  };
 })();
 </script>
 </body>

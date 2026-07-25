@@ -21,14 +21,14 @@ body { padding-top: var(--hdrH, 96px); }
 .hdr-row { width: 100%; margin: 0; padding: 14px 20px; display: flex;
   justify-content: space-between; align-items: center; }
 /* 1행: 검정 배경 바 (로고 좌 · 언어토글 우). 로고 굵기 400(marazuest) */
-.hdr-top { background: #000; color: #fff; font-weight: 400; font-size: 14px; }
+.hdr-top { background: #000; color: #fff; font-weight: 500; font-size: 14px; }
 .hdr-top a { color: #fff; }
 .hdr-brand { flex: 0 0 auto; }
 /* 2행: 메뉴 — 흰 배경, 중앙 정렬, 간격 18px, 아래 라인. (상하 여백은 .hdr-row 14px) */
 .hdr-menu { justify-content: center; gap: 18px;
-  border-bottom: 1px solid var(--line); }
+  border-bottom: 1px solid var(--ink); }
 /* 기본은 밑줄 없음, 선택된(active) 항목만 밑줄 (marazuest 방식). 색은 블랙, 14px */
-.hdr-link { flex: 0 0 auto; font-weight: 400; font-size: 14px; cursor: pointer;
+.hdr-link { flex: 0 0 auto; font-weight: 500; font-size: 14px; cursor: pointer;
   color: var(--ink); text-decoration: none; text-underline-offset: 3px; }
 .hdr-link:hover { opacity: 0.6; }
 .hdr-link.active { text-decoration: underline; }
@@ -43,21 +43,15 @@ body { padding-top: var(--hdrH, 96px); }
 /* ---- 상단 필터 바 (marazuest식) — 헤더 바로 아래 sticky ---- */
 /* 필터 바도 marazuest처럼 중앙 정렬 (간격 15px). 상하 여백은 검정 바와 동일(14px) */
 .filter-bar { display: flex; justify-content: center; gap: 15px; padding: 14px 20px;
-  border-bottom: 1px solid var(--line); background: var(--bg);
+  border-bottom: 1px solid var(--ink); background: var(--bg);
   position: sticky; top: var(--hdrH, 96px); z-index: 900; font-size: 14px; }
 /* 링크는 모두 블랙, 선택된 항목만 밑줄로 구분 */
-.filter-link { color: var(--ink); text-decoration: none; cursor: pointer;
+.filter-link { color: var(--ink); text-decoration: none; cursor: pointer; font-weight: 500;
   white-space: nowrap; text-underline-offset: 3px; }
 .filter-link:hover { opacity: 0.7; }
 .filter-link.active { color: var(--ink); text-decoration: underline; }
 .filter-bar::-webkit-scrollbar { display: none; }
 .filter-bar { scrollbar-width: none; }
-
-/* 3행 세부 태그 바 — 필터 바 바로 아래 sticky. renderFilterBar가 .filter-bar
-   클래스를 붙이므로, #tag-bar로 top 오프셋만 필터 바 높이만큼 더 내린다. */
-#tag-bar { top: calc(var(--hdrH, 96px) + var(--filterH, 45px)); z-index: 890;
-  gap: 14px; }
-#tag-bar .filter-link { font-size: 13px; }
 
 /* Projects의 감정맵 iframe — 헤더 + 필터 바 아래 화면을 채움
    (map.html의 .map-frame과 달리 헤더/필터 바를 남긴다) */

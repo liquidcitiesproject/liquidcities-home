@@ -36,11 +36,6 @@ const I18N = {
   pfEmotionalMap: { en: 'Emotional map', ko: 'Emotional map' },
   pfVol1:         { en: 'Vol.1',         ko: 'Vol.1' },
   projComingSoon: { en: 'Coming soon.',  ko: '준비 중입니다.' },
-  // Projects 3행 세부 분류(예시 태그 — 추후 실제 분류로 교체)
-  ptSolo:         { en: 'Solo',          ko: 'Solo' },
-  ptGroup:        { en: 'Group',         ko: 'Group' },
-  ptCollab:       { en: 'Collaboration', ko: 'Collaboration' },
-  ptResidency:    { en: 'Residency',     ko: 'Residency' },
   // Making Spaces 페이지 (필터 라벨은 영어 유지)
   wfAll:      { en: 'All',      ko: 'All' },
   wfEssays:   { en: 'Essays',   ko: 'Essays' },
@@ -71,6 +66,11 @@ const I18N = {
   aboutP2:    { en: "In the app, you search for a building, confirm its real 3D mass, and map a photo or a short video of a moment onto it. Each mapped moment becomes a node on a shared map — a board, a flat map, or a rotating globe — where your city meets everyone else's.",
                 ko: '앱에서 건물을 검색하고, 실제 3D 형태를 확인한 뒤, 어떤 순간의 사진이나 짧은 영상을 그 위에 매핑합니다. 매핑된 순간은 공유 지도의 노드가 됩니다 — 보드, 평면 지도, 또는 회전하는 지구본 위에서 당신의 도시가 모두의 도시와 만납니다.' },
   openApp:    { en: 'Open the app →', ko: '앱 열기 →' },
+  // About 페이지 2행 필터
+  afAbout:      { en: 'About',      ko: 'About' },
+  afProjects:   { en: 'Projects',   ko: 'Projects' },
+  afResearcher: { en: 'Researcher', ko: 'Researcher' },
+  researcherSoon: { en: 'Researcher — coming soon.', ko: 'Researcher — 준비 중입니다.' },
   // blog
   blogTitle:  { en: 'Blog', ko: '블로그' },
   blogSub:    { en: 'Notes and updates from the project.', ko: '프로젝트의 기록과 소식.' },
