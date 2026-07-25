@@ -203,7 +203,7 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.7; }
 .err { color: #c0392b; font-size: 13px; margin-top: 12px; }
 /* 항상 화면 하단에 고정 */
 .footer { position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; background: var(--bg);
-  padding: 12px 26px; border-top: 1px solid var(--line); font-size: 11px; color: var(--dim); }
+  padding: 12px 26px; border-top: 1px solid var(--ink); font-size: 11px; color: var(--dim); }
 /* 고정 푸터에 콘텐츠가 가리지 않게 하단 여백 */
 body { padding-bottom: 52px; }
 /* 맵(iframe 풀스크린) 페이지는 푸터 숨김 */
