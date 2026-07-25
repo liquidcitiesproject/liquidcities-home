@@ -14,29 +14,27 @@ a { color: inherit; }
 /* ---- 공통 헤더 (marazuest 3단: 1행 로고+언어(검정) / 2행 메뉴 / 3행 필터) ----
    항상 화면 상단에 고정 */
 .hdr { width: 100%; background: var(--bg); position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-  font-size: 13px; color: rgba(0,0,0,0.75); }
+  font-size: 14px; color: rgba(0,0,0,0.75); }
 /* 고정 헤더 높이만큼 본문을 아래로 밀기 (JS가 --hdrH 설정) */
 body { padding-top: var(--hdrH, 96px); }
-.hdr-row { width: 100%; margin: 0; padding: 9px 26px; display: flex;
+/* marazuest: 좌우 여백 20px, 상하 14px */
+.hdr-row { width: 100%; margin: 0; padding: 14px 20px; display: flex;
   justify-content: space-between; align-items: center; }
-/* 1행: 검정 배경 바 (로고 좌 · 언어토글 우) — marazuest처럼 상하 여백 넉넉히 */
-.hdr-top { background: #000; color: #fff; font-weight: 500; font-size: 13px;
-  padding-top: 14px; padding-bottom: 14px; }
+/* 1행: 검정 배경 바 (로고 좌 · 언어토글 우). 로고 굵기 400(marazuest) */
+.hdr-top { background: #000; color: #fff; font-weight: 400; font-size: 14px; }
 .hdr-top a { color: #fff; }
 .hdr-brand { flex: 0 0 auto; }
-/* 2행: 메뉴 — 흰 배경, 중앙 정렬, 간격 18px, 아래 라인.
-   상하 여백은 검정 바와 동일(14px)로 통일 */
+/* 2행: 메뉴 — 흰 배경, 중앙 정렬, 간격 18px, 아래 라인. (상하 여백은 .hdr-row 14px) */
 .hdr-menu { justify-content: center; gap: 18px;
-  padding-top: 14px; padding-bottom: 14px;
   border-bottom: 1px solid var(--line); }
-/* 기본은 밑줄 없음, 선택된(active) 항목만 밑줄 (marazuest 방식). 색은 블랙 */
-.hdr-link { flex: 0 0 auto; font-weight: 400; font-size: 13px; cursor: pointer;
+/* 기본은 밑줄 없음, 선택된(active) 항목만 밑줄 (marazuest 방식). 색은 블랙, 14px */
+.hdr-link { flex: 0 0 auto; font-weight: 400; font-size: 14px; cursor: pointer;
   color: var(--ink); text-decoration: none; text-underline-offset: 3px; }
 .hdr-link:hover { opacity: 0.6; }
 .hdr-link.active { text-decoration: underline; }
-/* 우측 언어 토글 (검정 바 안 — 흰색 계열) */
+/* 우측 언어 토글 (검정 바 안 — 흰색 계열, 14px) */
 .hdr-right { display: flex; align-items: center; gap: 14px; }
-.hdr-lang { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
+.hdr-lang { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
 .hdr-lang .lang-btn { text-decoration: none; color: rgba(255,255,255,0.5); cursor: pointer; }
 .hdr-lang .lang-btn:hover { opacity: 0.8; }
 .hdr-lang .lang-btn.active { color: #fff; font-weight: 600; }
@@ -44,9 +42,9 @@ body { padding-top: var(--hdrH, 96px); }
 
 /* ---- 상단 필터 바 (marazuest식) — 헤더 바로 아래 sticky ---- */
 /* 필터 바도 marazuest처럼 중앙 정렬 (간격 15px). 상하 여백은 검정 바와 동일(14px) */
-.filter-bar { display: flex; justify-content: center; gap: 15px; padding: 14px 26px;
+.filter-bar { display: flex; justify-content: center; gap: 15px; padding: 14px 20px;
   border-bottom: 1px solid var(--line); background: var(--bg);
-  position: sticky; top: var(--hdrH, 96px); z-index: 900; font-size: 13px; }
+  position: sticky; top: var(--hdrH, 96px); z-index: 900; font-size: 14px; }
 /* 링크는 모두 블랙, 선택된 항목만 밑줄로 구분 */
 .filter-link { color: var(--ink); text-decoration: none; cursor: pointer;
   white-space: nowrap; text-underline-offset: 3px; }
