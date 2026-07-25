@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727o">
+<link rel="stylesheet" href="style.css?v=20260727p">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">Liquid Cities Project</div>
 
-<script src="app.js?v=20260727o"></script>
+<script src="app.js?v=20260727p"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -93,10 +93,36 @@ function draw(filter) {
         main.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
         return;
       }
-      main.innerHTML = '<div class="stories"><article class="story">' +
-        '<h2 class="story-title">' + escapeHtml(pickLangTitle(p)) + '</h2>' +
-        (p.cover ? '<img src="' + escapeHtml(p.cover) + '">' : '') +
-        '<div class="article-body">' + renderMarkdown(pickLangBody(p)) + '</div></article></div>';
+      // 번호(01. 02. …) 단위로 세로 칼럼 섹션 분리 — 칼럼 타이틀은 번호, 소제목은 본문 첫 줄 볼드
+      const raw = (pickLangBody(p) || '').replace(/\r\n/g, '\n');
+      const secs = [];
+      let cur = { title: pickLangTitle(p), body: [] };
+      raw.split('\n').forEach(line => {
+        const m = line.match(/^\s*(?:#{1,3}\s*)?(?:\*\*)?\s*(\d{1,2})[.)]\s*(.+?)(?:\*\*)?\s*$/);
+        if (m && line.trim().length < 140) {
+          secs.push(cur);
+          cur = { title: m[1].padStart(2, '0'), body: ['**' + m[2] + '**'] };
+        } else cur.body.push(line);
+      });
+      secs.push(cur);
+      const html = secs
+        .filter(sec => sec.title || sec.body.join('').trim())
+        .map(sec => '<article class="story">' +
+          '<h2 class="story-title">' + escapeHtml(sec.title) + '</h2>' +
+          '<div class="article-body">' + renderMarkdown(sec.body.join('\n')) + '</div></article>')
+        .join('');
+      main.innerHTML = '<div class="stories" id="howtoStories">' + html + '</div>';
+      // 데스크톱 휠: 섹션 세로 우선, 끝나면 가로 (About 매거진과 동일)
+      const wrap = document.getElementById('howtoStories');
+      wrap.addEventListener('wheel', (e) => {
+        const story = e.target.closest && e.target.closest('.story');
+        if (story) {
+          const canDown = story.scrollTop + story.clientHeight < story.scrollHeight - 1;
+          const canUp = story.scrollTop > 0;
+          if ((e.deltaY > 0 && canDown) || (e.deltaY < 0 && canUp)) return;
+        }
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { wrap.scrollLeft += e.deltaY; e.preventDefault(); }
+      }, { passive: false });
     });
     return;
   }
