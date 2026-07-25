@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>About Editor — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260725k">
+<link rel="stylesheet" href="style.css?v=20260725l">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260725k"></script>
+<script src="app.js?v=20260725l"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -55,8 +55,8 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
 (async () => {
   const defaultBody = document.getElementById('aboutBody').innerHTML; // 정적 소개글(data-i18n 포함)
   // 섹션 표시 순서 = 이 목록의 순서. 목록에 없는 제목은 맨 뒤에 날짜순.
-  const PLACEHOLDERS = ['Background', 'Theoretical Framework', 'Methodology',
-    'How it works', 'Fieldwork Labs & Expansion', 'Manifesto'];
+  const PLACEHOLDERS = ['Background', 'Research Question', 'Theoretical Framework',
+    'Methodology', 'How it works', 'Fieldwork Labs & Expansion', 'Manifesto'];
   const orderOf = p => {
     const i = PLACEHOLDERS.findIndex(n => n.toLowerCase() === (p.title || '').trim().toLowerCase());
     return i === -1 ? PLACEHOLDERS.length : i;
