@@ -19,13 +19,34 @@ function sb() {
 /* ---- 언어(EN/KO) ---- */
 // 저장된 선택이 있으면 그것, 없으면 브라우저 언어 자동 감지(ko* → ko, 그 외 → en).
 const I18N = {
-  // 헤더/메뉴
-  navAbout:   { en: 'About',   ko: '소개' },
+  // 헤더/메뉴 — 새 상위 메뉴(라벨은 KO에서도 영어 유지)
+  navAbout:    { en: 'About',         ko: 'About' },
+  navProjects: { en: 'Projects',      ko: 'Projects' },
+  navContact:  { en: 'Contact',       ko: 'Contact' },
+  navMaking:   { en: 'Making Spaces', ko: 'Making Spaces' },
+  // (구 메뉴 라벨 — 리다이렉트 스텁 등에서 참조 가능하게 유지)
   navMap:     { en: 'Map',     ko: '지도' },
   navBlog:    { en: 'Blog',    ko: '블로그' },
   navEssays:  { en: 'Essays',  ko: '에세이' },
   edit:       { en: '✎ Edit',  ko: '✎ 편집' },
   signout:    { en: 'Sign out', ko: '로그아웃' },
+  // Projects 페이지 (필터 라벨은 영어 유지)
+  pfAll:          { en: 'All',           ko: 'All' },
+  pfExhibitions:  { en: 'Exhibitions',   ko: 'Exhibitions' },
+  pfEmotionalMap: { en: 'Emotional map', ko: 'Emotional map' },
+  pfVol1:         { en: 'Vol.1',         ko: 'Vol.1' },
+  projComingSoon: { en: 'Coming soon.',  ko: '준비 중입니다.' },
+  // Making Spaces 페이지 (필터 라벨은 영어 유지)
+  wfAll:      { en: 'All',      ko: 'All' },
+  wfEssays:   { en: 'Essays',   ko: 'Essays' },
+  wfBlog:     { en: 'Blog',     ko: 'Blog' },
+  writingsSub:{ en: 'Essays and notes from the project.',
+                ko: '프로젝트의 에세이와 기록.' },
+  // Contact 페이지
+  contactTitle: { en: 'Contact',      ko: 'Contact' },
+  contactSub:   { en: 'Get in touch.', ko: '연락 주세요.' },
+  contactEmail: { en: 'Email →',       ko: '이메일 →' },
+  contactInsta: { en: 'Instagram →',   ko: '인스타그램 →' },
   // index (홈)
   introQ:     { en: 'Where are you from?', ko: '당신은 어디에서 왔나요?' },
   outro:      { en: 'Liquid Cities.',       ko: 'Liquid Cities.' },
@@ -104,10 +125,10 @@ function pickLangBody(p) {
 function renderHeader(active) {
   // 로고(→ Liquid Cities Project)가 곧 홈 링크 — 메뉴에 별도 Home 없음
   const links = [
-    { href: 'about', i18n: 'navAbout', key: 'about' },
-    { href: 'map', i18n: 'navMap', key: 'map' },
-    { href: 'blog', i18n: 'navBlog', key: 'blog' },
-    { href: 'essays', i18n: 'navEssays', key: 'essays' },
+    { href: 'about',         i18n: 'navAbout',    key: 'about' },
+    { href: 'projects',      i18n: 'navProjects', key: 'projects' },
+    { href: 'contact',       i18n: 'navContact',  key: 'contact' },
+    { href: 'making-spaces', i18n: 'navMaking',   key: 'making-spaces' },
   ];
   const el = document.getElementById('site-header');
   if (!el) return;
@@ -141,6 +162,33 @@ function renderHeader(active) {
   });
   // 편집·로그아웃 링크는 헤더에서 제거했다 — 관리는 manage-lc9x4k2.html URL로 직접 접근.
   // (예전엔 로그인 세션이 있으면 표시했으나, 세션 잔존 시 방문자 화면에도 노출돼 제거)
+}
+
+/* ---- 공통 필터 바 (marazuest식 상단 카테고리 필터) ----
+   Projects / Making Spaces 페이지에서 헤더 바로 아래에 sticky로 붙는다.
+   hostId: 필터 바를 그릴 요소 id
+   items:  [{ key, i18n }] 배열
+   activeKey: 현재 선택된 필터 key
+   onSelect(key): 필터 클릭 시 콜백 (URL 갱신 + 콘텐츠 재렌더는 호출부 책임) */
+function renderFilterBar(hostId, items, activeKey, onSelect) {
+  const bar = document.getElementById(hostId);
+  if (!bar) return;
+  bar.className = 'filter-bar';
+  bar.innerHTML = items.map(it =>
+    `<a class="filter-link${it.key === activeKey ? ' active' : ''}" href="#" ` +
+    `data-fkey="${it.key}" data-i18n="${it.i18n}">${t(it.i18n)}</a>`
+  ).join('');
+  bar.querySelectorAll('[data-fkey]').forEach(a => {
+    a.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      const key = a.getAttribute('data-fkey');
+      if (typeof onSelect === 'function') onSelect(key);
+    });
+  });
+  // 필터 바 높이를 CSS 변수로 (Projects의 iframe top 계산용)
+  requestAnimationFrame(() => {
+    document.documentElement.style.setProperty('--filterH', bar.offsetHeight + 'px');
+  });
 }
 
 /* ---- 스크롤 등장 옵저버 ---- */

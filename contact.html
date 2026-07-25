@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — Liquid Cities Project</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<header id="site-header"></header>
+
+<main class="wrap narrow article">
+  <h1 data-i18n="contactTitle">Contact</h1>
+  <p class="sub" data-i18n="contactSub">Get in touch.</p>
+  <!-- 이메일·인스타그램 링크 (실제 주소는 추후 채움) -->
+  <p><a id="contactEmail" href="mailto:" style="text-decoration:underline; text-underline-offset:3px" data-i18n="contactEmail">Email →</a></p>
+  <p><a id="contactInsta" href="#" target="_blank" rel="noopener" style="text-decoration:underline; text-underline-offset:3px" data-i18n="contactInsta">Instagram →</a></p>
+</main>
+
+<div class="footer">Liquid Cities Project</div>
+
+<script src="app.js"></script>
+<script>
+renderHeader('contact');
+applyI18n();
+// 정적 페이지 — 언어 전환 시 data-i18n 텍스트만 갱신
+window._lcRerender = () => applyI18n();
+</script>
+</body>
+</html>

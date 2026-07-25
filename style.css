@@ -35,6 +35,24 @@ body { padding-top: var(--hdrH, 96px); }
 .hdr-lang .lang-btn.active { color: rgba(0,0,0,0.85); font-weight: 600; }
 .hdr-lang .lang-sep { color: rgba(0,0,0,0.25); }
 
+/* ---- 상단 필터 바 (marazuest식) — 헤더 바로 아래 sticky ---- */
+.filter-bar { display: flex; gap: 18px; padding: 9px 26px;
+  border-bottom: 1px solid var(--line); background: var(--bg);
+  position: sticky; top: var(--hdrH, 96px); z-index: 900; font-size: 13px; }
+.filter-link { color: var(--dim); text-decoration: none; cursor: pointer;
+  white-space: nowrap; }
+.filter-link:hover { opacity: 0.7; }
+.filter-link.active { color: var(--ink); font-weight: 500; }
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-bar { scrollbar-width: none; }
+
+/* Projects의 감정맵 iframe — 헤더 + 필터 바 아래 화면을 채움
+   (map.html의 .map-frame과 달리 헤더/필터 바를 남긴다) */
+.map-frame-inline { position: fixed; left: 0; right: 0; bottom: 0;
+  top: calc(var(--hdrH, 96px) + var(--filterH, 40px)); width: 100%;
+  height: calc(100vh - var(--hdrH, 96px) - var(--filterH, 40px));
+  border: none; display: block; }
+
 /* ---- 공통 콘텐츠 폭·타이포 ---- */
 .wrap { width: 100%; padding: 34px 26px 90px; }
 .narrow { max-width: 680px; }
@@ -135,10 +153,23 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.7; }
 body { padding-bottom: 52px; }
 /* 맵(iframe 풀스크린) 페이지는 푸터 숨김 */
 body.map-page .footer { display: none; }
+/* Projects의 emotional-map 필터(inline iframe)일 때도 푸터 숨김 */
+body.proj-map .footer { display: none; }
 /* 맵은 fixed iframe이 화면을 꽉 채우므로 body 여백 제거 (잘림 방지) */
 body.map-page { padding-top: 0; padding-bottom: 0; }
 
 @media (max-width: 600px) {
   .hero .head { font-size: 30px; }
   .photo-item { margin: 10vh 0; }
+}
+
+/* ---- 모바일: 헤더 메뉴·필터 바 가로 스크롤 (햄버거 대신 미니멀) ---- */
+@media (max-width: 640px) {
+  .hdr-row { padding: 9px 18px; }
+  .hdr-menu { gap: 16px; overflow-x: auto; white-space: nowrap;
+    scrollbar-width: none; }
+  .hdr-menu::-webkit-scrollbar { display: none; }
+  .hdr-link { flex: 0 0 auto; font-size: 12px; }
+  .filter-bar { overflow-x: auto; white-space: nowrap; padding: 9px 18px; gap: 16px; }
+  .wrap { padding-left: 18px; padding-right: 18px; }
 }

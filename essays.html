@@ -3,49 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Essays — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<meta name="robots" content="noindex">
+<!-- 구 /essays → Making Spaces의 Essays 필터로 이동 -->
+<meta http-equiv="refresh" content="0; url=making-spaces?filter=essay">
+<title>Redirecting…</title>
+<script>location.replace('making-spaces?filter=essay');</script>
 </head>
 <body>
-<header id="site-header"></header>
-
-<main class="wrap narrow">
-  <h1 data-i18n="essaysTitle">Essays</h1>
-  <p class="sub" data-i18n="essaysSub">Longer writing on cities, identity, and the moments in between.</p>
-  <div id="list"></div>
-  <div class="status" id="status"></div>
-</main>
-
-<div class="footer">Liquid Cities Project</div>
-
-<script src="app.js"></script>
-<script>
-renderHeader('essays');
-applyI18n();
-(async () => {
-  const list = document.getElementById('list');
-  const status = document.getElementById('status');
-  const posts = await loadPosts('essay');
-  function draw() {
-    list.innerHTML = '';
-    if (!posts.length) { status.textContent = t('noEssays'); return; }
-    status.textContent = '';
-    for (const p of posts) {
-      const a = document.createElement('a');
-      a.className = 'post-row';
-      a.href = 'post?id=' + encodeURIComponent(p.id);
-      const excerpt = (pickLangBody(p) || '').replace(/[#>*_`\[\]]/g, '').slice(0, 160);
-      a.innerHTML =
-        '<div class="post-title">' + escapeHtml(pickLangTitle(p)) + '</div>' +
-        '<div class="post-date">' + fmtDate(p.created_at) + '</div>' +
-        '<div class="post-excerpt">' + escapeHtml(excerpt) + '</div>';
-      list.appendChild(a);
-    }
-  }
-  draw();
-  window._lcRerender = draw;
-})();
-</script>
+<p><a href="making-spaces?filter=essay">Making Spaces → Essays</a></p>
 </body>
 </html>

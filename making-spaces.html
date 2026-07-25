@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Making Spaces — Liquid Cities Project</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<header id="site-header"></header>
+<div id="filter-bar"></div>
+
+<main class="wrap narrow">
+  <p class="sub" data-i18n="writingsSub">Essays and notes from the project.</p>
+  <div id="list"></div>
+  <div class="status" id="status"></div>
+</main>
+
+<div class="footer">Liquid Cities Project</div>
+
+<script src="app.js"></script>
+<script>
+renderHeader('making-spaces');
+applyI18n();
+
+const FILTERS = [
+  { key: 'all',   i18n: 'wfAll' },
+  { key: 'essay', i18n: 'wfEssays' },
+  { key: 'blog',  i18n: 'wfBlog' },
+];
+let currentFilter = new URLSearchParams(location.search).get('filter') || 'all';
+if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'all';
+
+let allPosts = []; // {…, kind} 병합·정렬된 전체
+
+(async () => {
+  const list = document.getElementById('list');
+  const status = document.getElementById('status');
+
+  // essay + blog 개별 로드 후 병합·정렬 (무인자 loadPosts는 About page가 섞이므로 금지)
+  const [essays, blogs] = await Promise.all([loadPosts('essay'), loadPosts('blog')]);
+  allPosts = [...essays, ...blogs]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  function draw(filter) {
+    currentFilter = filter;
+    const posts = filter === 'all' ? allPosts : allPosts.filter(p => p.kind === filter);
+    list.innerHTML = '';
+    if (!posts.length) {
+      status.textContent = filter === 'essay' ? t('noEssays') : t('noPosts');
+      return;
+    }
+    status.textContent = '';
+    for (const p of posts) {
+      const a = document.createElement('a');
+      a.className = 'post-row';
+      a.href = 'post?id=' + encodeURIComponent(p.id);
+      const excerpt = (pickLangBody(p) || '').replace(/[#>*_`\[\]]/g, '').slice(0, 160);
+      a.innerHTML =
+        '<div class="post-title">' + escapeHtml(pickLangTitle(p)) + '</div>' +
+        '<div class="post-date">' + fmtDate(p.created_at) + '</div>' +
+        '<div class="post-excerpt">' + escapeHtml(excerpt) + '</div>';
+      list.appendChild(a);
+    }
+  }
+
+  function onSelect(key) {
+    history.replaceState(null, '', 'making-spaces?filter=' + key);
+    renderFilterBar('filter-bar', FILTERS, key, onSelect);
+    draw(key);
+  }
+
+  renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
+  draw(currentFilter);
+
+  // 언어 전환 시 필터 바 라벨 + 목록 재렌더
+  window._lcRerender = () => {
+    renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
+    draw(currentFilter);
+  };
+})();
+</script>
+</body>
+</html>
