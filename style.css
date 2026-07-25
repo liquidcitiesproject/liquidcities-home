@@ -20,9 +20,10 @@ body { padding-top: var(--hdrH, 96px); }
 /* marazuest: 좌우 여백 20px, 상하 14px */
 .hdr-row { width: 100%; margin: 0; padding: 14px 20px; display: flex;
   justify-content: space-between; align-items: center; }
-/* 1행: 검정 배경 바 (로고 좌 · 언어토글 우). 로고 굵기 400(marazuest) */
-.hdr-top { background: #000; color: #fff; font-weight: 500; font-size: 14px; }
-.hdr-top a { color: #fff; }
+/* 1행: 흰 배경 바 (로고 좌 · 언어토글 우) — 아래 블랙 라인으로 구분 */
+.hdr-top { background: #fff; color: var(--ink); font-weight: 500; font-size: 14px;
+  border-bottom: 1px solid var(--ink); }
+.hdr-top a { color: var(--ink); }
 .hdr-brand { flex: 0 0 auto; }
 /* 2행: 메뉴 — 흰 배경, 중앙 정렬, 간격 18px, 아래 라인. (상하 여백은 .hdr-row 14px) */
 .hdr-menu { justify-content: center; gap: 18px;
@@ -35,10 +36,10 @@ body { padding-top: var(--hdrH, 96px); }
 /* 우측 언어 토글 (검정 바 안 — 흰색 계열, 14px) */
 .hdr-right { display: flex; align-items: center; gap: 14px; }
 .hdr-lang { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
-.hdr-lang .lang-btn { text-decoration: none; color: rgba(255,255,255,0.5); cursor: pointer; }
+.hdr-lang .lang-btn { text-decoration: none; color: var(--dim); cursor: pointer; }
 .hdr-lang .lang-btn:hover { opacity: 0.8; }
-.hdr-lang .lang-btn.active { color: #fff; font-weight: 600; }
-.hdr-lang .lang-sep { color: rgba(255,255,255,0.35); }
+.hdr-lang .lang-btn.active { color: var(--ink); font-weight: 600; }
+.hdr-lang .lang-sep { color: var(--dim); }
 
 /* ---- 상단 필터 바 (marazuest식) — 헤더 바로 아래 sticky ---- */
 /* 필터 바도 marazuest처럼 중앙 정렬 (간격 15px). 상하 여백은 검정 바와 동일(14px) */
@@ -74,6 +75,13 @@ body { padding-top: var(--hdrH, 96px); }
   .stories { display: block; height: auto; overflow: visible; }
   .story { columns: auto; height: auto; width: auto !important; padding: 24px 18px; }
 }
+
+/* ---- About 현장 편집 (관리자 세션에서만 표시) ---- */
+.story-edit { display: block; margin: 0 0 12px; padding: 4px 10px; font-size: 12px;
+  border: 1px solid var(--line); color: var(--dim); background: #fff; border-radius: 2px; }
+.story.editing { columns: auto; overflow-y: auto; } /* 편집 폼은 칼럼 없이 세로 스크롤 */
+.story-editor label { display: block; font-size: 12px; color: var(--dim); margin: 12px 0 4px; }
+.story-editor textarea { min-height: 180px; }
 
 /* Projects의 감정맵 iframe — 헤더 + 필터 바 아래 화면을 채움
    (map.html의 .map-frame과 달리 헤더/필터 바를 남긴다) */
@@ -196,12 +204,19 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
 @media (max-width: 640px) {
   /* 좌우 여백만 18px로 (상하 14px 통일은 각 요소가 유지) */
   .hdr-row { padding-left: 18px; padding-right: 18px; }
-  /* 메뉴·필터는 항목이 넘칠 때 중앙 대신 왼쪽부터 가로 스크롤 */
+  /* 메뉴·필터: 가운데 정렬 — 화면보다 넓어지면 auto 마진이 0으로 풀려
+     왼쪽부터 가로 스크롤이 된다 (center+overflow 조합의 왼쪽 잘림 회피) */
   .hdr-menu { justify-content: flex-start; gap: 16px; overflow-x: auto;
     white-space: nowrap; scrollbar-width: none; }
   .hdr-menu::-webkit-scrollbar { display: none; }
-  .hdr-link { flex: 0 0 auto; font-size: 12px; }
+  .hdr-menu > :first-child { margin-left: auto; }
+  .hdr-menu > :last-child { margin-right: auto; }
+  .hdr-link { flex: 0 0 auto; font-size: 14px; } /* 상위·하위 메뉴 폰트 동일(14px) */
   .filter-bar { justify-content: flex-start; overflow-x: auto; white-space: nowrap;
-    padding-left: 18px; padding-right: 18px; gap: 16px; }
+    padding-left: 18px; padding-right: 18px; gap: 16px; scrollbar-width: none; }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-bar > :first-child { margin-left: auto; }
+  .filter-bar > :last-child { margin-right: auto; }
+  .filter-link { flex: 0 0 auto; font-size: 14px; }
   .wrap { padding-left: 18px; padding-right: 18px; }
 }
