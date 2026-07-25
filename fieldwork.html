@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fieldwork — Liquid Cities Project</title>
+<link rel="stylesheet" href="style.css?v=20260726p">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<header id="site-header"></header>
+
+<main class="wrap narrow article" id="fieldworkMain">
+  <p class="sub" id="fieldworkSoon"></p>
+</main>
+
+<div class="footer">Liquid Cities Project</div>
+
+<script src="app.js?v=20260726p"></script>
+<script>
+renderHeader('fieldwork');
+applyI18n();
+
+function draw() {
+  document.getElementById('fieldworkSoon').textContent = t('fieldworkSoon');
+}
+draw();
+window._lcRerender = draw;
+</script>
+</body>
+</html>

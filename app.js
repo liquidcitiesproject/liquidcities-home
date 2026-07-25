@@ -22,6 +22,8 @@ const I18N = {
   // 헤더/메뉴 — 새 상위 메뉴(라벨은 KO에서도 영어 유지)
   navAbout:    { en: 'About',         ko: 'About' },
   navProjects: { en: 'Projects',      ko: 'Projects' },
+  navFieldwork:{ en: 'Fieldwork',     ko: 'Fieldwork' },
+  fieldworkSoon:{ en: 'Fieldwork — coming soon.', ko: 'Fieldwork — 준비 중입니다.' },
   navContact:  { en: 'Contact',       ko: 'Contact' },
   navMaking:   { en: 'Making Spaces', ko: 'Making Spaces' },
   navResearcher: { en: 'Researcher', ko: 'Researcher' },
@@ -135,6 +137,7 @@ function renderHeader(active) {
   const links = [
     { href: 'about',         i18n: 'navAbout',    key: 'about' },
     { href: 'projects',      i18n: 'navProjects', key: 'projects' },
+    { href: 'fieldwork',     i18n: 'navFieldwork', key: 'fieldwork' },
     { href: 'making-spaces', i18n: 'navMaking',   key: 'making-spaces' },
     { href: 'contact',       i18n: 'navContact',  key: 'contact' },
   ];
