@@ -72,8 +72,8 @@ const I18N = {
   // About 페이지 2행 필터
   afAbout:      { en: 'About',      ko: 'About' },
   afProjects:   { en: 'Projects',   ko: 'Projects' },
-  afResearch:   { en: 'Research',   ko: 'Research' },
-  researchSoon: { en: 'Research — coming soon.', ko: 'Research — 준비 중입니다.' },
+  afResearch:   { en: 'Researcher', ko: 'Researcher' },
+  researchSoon: { en: 'Researcher — coming soon.', ko: 'Researcher — 준비 중입니다.' },
   // blog
   blogTitle:  { en: 'Blog', ko: '블로그' },
   blogSub:    { en: 'Notes and updates from the project.', ko: '프로젝트의 기록과 소식.' },
