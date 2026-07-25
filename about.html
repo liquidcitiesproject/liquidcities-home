@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260725d">
+<link rel="stylesheet" href="style.css?v=20260725e">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -35,7 +35,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260725d"></script>
+<script src="app.js?v=20260725e"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -58,7 +58,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
   const [page, projectPosts] = await Promise.all([loadPage(), loadPosts('project')]);
   const sections = projectPosts.slice().sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
   const PLACEHOLDERS = ['Background', 'Theoretical Framework', 'Methodology',
-    'Fieldwork Labs & Expansion', 'Manifesto'];
+    'Fieldwork Labs & Expansion', 'Manifesto', 'How it works'];
 
   function storyHtml(title, dateline, cover, bodyHtml) {
     return '<article class="story">' +

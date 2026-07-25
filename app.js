@@ -71,7 +71,7 @@ const I18N = {
   openApp:    { en: 'Open the app →', ko: '앱 열기 →' },
   // About 페이지 2행 필터
   afAbout:      { en: 'About',      ko: 'About' },
-  afProjects:   { en: 'Projects',   ko: 'Projects' },
+  afProjects:   { en: 'Project',    ko: 'Project' },
   afResearch:   { en: 'Researcher', ko: 'Researcher' },
   researchSoon: { en: 'Researcher — coming soon.', ko: 'Researcher — 준비 중입니다.' },
   // blog
