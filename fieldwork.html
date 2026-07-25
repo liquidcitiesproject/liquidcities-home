@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fieldwork — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260726z">
+<link rel="stylesheet" href="style.css?v=20260727a">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260726z"></script>
+<script src="app.js?v=20260727a"></script>
 <script>
 renderHeader('fieldwork');
 applyI18n();
@@ -36,7 +36,8 @@ const TEASER = {
 };
 
 let cityPosts = [];
-let openKey = null; // 현재 펼쳐진 도시
+// ?city=seoul 이면 목록 대신 도시 상세 뷰
+const cityParam = new URLSearchParams(location.search).get('city');
 
 function postFor(c) {
   return cityPosts.find(p => (p.title || '').trim().toLowerCase() === c.en.toLowerCase());
@@ -44,29 +45,43 @@ function postFor(c) {
 
 function draw() {
   const list = document.getElementById('fieldList');
+  const city = CITIES.find(c => c.key === cityParam);
   list.innerHTML = '';
-  CITIES.forEach(c => {
-    const row = document.createElement('div');
-    row.className = 'field-row' + (openKey === c.key ? ' open' : '');
-    row.textContent = (LANG === 'ko' ? c.ko : c.en);
-    row.addEventListener('click', () => {
-      openKey = (openKey === c.key) ? null : c.key;
-      draw();
-    });
-    list.appendChild(row);
-    if (openKey === c.key) {
-      const body = document.createElement('div');
-      body.className = 'field-body';
-      const p = postFor(c);
-      if (p) {
-        body.innerHTML =
-          (p.cover ? '<img src="' + escapeHtml(p.cover) + '">' : '') +
-          '<div class="article-body">' + renderMarkdown(pickLangBody(p)) + '</div>';
-      } else {
-        body.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
-      }
-      list.appendChild(body);
+  if (city) {
+    // 도시 상세 페이지
+    const back = document.createElement('a');
+    back.className = 'field-back';
+    back.href = 'fieldwork';
+    back.textContent = t('back');
+    list.appendChild(back);
+    const title = document.createElement('div');
+    title.className = 'field-row';
+    title.style.cursor = 'default';
+    title.textContent = (LANG === 'ko' ? city.ko : city.en);
+    list.appendChild(title);
+    const body = document.createElement('div');
+    body.className = 'field-body';
+    const p = postFor(city);
+    if (p) {
+      body.innerHTML =
+        (p.cover ? '<img src="' + escapeHtml(p.cover) + '">' : '') +
+        '<div class="article-body">' + renderMarkdown(pickLangBody(p)) + '</div>';
+    } else {
+      body.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
     }
+    body.style.borderBottom = 'none';
+    list.appendChild(body);
+    return;
+  }
+  // 도시 목록 — 클릭하면 상세 페이지로 이동
+  CITIES.forEach(c => {
+    const row = document.createElement('a');
+    row.className = 'field-row';
+    row.href = 'fieldwork?city=' + c.key;
+    row.style.display = 'block';
+    row.style.textDecoration = 'none';
+    row.textContent = (LANG === 'ko' ? c.ko : c.en);
+    list.appendChild(row);
   });
   const tz = document.createElement('div');
   tz.className = 'field-teaser';

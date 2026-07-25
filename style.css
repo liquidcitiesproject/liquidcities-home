@@ -245,7 +245,9 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
 .field-row { padding: 26px 28px; font-size: 76px; font-weight: 400; line-height: 1.1;
   border-bottom: 1px solid var(--ink); }
 @media (max-width: 640px) { .field-row { padding: 20px 18px; font-size: 56px; } }
-.field-row { cursor: pointer; }
+.field-row { cursor: pointer; color: var(--ink); }
+.field-back { display: inline-block; margin: 20px 28px 0; font-size: 13px; color: var(--dim);
+  text-decoration: underline; text-underline-offset: 3px; }
 .field-row:hover { opacity: 0.6; }
 .field-body { padding: 6px 28px 40px; border-bottom: 1px solid var(--ink); }
 .field-body > * { max-width: 680px; }
