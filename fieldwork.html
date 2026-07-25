@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fieldwork — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260726x">
+<link rel="stylesheet" href="style.css?v=20260726z">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -16,12 +16,13 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260726x"></script>
+<script src="app.js?v=20260726z"></script>
 <script>
 renderHeader('fieldwork');
 applyI18n();
 
 // 필드워크 도시 목록 — 가로 선으로 구분된 행. 도시가 늘면 여기에 추가.
+// 내용은 posts(kind='fieldwork', 제목=영문 도시명)로 관리 — 행을 누르면 펼쳐진다.
 const CITIES = [
   { key: 'seoul',     en: 'Seoul',     ko: '서울' },
   { key: 'london',    en: 'London',    ko: '런던' },
@@ -34,21 +35,49 @@ const TEASER = {
   ko: '그리고 다음 도시는… 지금 당신이 서 있는 그곳일지도 모릅니다.',
 };
 
+let cityPosts = [];
+let openKey = null; // 현재 펼쳐진 도시
+
+function postFor(c) {
+  return cityPosts.find(p => (p.title || '').trim().toLowerCase() === c.en.toLowerCase());
+}
+
 function draw() {
   const list = document.getElementById('fieldList');
   list.innerHTML = '';
   CITIES.forEach(c => {
     const row = document.createElement('div');
-    row.className = 'field-row';
+    row.className = 'field-row' + (openKey === c.key ? ' open' : '');
     row.textContent = (LANG === 'ko' ? c.ko : c.en);
+    row.addEventListener('click', () => {
+      openKey = (openKey === c.key) ? null : c.key;
+      draw();
+    });
     list.appendChild(row);
+    if (openKey === c.key) {
+      const body = document.createElement('div');
+      body.className = 'field-body';
+      const p = postFor(c);
+      if (p) {
+        body.innerHTML =
+          (p.cover ? '<img src="' + escapeHtml(p.cover) + '">' : '') +
+          '<div class="article-body">' + renderMarkdown(pickLangBody(p)) + '</div>';
+      } else {
+        body.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
+      }
+      list.appendChild(body);
+    }
   });
   const tz = document.createElement('div');
   tz.className = 'field-teaser';
   tz.textContent = (LANG === 'ko' ? TEASER.ko : TEASER.en);
   list.appendChild(tz);
 }
-draw();
+
+(async () => {
+  try { cityPosts = await loadPosts('fieldwork'); } catch (e) { cityPosts = []; }
+  draw();
+})();
 window._lcRerender = draw;
 </script>
 </body>
