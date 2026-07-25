@@ -121,7 +121,7 @@ function renderHeader(active) {
     '</span>';
   el.innerHTML =
     '<div class="hdr-row hdr-logo"><span><a href="/" style="text-decoration:none">→ Liquid Cities Project</a></span>' +
-    '<span class="hdr-right">' + langToggle + '<span id="hdrEdit"></span></span></div>' +
+    '<span class="hdr-right">' + langToggle + '</span></div>' +
     '<nav class="hdr-row hdr-menu">' +
     links.map(l => `<a class="hdr-link${l.key === active ? ' active' : ''}" href="${l.href}" data-i18n="${l.i18n}">${t(l.i18n)}</a>`).join('') +
     '</nav>';
@@ -139,25 +139,8 @@ function renderHeader(active) {
   requestAnimationFrame(() => {
     document.documentElement.style.setProperty('--hdrH', el.offsetHeight + 'px');
   });
-  // 관리자로 로그인돼 있을 때만 편집·로그아웃 링크 표시 (방문자에겐 안 보임)
-  const client = sb();
-  if (client) {
-    client.auth.getSession().then(({ data }) => {
-      if (!(data && data.session)) return;               // 비로그인 → 아무것도 안 넣음
-      const slot = document.getElementById('hdrEdit');
-      if (!slot) return;
-      const st = 'text-decoration:underline; text-underline-offset:3px; font-size:12px; color:var(--dim)';
-      slot.innerHTML =
-        `<a href="manage-lc9x4k2.html" style="${st}">${t('edit')}</a>` +
-        `<a id="hdrSignout" href="#" style="${st}; margin-left:12px">${t('signout')}</a>`;
-      const so = document.getElementById('hdrSignout');
-      if (so) so.addEventListener('click', async (ev) => {
-        ev.preventDefault();
-        try { await client.auth.signOut(); } catch (e) {}
-        location.reload();
-      });
-    }).catch(() => {});
-  }
+  // 편집·로그아웃 링크는 헤더에서 제거했다 — 관리는 manage-lc9x4k2.html URL로 직접 접근.
+  // (예전엔 로그인 세션이 있으면 표시했으나, 세션 잔존 시 방문자 화면에도 노출돼 제거)
 }
 
 /* ---- 스크롤 등장 옵저버 ---- */
