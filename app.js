@@ -35,7 +35,7 @@ const I18N = {
   signout:    { en: 'Sign out', ko: '로그아웃' },
   // Projects 페이지 (필터 라벨은 영어 유지)
   pfAll:          { en: 'All',           ko: 'All' },
-  pfExhibitions:  { en: 'Autoethnographic Archiving', ko: 'Autoethnographic Archiving' },
+  pfExhibitions:  { en: 'Archiving', ko: 'Archiving' },
   pfEmotionalMap: { en: 'Emotional map', ko: 'Emotional map' },
   pfVol1:         { en: 'Vol.1',         ko: 'Vol.1' },
   projComingSoon: { en: 'Coming soon.',  ko: '준비 중입니다.' },
