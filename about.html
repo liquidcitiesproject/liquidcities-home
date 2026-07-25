@@ -13,21 +13,21 @@
 <main class="wrap narrow article" id="aboutMain">
   <!-- admin에서 편집한 About(kind='page')이 있으면 그걸, 없으면 아래 기본 소개글 -->
   <div id="aboutBody">
-    <h1>About</h1>
-    <p class="sub">Liquid Cities is a project about building identity — the moments people map onto the buildings of a city.</p>
+    <h1 data-i18n="aboutTitle">About</h1>
+    <p class="sub" data-i18n="aboutSub">Liquid Cities is a project about building identity — the moments people map onto the buildings of a city.</p>
 
-    <p>Every day we move through cities that seem fixed — concrete, glass, stone. But a city is also
+    <p data-i18n="aboutP1">Every day we move through cities that seem fixed — concrete, glass, stone. But a city is also
     liquid: it is remade by the feelings, memories and moments each of us pours into it. Liquid Cities
-    asks a simple question — <em>where are you from?</em> — and lets people answer not with a place name,
+    asks a simple question — where are you from? — and lets people answer not with a place name,
     but with a moment.</p>
 
-    <h2>How it works</h2>
-    <p>In the app, you search for a building, confirm its real 3D mass, and map a photo or a short video
+    <h2 data-i18n="aboutH2">How it works</h2>
+    <p data-i18n="aboutP2">In the app, you search for a building, confirm its real 3D mass, and map a photo or a short video
     of a moment onto it. Each mapped moment becomes a node on a shared map — a board, a flat map, or a
     rotating globe — where your city meets everyone else's.</p>
 
     <div class="row" style="margin-top:34px">
-      <a class="btn" href="https://liquidcities.io/" target="_blank" rel="noopener">Open the app →</a>
+      <a class="btn" href="https://liquidcities.io/" target="_blank" rel="noopener" data-i18n="openApp">Open the app →</a>
     </div>
   </div>
 </main>
@@ -37,15 +37,26 @@
 <script src="app.js"></script>
 <script>
 renderHeader('about');
+applyI18n();
 (async () => {
   const page = await loadPage();
-  if (page) {
-    document.title = (page.title || 'About') + ' — Liquid Cities Project';
-    document.getElementById('aboutBody').innerHTML =
-      '<h1>' + escapeHtml(page.title || 'About') + '</h1>' +
-      (page.cover ? '<img src="' + escapeHtml(page.cover) + '" style="max-width:100%;display:block;margin:0 0 24px">' : '') +
-      '<div class="article-body">' + renderMarkdown(page.body) + '</div>';
+  const defaultBody = document.getElementById('aboutBody').innerHTML; // 정적 소개글(data-i18n 포함)
+  function draw() {
+    const body = document.getElementById('aboutBody');
+    if (page) {
+      const title = pickLangTitle(page);
+      document.title = (title || 'About') + ' — Liquid Cities Project';
+      body.innerHTML =
+        '<h1>' + escapeHtml(title || 'About') + '</h1>' +
+        (page.cover ? '<img src="' + escapeHtml(page.cover) + '" style="max-width:100%;display:block;margin:0 0 24px">' : '') +
+        '<div class="article-body">' + renderMarkdown(pickLangBody(page)) + '</div>';
+    } else {
+      body.innerHTML = defaultBody;
+      applyI18n(body); // 정적 소개글을 현재 언어로
+    }
   }
+  draw();
+  window._lcRerender = draw; // 언어 전환 시 다시 그림
 })();
 </script>
 </body>

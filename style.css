@@ -27,6 +27,13 @@ body { padding-top: var(--hdrH, 96px); }
   color: rgba(0,0,0,0.75); text-decoration: underline; text-underline-offset: 3px; }
 .hdr-link:hover { opacity: 0.6; }
 .hdr-link.active { font-weight: 500; }
+/* 우측 상단 영역 (언어 토글 + 편집 링크) */
+.hdr-right { display: flex; align-items: center; gap: 14px; }
+.hdr-lang { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
+.hdr-lang .lang-btn { text-decoration: none; color: var(--dim, rgba(0,0,0,0.4)); cursor: pointer; }
+.hdr-lang .lang-btn:hover { opacity: 0.7; }
+.hdr-lang .lang-btn.active { color: rgba(0,0,0,0.85); font-weight: 600; }
+.hdr-lang .lang-sep { color: rgba(0,0,0,0.25); }
 
 /* ---- 공통 콘텐츠 폭·타이포 ---- */
 .wrap { width: 100%; padding: 34px 26px 90px; }

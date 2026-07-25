@@ -41,7 +41,8 @@
 
     <h2 id="editorTitle">New post</h2>
     <input type="hidden" id="postId">
-    <input type="text" id="title" placeholder="Title">
+    <input type="text" id="title" placeholder="Title (English)">
+    <input type="text" id="titleKo" placeholder="제목 (한국어) — 비우면 영어로 표시" style="margin-top:8px">
     <div class="adm-row">
       <select id="kind">
         <option value="blog">Blog</option>
@@ -67,7 +68,8 @@
       </label>
       <span class="status" id="uploadStatus" style="margin:0"></span>
     </div>
-    <textarea id="body" placeholder="Write in Markdown…  # Heading  **bold**  [link](url)  ![img](url)"></textarea>
+    <textarea id="body" placeholder="Write in Markdown (English)…  # Heading  **bold**  [link](url)  ![img](url)"></textarea>
+    <textarea id="bodyKo" placeholder="한국어 본문 (마크다운) — 비우면 영어 본문으로 표시" style="margin-top:8px"></textarea>
     <div class="adm-row">
       <button id="saveBtn">Save</button>
       <button class="secondary" id="newBtn" style="flex:0 0 auto">New post</button>
@@ -83,6 +85,7 @@
 <script src="app.js"></script>
 <script>
 renderHeader('');
+applyI18n();
 const c = sb();
 const $ = id => document.getElementById(id);
 
@@ -107,6 +110,7 @@ $('logoutBtn').addEventListener('click', async () => { await c.auth.signOut(); r
 
 function clearEditor() {
   $('postId').value = ''; $('title').value = ''; $('body').value = '';
+  $('titleKo').value = ''; $('bodyKo').value = '';
   $('cover').value = ''; $('kind').value = 'blog'; $('published').value = 'false';
   $('postDate').value = '';
   $('editorTitle').textContent = 'New post';
@@ -120,11 +124,13 @@ $('editAboutBtn').addEventListener('click', async () => {
   const p = data && data[0];
   if (p) {
     $('postId').value = p.id; $('title').value = p.title || 'About';
+    $('titleKo').value = p.title_ko || ''; $('bodyKo').value = p.body_ko || '';
     $('body').value = p.body || ''; $('cover').value = p.cover || '';
     $('kind').value = 'page'; $('published').value = String(p.published);
     $('postDate').value = p.created_at ? new Date(p.created_at).toISOString().slice(0, 10) : '';
   } else {
     $('postId').value = ''; $('title').value = 'About'; $('body').value = '';
+    $('titleKo').value = ''; $('bodyKo').value = '';
     $('cover').value = ''; $('kind').value = 'page'; $('published').value = 'true';
     $('postDate').value = '';
   }
@@ -174,6 +180,8 @@ $('saveBtn').addEventListener('click', async () => {
   const uid = u && u.user && u.user.id;
   const row = {
     kind: $('kind').value, title, body: $('body').value,
+    title_ko: $('titleKo').value.trim() || null,
+    body_ko: $('bodyKo').value.trim() || null,
     cover: $('cover').value.trim() || null,
     published: $('published').value === 'true',
     updated_at: new Date().toISOString(),
@@ -226,6 +234,7 @@ async function openEdit(id) {
   const { data, error } = await c.from('posts').select('*').eq('id', id).single();
   if (error) return;
   $('postId').value = data.id; $('title').value = data.title; $('body').value = data.body || '';
+  $('titleKo').value = data.title_ko || ''; $('bodyKo').value = data.body_ko || '';
   $('cover').value = data.cover || ''; $('kind').value = data.kind; $('published').value = String(data.published);
   $('postDate').value = data.created_at ? new Date(data.created_at).toISOString().slice(0, 10) : '';
   $('editorTitle').textContent = 'Edit post';

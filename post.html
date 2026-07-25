@@ -11,7 +11,7 @@
 <header id="site-header"></header>
 
 <main class="wrap article" id="article">
-  <div class="status" id="status">Loading…</div>
+  <div class="status" id="status" data-i18n="loading">Loading…</div>
 </main>
 
 <div class="footer">Liquid Cities Project</div>
@@ -22,16 +22,21 @@
   const id = new URLSearchParams(location.search).get('id');
   const article = document.getElementById('article');
   const post = id ? await loadPost(id) : null;
-  if (!post) { document.getElementById('status').textContent = 'Post not found.'; renderHeader(''); return; }
+  if (!post) { renderHeader(''); applyI18n(); document.getElementById('status').textContent = t('postNotFound'); return; }
   renderHeader(post.kind === 'essay' ? 'essays' : 'blog');
-  document.title = post.title + ' — Liquid Cities Project';
-  article.innerHTML =
-    '<h1>' + escapeHtml(post.title) + '</h1>' +
-    '<span class="post-date">' + fmtDate(post.created_at) + '</span>' +
-    (post.cover ? '<img src="' + escapeHtml(post.cover) + '" style="max-width:100%; display:block; margin:0 0 24px">' : '') +
-    '<div class="article-body">' + renderMarkdown(post.body) + '</div>' +
-    '<p style="margin-top:40px"><a href="' + (post.kind === 'essay' ? 'essays' : 'blog') +
-      '" style="text-decoration:underline; text-underline-offset:3px">← Back</a></p>';
+  applyI18n();
+  function draw() {
+    document.title = pickLangTitle(post) + ' — Liquid Cities Project';
+    article.innerHTML =
+      '<h1>' + escapeHtml(pickLangTitle(post)) + '</h1>' +
+      '<span class="post-date">' + fmtDate(post.created_at) + '</span>' +
+      (post.cover ? '<img src="' + escapeHtml(post.cover) + '" style="max-width:100%; display:block; margin:0 0 24px">' : '') +
+      '<div class="article-body">' + renderMarkdown(pickLangBody(post)) + '</div>' +
+      '<p style="margin-top:40px"><a href="' + (post.kind === 'essay' ? 'essays' : 'blog') +
+        '" style="text-decoration:underline; text-underline-offset:3px">' + t('back') + '</a></p>';
+  }
+  draw();
+  window._lcRerender = draw;
 })();
 </script>
 </body>

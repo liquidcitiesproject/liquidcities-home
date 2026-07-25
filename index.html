@@ -14,22 +14,23 @@
 <!-- 3단계: (1) Where are you from? 가운데 크게 → (2) 사진 랜덤 등장 → (3) Liquid Cities. 가운데 크게 -->
 <section class="zoomflow" id="zoomflow">
   <div class="zoom-stage" id="zoomStage">
-    <div class="seq-text" id="introText" style="opacity:1"><span>Where are you from?</span></div>
+    <div class="seq-text" id="introText" style="opacity:1"><span data-i18n="introQ">Where are you from?</span></div>
     <!-- 사진들은 JS가 여기에 추가 -->
-    <div class="seq-text" id="outroText"><span>Liquid Cities.</span></div>
+    <div class="seq-text" id="outroText"><span data-i18n="outro">Liquid Cities.</span></div>
     <div class="status" id="flowStatus"></div>
   </div>
-  <p class="scroll-hint" id="scrollHint">↓ scroll</p>
+  <p class="scroll-hint" id="scrollHint" data-i18n="scroll">↓ scroll</p>
 </section>
 
 <div class="footer">
-  Liquid Cities Project — building identity through the moments people map onto the city.
-  <a href="about" style="text-decoration:underline; text-underline-offset:3px">About the project →</a>
+  <span data-i18n="footerHome">Liquid Cities Project — building identity through the moments people map onto the city.</span>
+  <a href="about" style="text-decoration:underline; text-underline-offset:3px" data-i18n="aboutLink">About the project →</a>
 </div>
 
 <script src="app.js"></script>
 <script>
 renderHeader('');
+applyI18n();
 (async () => {
   const flow = document.getElementById('zoomflow');
   const stage = document.getElementById('zoomStage');
@@ -39,7 +40,8 @@ renderHeader('');
   const scrollHint = document.getElementById('scrollHint');
   const photos = await loadSharedPhotos(10); // 최대 10개
   if (!photos.length) {
-    status.textContent = 'No shared moments yet — be the first to map one in the app.';
+    status.textContent = t('noMoments');
+    window._lcRerender = () => { status.textContent = t('noMoments'); };
     return;
   }
   status.remove();

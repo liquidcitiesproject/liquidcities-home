@@ -18,6 +18,7 @@
 <script src="app.js"></script>
 <script>
 renderHeader('map');
+applyI18n();
 (function () {
   const host = document.getElementById('mapHost');
   if (FEATURED_BOARD_UID) {
@@ -31,10 +32,14 @@ renderHeader('map');
     // 아직 대표 보드 uid가 설정되지 않음 — 안내
     const w = document.createElement('main');
     w.className = 'wrap narrow';
-    w.innerHTML = '<h1>Map</h1>' +
-      '<p class="sub">The shared board is not connected yet.</p>' +
-      '<p>Open the app, share a board, and the map will appear here.</p>' +
-      '<div class="row" style="margin-top:24px"><a class="btn" href="' + APP_BASE + '" target="_blank" rel="noopener">Open the app →</a></div>';
+    function draw() {
+      w.innerHTML = '<h1>' + t('mapTitle') + '</h1>' +
+        '<p class="sub">' + t('mapNotConn') + '</p>' +
+        '<p>' + t('mapHint') + '</p>' +
+        '<div class="row" style="margin-top:24px"><a class="btn" href="' + APP_BASE + '" target="_blank" rel="noopener">' + t('openApp') + '</a></div>';
+    }
+    draw();
+    window._lcRerender = draw;
     host.appendChild(w);
   }
 })();

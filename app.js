@@ -16,24 +16,125 @@ function sb() {
   return _sb;
 }
 
+/* ---- 언어(EN/KO) ---- */
+// 저장된 선택이 있으면 그것, 없으면 브라우저 언어 자동 감지(ko* → ko, 그 외 → en).
+const I18N = {
+  // 헤더/메뉴
+  navAbout:   { en: 'About',   ko: '소개' },
+  navMap:     { en: 'Map',     ko: '지도' },
+  navBlog:    { en: 'Blog',    ko: '블로그' },
+  navEssays:  { en: 'Essays',  ko: '에세이' },
+  edit:       { en: '✎ Edit',  ko: '✎ 편집' },
+  signout:    { en: 'Sign out', ko: '로그아웃' },
+  // index (홈)
+  introQ:     { en: 'Where are you from?', ko: '당신은 어디에서 왔나요?' },
+  outro:      { en: 'Liquid Cities.',       ko: 'Liquid Cities.' },
+  scroll:     { en: '↓ scroll',             ko: '↓ 스크롤' },
+  footerHome: { en: 'Liquid Cities Project — building identity through the moments people map onto the city.',
+                ko: 'Liquid Cities Project — 도시에 매핑한 순간들로 정체성을 쌓아갑니다.' },
+  aboutLink:  { en: 'About the project →',  ko: '프로젝트 소개 →' },
+  noMoments:  { en: 'No shared moments yet — be the first to map one in the app.',
+                ko: '아직 공유된 순간이 없어요 — 앱에서 첫 순간을 매핑해 보세요.' },
+  // about
+  aboutTitle: { en: 'About', ko: '소개' },
+  aboutSub:   { en: 'Liquid Cities is a project about building identity — the moments people map onto the buildings of a city.',
+                ko: 'Liquid Cities는 정체성을 쌓아가는 프로젝트입니다 — 사람들이 도시의 건물에 매핑하는 순간들.' },
+  aboutP1:    { en: "Every day we move through cities that seem fixed — concrete, glass, stone. But a city is also liquid: it is remade by the feelings, memories and moments each of us pours into it. Liquid Cities asks a simple question — where are you from? — and lets people answer not with a place name, but with a moment.",
+                ko: '우리는 매일 고정된 것처럼 보이는 도시를 지나갑니다 — 콘크리트, 유리, 돌. 하지만 도시는 유동적이기도 합니다. 우리 각자가 쏟아붓는 감정과 기억, 순간으로 다시 만들어집니다. Liquid Cities는 단순한 질문을 던집니다 — 당신은 어디에서 왔나요? — 그리고 지명이 아니라 하나의 순간으로 답하게 합니다.' },
+  aboutH2:    { en: 'How it works', ko: '어떻게 작동하나요' },
+  aboutP2:    { en: "In the app, you search for a building, confirm its real 3D mass, and map a photo or a short video of a moment onto it. Each mapped moment becomes a node on a shared map — a board, a flat map, or a rotating globe — where your city meets everyone else's.",
+                ko: '앱에서 건물을 검색하고, 실제 3D 형태를 확인한 뒤, 어떤 순간의 사진이나 짧은 영상을 그 위에 매핑합니다. 매핑된 순간은 공유 지도의 노드가 됩니다 — 보드, 평면 지도, 또는 회전하는 지구본 위에서 당신의 도시가 모두의 도시와 만납니다.' },
+  openApp:    { en: 'Open the app →', ko: '앱 열기 →' },
+  // blog
+  blogTitle:  { en: 'Blog', ko: '블로그' },
+  blogSub:    { en: 'Notes and updates from the project.', ko: '프로젝트의 기록과 소식.' },
+  noPosts:    { en: 'No posts yet.', ko: '아직 글이 없어요.' },
+  // essays
+  essaysTitle:{ en: 'Essays', ko: '에세이' },
+  essaysSub:  { en: 'Longer writing on cities, identity, and the moments in between.',
+                ko: '도시와 정체성, 그 사이의 순간들에 관한 긴 글.' },
+  noEssays:   { en: 'No essays yet.', ko: '아직 에세이가 없어요.' },
+  // map
+  mapTitle:   { en: 'Map', ko: '지도' },
+  mapNotConn: { en: 'The shared board is not connected yet.', ko: '공유 보드가 아직 연결되지 않았어요.' },
+  mapHint:    { en: 'Open the app, share a board, and the map will appear here.',
+                ko: '앱을 열고 보드를 공유하면 여기에 지도가 나타납니다.' },
+  // post
+  loading:    { en: 'Loading…', ko: '불러오는 중…' },
+  postNotFound:{ en: 'Post not found.', ko: '글을 찾을 수 없어요.' },
+  back:       { en: '← Back', ko: '← 뒤로' },
+};
+function detectLang() {
+  try {
+    const saved = localStorage.getItem('lc_home_lang');
+    if (saved === 'en' || saved === 'ko') return saved;
+  } catch (e) {}
+  const nav = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  return nav.startsWith('ko') ? 'ko' : 'en';
+}
+let LANG = detectLang();
+function t(key) {
+  const e = I18N[key];
+  return e ? (e[LANG] || e.en) : key;
+}
+function setLang(lang) {
+  if (lang !== 'en' && lang !== 'ko') return;
+  LANG = lang;
+  try { localStorage.setItem('lc_home_lang', lang); } catch (e) {}
+  document.documentElement.lang = lang;
+  applyI18n();               // data-i18n 정적 텍스트 갱신
+  if (window._lcRerender) window._lcRerender(); // 각 페이지의 동적 콘텐츠 다시 그리기
+}
+// data-i18n="key" 가 붙은 요소의 textContent를 현재 언어로 채운다.
+function applyI18n(root = document) {
+  root.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.documentElement.lang = LANG;
+}
+// 글(posts) 항목에서 현재 언어에 맞는 제목/본문을 고른다. KO인데 한국어본이 없으면 영어로 폴백.
+function pickLangTitle(p) {
+  return (LANG === 'ko' && p.title_ko && p.title_ko.trim()) ? p.title_ko : p.title;
+}
+function pickLangBody(p) {
+  return (LANG === 'ko' && p.body_ko && p.body_ko.trim()) ? p.body_ko : p.body;
+}
+
 /* ---- 공통 헤더 렌더 ---- */
 function renderHeader(active) {
   // 로고(→ Liquid Cities Project)가 곧 홈 링크 — 메뉴에 별도 Home 없음
   const links = [
-    { href: 'about', label: 'About', key: 'about' },
-    { href: 'map', label: 'Map', key: 'map' },
-    { href: 'blog', label: 'Blog', key: 'blog' },
-    { href: 'essays', label: 'Essays', key: 'essays' },
+    { href: 'about', i18n: 'navAbout', key: 'about' },
+    { href: 'map', i18n: 'navMap', key: 'map' },
+    { href: 'blog', i18n: 'navBlog', key: 'blog' },
+    { href: 'essays', i18n: 'navEssays', key: 'essays' },
   ];
   const el = document.getElementById('site-header');
   if (!el) return;
   el.className = 'hdr';
+  // 우측 상단 언어 토글(EN / KO) — 현재 언어는 굵게, 다른 언어는 클릭해 전환
+  const langToggle =
+    '<span class="hdr-lang">' +
+    `<a href="#" data-setlang="en" class="lang-btn${LANG === 'en' ? ' active' : ''}">EN</a>` +
+    '<span class="lang-sep">/</span>' +
+    `<a href="#" data-setlang="ko" class="lang-btn${LANG === 'ko' ? ' active' : ''}">KO</a>` +
+    '</span>';
   el.innerHTML =
     '<div class="hdr-row hdr-logo"><span><a href="/" style="text-decoration:none">→ Liquid Cities Project</a></span>' +
-    '<span id="hdrEdit"></span></div>' +
+    '<span class="hdr-right">' + langToggle + '<span id="hdrEdit"></span></span></div>' +
     '<nav class="hdr-row hdr-menu">' +
-    links.map(l => `<a class="hdr-link${l.key === active ? ' active' : ''}" href="${l.href}">${l.label}</a>`).join('') +
+    links.map(l => `<a class="hdr-link${l.key === active ? ' active' : ''}" href="${l.href}" data-i18n="${l.i18n}">${t(l.i18n)}</a>`).join('') +
     '</nav>';
+  // 언어 토글 클릭 → setLang (선택 기억 + 화면 갱신)
+  el.querySelectorAll('[data-setlang]').forEach(btn => {
+    btn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      const lang = btn.getAttribute('data-setlang');
+      if (lang === LANG) return;
+      setLang(lang);
+      renderHeader(active); // 헤더의 토글 active 상태·메뉴 라벨 갱신
+    });
+  });
   // 헤더 높이를 CSS 변수로 (맵 풀스크린용)
   requestAnimationFrame(() => {
     document.documentElement.style.setProperty('--hdrH', el.offsetHeight + 'px');
@@ -47,8 +148,8 @@ function renderHeader(active) {
       if (!slot) return;
       const st = 'text-decoration:underline; text-underline-offset:3px; font-size:12px; color:var(--dim)';
       slot.innerHTML =
-        `<a href="manage-lc9x4k2.html" style="${st}">✎ Edit</a>` +
-        `<a id="hdrSignout" href="#" style="${st}; margin-left:12px">Sign out</a>`;
+        `<a href="manage-lc9x4k2.html" style="${st}">${t('edit')}</a>` +
+        `<a id="hdrSignout" href="#" style="${st}; margin-left:12px">${t('signout')}</a>`;
       const so = document.getElementById('hdrSignout');
       if (so) so.addEventListener('click', async (ev) => {
         ev.preventDefault();
@@ -101,7 +202,7 @@ async function loadPosts(kind) {
   const client = sb();
   if (!client) return [];
   try {
-    let q = client.from('posts').select('id, kind, title, body, cover, created_at')
+    let q = client.from('posts').select('id, kind, title, title_ko, body, body_ko, cover, created_at')
       .eq('published', true).order('created_at', { ascending: false });
     if (kind) q = q.eq('kind', kind);
     const { data, error } = await q;
