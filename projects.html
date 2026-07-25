@@ -9,93 +9,46 @@
 </head>
 <body>
 <header id="site-header"></header>
-<div id="filter-bar"></div>
 
 <main id="projects-content" class="wrap narrow"></main>
 
-<div class="footer" id="projFooter">Liquid Cities Project</div>
+<div class="footer">Liquid Cities Project</div>
 
 <script src="app.js"></script>
 <script>
 renderHeader('projects');
 applyI18n();
 
-const FILTERS = [
-  { key: 'all',           i18n: 'pfAll' },
-  { key: 'exhibitions',   i18n: 'pfExhibitions' },
-  { key: 'emotional-map', i18n: 'pfEmotionalMap' },
-  { key: 'vol1',          i18n: 'pfVol1' },
-];
-let currentFilter = new URLSearchParams(location.search).get('filter') || 'all';
-if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'all';
-
-const content = document.getElementById('projFooter');
-
-function clearMapFrame() {
-  // position:fixed iframe은 부모와 무관하게 화면에 남으므로 명시적으로 제거
-  const f = document.getElementById('projMapFrame');
-  if (f) f.remove();
-  document.body.classList.remove('proj-map');
-}
-
-function draw(filter) {
-  currentFilter = filter;
+// Projects — 하위 필터 없이 감정 좌표 맵(앱)을 바로 임베드.
+function draw() {
   const main = document.getElementById('projects-content');
-  clearMapFrame();
   main.innerHTML = '';
+  const old = document.getElementById('projMapFrame');
+  if (old) old.remove();
+  document.body.classList.remove('proj-map');
+  // 필터 바가 없으므로 iframe top 계산용 --filterH는 0
+  document.documentElement.style.setProperty('--filterH', '0px');
 
-  if (filter === 'emotional-map') {
-    // map.html의 iframe 로직 이식 — 앱의 감정 좌표 맵을 임베드
-    if (FEATURED_BOARD_UID) {
-      document.body.classList.add('proj-map'); // 푸터 숨김용
-      const iframe = document.createElement('iframe');
-      iframe.id = 'projMapFrame';
-      iframe.className = 'map-frame-inline';
-      iframe.src = APP_BASE + '?board=' + encodeURIComponent(FEATURED_BOARD_UID);
-      iframe.setAttribute('title', 'Liquid Cities shared board');
-      iframe.setAttribute('loading', 'lazy');
-      document.body.appendChild(iframe);
-    } else {
-      main.innerHTML =
-        '<p class="sub">' + t('mapNotConn') + '</p>' +
-        '<p>' + t('mapHint') + '</p>' +
-        '<div class="row" style="margin-top:24px"><a class="btn" href="' + APP_BASE +
-        '" target="_blank" rel="noopener">' + t('openApp') + '</a></div>';
-    }
-    return;
+  if (FEATURED_BOARD_UID) {
+    document.body.classList.add('proj-map'); // 푸터 숨김(전체화면 iframe)
+    const iframe = document.createElement('iframe');
+    iframe.id = 'projMapFrame';
+    iframe.className = 'map-frame-inline';
+    iframe.src = APP_BASE + '?board=' + encodeURIComponent(FEATURED_BOARD_UID);
+    iframe.setAttribute('title', 'Liquid Cities shared board');
+    iframe.setAttribute('loading', 'lazy');
+    document.body.appendChild(iframe);
+  } else {
+    main.innerHTML =
+      '<p class="sub">' + t('mapNotConn') + '</p>' +
+      '<p>' + t('mapHint') + '</p>' +
+      '<div class="row" style="margin-top:24px"><a class="btn" href="' + APP_BASE +
+      '" target="_blank" rel="noopener">' + t('openApp') + '</a></div>';
   }
-
-  if (filter === 'exhibitions' || filter === 'vol1') {
-    main.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
-    return;
-  }
-
-  // all — 각 프로젝트 카테고리를 간단히 소개(현재는 Emotional map만 활성)
-  main.innerHTML =
-    '<a class="post-row" href="projects?filter=emotional-map">' +
-      '<div class="post-title">' + t('pfEmotionalMap') + '</div>' +
-      '<div class="post-excerpt">' + t('aboutSub') + '</div>' +
-    '</a>' +
-    '<div class="post-row"><div class="post-title">' + t('pfExhibitions') + '</div>' +
-      '<div class="post-excerpt">' + t('projComingSoon') + '</div></div>';
-  // all 화면의 emotional-map 링크도 SPA식으로 동작하게
-  const emoLink = main.querySelector('a.post-row');
-  if (emoLink) emoLink.addEventListener('click', (ev) => { ev.preventDefault(); onSelect('emotional-map'); });
 }
 
-function onSelect(key) {
-  history.replaceState(null, '', 'projects?filter=' + key);
-  renderFilterBar('filter-bar', FILTERS, key, onSelect);
-  draw(key);
-}
-
-renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
-draw(currentFilter);
-
-window._lcRerender = () => {
-  renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
-  draw(currentFilter);
-};
+draw();
+window._lcRerender = draw; // 언어 전환 시 다시 그림
 </script>
 </body>
 </html>
