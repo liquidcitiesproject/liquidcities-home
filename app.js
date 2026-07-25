@@ -24,6 +24,7 @@ const I18N = {
   navProjects: { en: 'Projects',      ko: 'Projects' },
   navContact:  { en: 'Contact',       ko: 'Contact' },
   navMaking:   { en: 'Making Spaces', ko: 'Making Spaces' },
+  navResearcher: { en: 'Researcher', ko: 'Researcher' },
   // (구 메뉴 라벨 — 리다이렉트 스텁 등에서 참조 가능하게 유지)
   navMap:     { en: 'Map',     ko: '지도' },
   navBlog:    { en: 'Blog',    ko: '블로그' },
@@ -130,10 +131,11 @@ function pickLangBody(p) {
 function renderHeader(active) {
   // 로고(→ Liquid Cities Project)가 곧 홈 링크 — 메뉴에 별도 Home 없음
   const links = [
-    { href: 'about',         i18n: 'navAbout',    key: 'about' },
-    { href: 'projects',      i18n: 'navProjects', key: 'projects' },
-    { href: 'contact',       i18n: 'navContact',  key: 'contact' },
-    { href: 'making-spaces', i18n: 'navMaking',   key: 'making-spaces' },
+    { href: 'projects',      i18n: 'navAbout',      key: 'about' },
+    { href: 'projects',      i18n: 'navProjects',   key: 'projects' },
+    { href: 'researcher',    i18n: 'navResearcher', key: 'researcher' },
+    { href: 'contact',       i18n: 'navContact',    key: 'contact' },
+    { href: 'making-spaces', i18n: 'navMaking',     key: 'making-spaces' },
   ];
   const el = document.getElementById('site-header');
   if (!el) return;
