@@ -21,7 +21,7 @@ function sb() {
 const I18N = {
   // 헤더/메뉴 — 새 상위 메뉴(라벨은 KO에서도 영어 유지)
   navAbout:    { en: 'About',         ko: 'About' },
-  navProjects: { en: 'Archive',       ko: 'Archive' },
+  navProjects: { en: 'Autoethnographic', ko: 'Autoethnographic' },
   navFieldwork:{ en: 'Fieldwork',     ko: 'Fieldwork' },
   fieldworkSoon:{ en: 'Fieldwork — coming soon.', ko: 'Fieldwork — 준비 중입니다.' },
   navContact:  { en: 'Contact',       ko: 'Contact' },
