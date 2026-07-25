@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727r">
+<link rel="stylesheet" href="style.css?v=20260727s">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">Liquid Cities Project</div>
 
-<script src="app.js?v=20260727r"></script>
+<script src="app.js?v=20260727s"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -23,12 +23,12 @@ applyI18n();
 // Projects 하위 필터: 전시(Exhibitions) / Emotional map (전시 우선)
 const FILTERS = [
   { key: 'howto',         i18n: 'pfHowTo' },
-  { key: 'exhibitions',   i18n: 'pfExhibitions' },
   { key: 'emotional-map', i18n: 'pfEmotionalMap' },
+  { key: 'exhibitions',   i18n: 'pfExhibitions' },
   { key: 'insight',       i18n: 'pfInsight' },
 ];
-let currentFilter = new URLSearchParams(location.search).get('filter') || 'exhibitions';
-if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'exhibitions';
+let currentFilter = new URLSearchParams(location.search).get('filter') || 'emotional-map';
+if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'emotional-map';
 // Archiving 상세: &rec=<savedAt>
 const recParam = new URLSearchParams(location.search).get('rec');
 
