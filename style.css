@@ -22,9 +22,10 @@ body { padding-top: var(--hdrH, 96px); }
 .hdr-logo { font-weight: 500; font-size: 13px;
   border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .hdr-logo a { text-decoration: none; }
-/* 메뉴는 marazuest처럼 화면 중앙에 좁게 모음 (균등 분산 대신 중앙 정렬) */
-.hdr-menu { border-bottom: 1px solid var(--line); display: flex;
-  justify-content: center; gap: 26px; }
+/* 한 줄 3분할: 로고(좌) · 메뉴(중앙) · 언어토글(우) */
+.hdr-brand { flex: 0 0 auto; }
+/* 메뉴는 marazuest처럼 로고 줄 중앙에 좁게 모음 */
+.hdr-menu { flex: 1 1 auto; display: flex; justify-content: center; gap: 26px; }
 .hdr-link { flex: 0 0 auto; font-weight: 400; font-size: 13px; cursor: pointer;
   color: rgba(0,0,0,0.75); text-decoration: underline; text-underline-offset: 3px; }
 .hdr-link:hover { opacity: 0.6; }
@@ -169,9 +170,14 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
 /* ---- 모바일: 헤더 메뉴·필터 바 가로 스크롤 (햄버거 대신 미니멀) ---- */
 @media (max-width: 640px) {
   .hdr-row { padding: 9px 18px; }
-  /* 모바일: 중앙 정렬 대신 왼쪽부터 가로 스크롤 (항목이 넘칠 때 잘림 방지) */
-  .hdr-menu { justify-content: flex-start; gap: 16px; overflow-x: auto;
-    white-space: nowrap; scrollbar-width: none; }
+  /* 좁은 화면에선 한 줄에 다 못 넣으므로 메뉴를 다음 줄로 내려 전체 폭 사용.
+     로고·언어토글이 윗줄, 메뉴가 아랫줄(가로 스크롤). */
+  .hdr-logo { flex-wrap: wrap; row-gap: 8px; }
+  .hdr-brand { order: 1; }
+  .hdr-right { order: 2; margin-left: auto; }
+  .hdr-menu { order: 3; flex-basis: 100%;
+    justify-content: flex-start; gap: 16px; overflow-x: auto;
+    white-space: nowrap; scrollbar-width: none; padding-top: 2px; }
   .hdr-menu::-webkit-scrollbar { display: none; }
   .hdr-link { flex: 0 0 auto; font-size: 12px; }
   .filter-bar { justify-content: flex-start; overflow-x: auto; white-space: nowrap;
