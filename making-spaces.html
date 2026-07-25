@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Making Spaces — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260726n">
+<link rel="stylesheet" href="style.css?v=20260726o">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -19,18 +19,18 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260726n"></script>
+<script src="app.js?v=20260726o"></script>
 <script>
 renderHeader('making-spaces');
 applyI18n();
 
-// Making Spaces 하위 필터: 블로그 / 에세이
+// Making Spaces 하위 필터: 에세이 / 블로그 (에세이 우선)
 const FILTERS = [
-  { key: 'blog',  i18n: 'wfBlog' },
   { key: 'essay', i18n: 'wfEssays' },
+  { key: 'blog',  i18n: 'wfBlog' },
 ];
-let currentFilter = new URLSearchParams(location.search).get('filter') || 'blog';
-if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'blog';
+let currentFilter = new URLSearchParams(location.search).get('filter') || 'essay';
+if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'essay';
 
 let allPosts = []; // {…, kind} 병합·정렬된 전체
 
