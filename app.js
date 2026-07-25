@@ -140,15 +140,17 @@ function renderHeader(active) {
     '<span class="lang-sep">/</span>' +
     `<a href="#" data-setlang="ko" class="lang-btn${LANG === 'ko' ? ' active' : ''}">KO</a>` +
     '</span>';
-  // marazuest 레이아웃: 한 줄에 로고(좌) · 메뉴(중앙) · 언어토글(우)
+  // marazuest 3단 레이아웃:
+  //  1행(검정 배경): 로고(좌) · 언어토글(우)
+  //  2행: 메뉴(중앙)  /  3행(필터 바)은 각 페이지가 렌더
   el.innerHTML =
-    '<div class="hdr-row hdr-logo">' +
+    '<div class="hdr-row hdr-top">' +
     '<span class="hdr-brand"><a href="/" style="text-decoration:none">→ Liquid Cities Project</a></span>' +
-    '<nav class="hdr-menu">' +
-    links.map(l => `<a class="hdr-link${l.key === active ? ' active' : ''}" href="${l.href}" data-i18n="${l.i18n}">${t(l.i18n)}</a>`).join('') +
-    '</nav>' +
     '<span class="hdr-right">' + langToggle + '</span>' +
-    '</div>';
+    '</div>' +
+    '<nav class="hdr-row hdr-menu">' +
+    links.map(l => `<a class="hdr-link${l.key === active ? ' active' : ''}" href="${l.href}" data-i18n="${l.i18n}">${t(l.i18n)}</a>`).join('') +
+    '</nav>';
   // 언어 토글 클릭 → setLang (선택 기억 + 화면 갱신)
   el.querySelectorAll('[data-setlang]').forEach(btn => {
     btn.addEventListener('click', (ev) => {
