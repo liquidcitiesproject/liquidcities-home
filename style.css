@@ -19,8 +19,9 @@ a { color: inherit; }
 body { padding-top: var(--hdrH, 96px); }
 .hdr-row { width: 100%; margin: 0; padding: 9px 26px; display: flex;
   justify-content: space-between; align-items: center; }
-/* 1행: 검정 배경 바 (로고 좌 · 언어토글 우) */
-.hdr-top { background: #000; color: #fff; font-weight: 500; font-size: 13px; }
+/* 1행: 검정 배경 바 (로고 좌 · 언어토글 우) — marazuest처럼 상하 여백 넉넉히 */
+.hdr-top { background: #000; color: #fff; font-weight: 500; font-size: 13px;
+  padding-top: 14px; padding-bottom: 14px; }
 .hdr-top a { color: #fff; }
 .hdr-brand { flex: 0 0 auto; }
 /* 2행: 메뉴 — 흰 배경, 중앙 정렬, 간격 18px, 아래 라인 */
