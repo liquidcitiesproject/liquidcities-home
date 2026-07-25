@@ -9,46 +9,69 @@
 </head>
 <body>
 <header id="site-header"></header>
+<div id="filter-bar"></div>
 
 <main id="projects-content" class="wrap narrow"></main>
 
-<div class="footer">Liquid Cities Project</div>
+<div class="footer" id="projFooter">Liquid Cities Project</div>
 
 <script src="app.js"></script>
 <script>
 renderHeader('projects');
 applyI18n();
 
-// Projects — 하위 필터 없이 감정 좌표 맵(앱)을 바로 임베드.
-function draw() {
+// Projects 하위 필터: Emotional map / 전시(Exhibitions)
+const FILTERS = [
+  { key: 'emotional-map', i18n: 'pfEmotionalMap' },
+  { key: 'exhibitions',   i18n: 'pfExhibitions' },
+];
+let currentFilter = new URLSearchParams(location.search).get('filter') || 'emotional-map';
+if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'emotional-map';
+
+function draw(filter) {
+  currentFilter = filter;
   const main = document.getElementById('projects-content');
-  main.innerHTML = '';
   const old = document.getElementById('projMapFrame');
   if (old) old.remove();
   document.body.classList.remove('proj-map');
-  // 필터 바가 없으므로 iframe top 계산용 --filterH는 0
-  document.documentElement.style.setProperty('--filterH', '0px');
+  main.innerHTML = '';
 
-  if (FEATURED_BOARD_UID) {
-    document.body.classList.add('proj-map'); // 푸터 숨김(전체화면 iframe)
-    const iframe = document.createElement('iframe');
-    iframe.id = 'projMapFrame';
-    iframe.className = 'map-frame-inline';
-    iframe.src = APP_BASE + '?board=' + encodeURIComponent(FEATURED_BOARD_UID);
-    iframe.setAttribute('title', 'Liquid Cities shared board');
-    iframe.setAttribute('loading', 'lazy');
-    document.body.appendChild(iframe);
+  if (filter === 'emotional-map') {
+    if (FEATURED_BOARD_UID) {
+      document.body.classList.add('proj-map'); // 푸터 숨김(전체화면 iframe)
+      const iframe = document.createElement('iframe');
+      iframe.id = 'projMapFrame';
+      iframe.className = 'map-frame-inline';
+      iframe.src = APP_BASE + '?board=' + encodeURIComponent(FEATURED_BOARD_UID);
+      iframe.setAttribute('title', 'Liquid Cities shared board');
+      iframe.setAttribute('loading', 'lazy');
+      document.body.appendChild(iframe);
+    } else {
+      main.innerHTML =
+        '<p class="sub">' + t('mapNotConn') + '</p>' +
+        '<p>' + t('mapHint') + '</p>' +
+        '<div class="row" style="margin-top:24px"><a class="btn" href="' + APP_BASE +
+        '" target="_blank" rel="noopener">' + t('openApp') + '</a></div>';
+    }
   } else {
-    main.innerHTML =
-      '<p class="sub">' + t('mapNotConn') + '</p>' +
-      '<p>' + t('mapHint') + '</p>' +
-      '<div class="row" style="margin-top:24px"><a class="btn" href="' + APP_BASE +
-      '" target="_blank" rel="noopener">' + t('openApp') + '</a></div>';
+    // 전시(Exhibitions) — 콘텐츠는 추후
+    main.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
   }
 }
 
-draw();
-window._lcRerender = draw; // 언어 전환 시 다시 그림
+function onSelect(key) {
+  history.replaceState(null, '', 'projects?filter=' + key);
+  renderFilterBar('filter-bar', FILTERS, key, onSelect);
+  draw(key);
+}
+
+renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
+draw(currentFilter);
+
+window._lcRerender = () => {
+  renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
+  draw(currentFilter);
+};
 </script>
 </body>
 </html>

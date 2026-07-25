@@ -9,14 +9,9 @@
 </head>
 <body>
 <header id="site-header"></header>
+<div id="filter-bar"></div>
 
-<main class="wrap narrow article">
-  <h1 data-i18n="contactTitle">Contact</h1>
-  <p class="sub" data-i18n="contactSub">Get in touch.</p>
-  <!-- 이메일·인스타그램 링크 (실제 주소는 추후 채움) -->
-  <p><a id="contactEmail" href="mailto:" style="text-decoration:underline; text-underline-offset:3px" data-i18n="contactEmail">Email →</a></p>
-  <p><a id="contactInsta" href="#" target="_blank" rel="noopener" style="text-decoration:underline; text-underline-offset:3px" data-i18n="contactInsta">Instagram →</a></p>
-</main>
+<main class="wrap narrow article" id="contactMain"></main>
 
 <div class="footer">Liquid Cities Project</div>
 
@@ -24,8 +19,42 @@
 <script>
 renderHeader('contact');
 applyI18n();
-// 정적 페이지 — 언어 전환 시 data-i18n 텍스트만 갱신
-window._lcRerender = () => applyI18n();
+
+// Contact 하위 필터: 이메일 / 인스타그램 (실제 주소는 추후 채움)
+const FILTERS = [
+  { key: 'email',     i18n: 'cfEmail' },
+  { key: 'instagram', i18n: 'cfInstagram' },
+];
+let currentFilter = new URLSearchParams(location.search).get('filter') || 'email';
+if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'email';
+
+function draw(filter) {
+  currentFilter = filter;
+  const main = document.getElementById('contactMain');
+  if (filter === 'instagram') {
+    main.innerHTML =
+      '<p><a href="#" target="_blank" rel="noopener" style="text-decoration:underline; text-underline-offset:3px">' +
+      t('contactInsta') + '</a></p>';
+  } else {
+    main.innerHTML =
+      '<p><a href="mailto:" style="text-decoration:underline; text-underline-offset:3px">' +
+      t('contactEmail') + '</a></p>';
+  }
+}
+
+function onSelect(key) {
+  history.replaceState(null, '', 'contact?filter=' + key);
+  renderFilterBar('filter-bar', FILTERS, key, onSelect);
+  draw(key);
+}
+
+renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
+draw(currentFilter);
+
+window._lcRerender = () => {
+  renderFilterBar('filter-bar', FILTERS, currentFilter, onSelect);
+  draw(currentFilter);
+};
 </script>
 </body>
 </html>

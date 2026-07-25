@@ -24,13 +24,13 @@
 renderHeader('making-spaces');
 applyI18n();
 
+// Making Spaces 하위 필터: 블로그 / 에세이
 const FILTERS = [
-  { key: 'all',   i18n: 'wfAll' },
-  { key: 'essay', i18n: 'wfEssays' },
   { key: 'blog',  i18n: 'wfBlog' },
+  { key: 'essay', i18n: 'wfEssays' },
 ];
-let currentFilter = new URLSearchParams(location.search).get('filter') || 'all';
-if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'all';
+let currentFilter = new URLSearchParams(location.search).get('filter') || 'blog';
+if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'blog';
 
 let allPosts = []; // {…, kind} 병합·정렬된 전체
 

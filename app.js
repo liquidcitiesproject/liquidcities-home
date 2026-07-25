@@ -48,6 +48,8 @@ const I18N = {
   contactSub:   { en: 'Get in touch.', ko: '연락 주세요.' },
   contactEmail: { en: 'Email →',       ko: '이메일 →' },
   contactInsta: { en: 'Instagram →',   ko: '인스타그램 →' },
+  cfEmail:     { en: 'Email',     ko: 'Email' },
+  cfInstagram: { en: 'Instagram', ko: 'Instagram' },
   // index (홈)
   introQ:     { en: 'Where are you from?', ko: '당신은 어디에서 왔나요?' },
   outro:      { en: 'Liquid Cities.',       ko: 'Liquid Cities.' },
@@ -70,8 +72,8 @@ const I18N = {
   // About 페이지 2행 필터
   afAbout:      { en: 'About',      ko: 'About' },
   afProjects:   { en: 'Projects',   ko: 'Projects' },
-  afResearcher: { en: 'Researcher', ko: 'Researcher' },
-  researcherSoon: { en: 'Researcher — coming soon.', ko: 'Researcher — 준비 중입니다.' },
+  afResearch:   { en: 'Research',   ko: 'Research' },
+  researchSoon: { en: 'Research — coming soon.', ko: 'Research — 준비 중입니다.' },
   // blog
   blogTitle:  { en: 'Blog', ko: '블로그' },
   blogSub:    { en: 'Notes and updates from the project.', ko: '프로젝트의 기록과 소식.' },
@@ -131,11 +133,10 @@ function pickLangBody(p) {
 function renderHeader(active) {
   // 로고(→ Liquid Cities Project)가 곧 홈 링크 — 메뉴에 별도 Home 없음
   const links = [
-    { href: 'projects',      i18n: 'navAbout',      key: 'about' },
-    { href: 'projects',      i18n: 'navProjects',   key: 'projects' },
-    { href: 'researcher',    i18n: 'navResearcher', key: 'researcher' },
-    { href: 'contact',       i18n: 'navContact',    key: 'contact' },
-    { href: 'making-spaces', i18n: 'navMaking',     key: 'making-spaces' },
+    { href: 'about',         i18n: 'navAbout',    key: 'about' },
+    { href: 'projects',      i18n: 'navProjects', key: 'projects' },
+    { href: 'contact',       i18n: 'navContact',  key: 'contact' },
+    { href: 'making-spaces', i18n: 'navMaking',   key: 'making-spaces' },
   ];
   const el = document.getElementById('site-header');
   if (!el) return;

@@ -40,11 +40,12 @@
 renderHeader('about');
 applyI18n();
 
-// About 2행 필터 — 처음부터 노출 (Projects / Researcher).
-// 기본(필터 없음)은 소개글을 보여준다(About 항목은 필터에서 제거).
+// About 2행 하위 필터 (About의 하위: Projects / Research).
+// 상위 메뉴 Projects와는 다른 항목 — 여기 Projects는 About 안의 하위 콘텐츠.
+// 기본(필터 없음)은 About 소개글을 보여준다(About 클릭 = About 페이지 랜딩).
 const FILTERS = [
-  { key: 'projects',   i18n: 'afProjects' },
-  { key: 'researcher', i18n: 'afResearcher' },
+  { key: 'projects', i18n: 'afProjects' },
+  { key: 'research', i18n: 'afResearch' },
 ];
 let currentFilter = new URLSearchParams(location.search).get('filter') || '';
 if (currentFilter && !FILTERS.some(f => f.key === currentFilter)) currentFilter = '';
@@ -73,13 +74,9 @@ if (currentFilter && !FILTERS.some(f => f.key === currentFilter)) currentFilter 
     const body = document.getElementById('aboutBody');
     if (!filter) {
       drawAbout(); // 기본(필터 없음) = 소개글
-    } else if (filter === 'projects') {
-      // Projects는 별도 페이지가 있으므로 그리로 안내
-      body.innerHTML =
-        '<p class="sub">' + t('afProjects') + '</p>' +
-        '<p><a href="projects" style="text-decoration:underline; text-underline-offset:3px">' + t('afProjects') + ' →</a></p>';
-    } else if (filter === 'researcher') {
-      body.innerHTML = '<p class="sub">' + t('researcherSoon') + '</p>';
+    } else {
+      // About 하위(Projects/Research) — 별도 콘텐츠는 추후. 지금은 준비 중.
+      body.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
     }
   }
 
