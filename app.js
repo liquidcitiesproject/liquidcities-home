@@ -135,8 +135,8 @@ function renderHeader(active) {
   const links = [
     { href: 'about',         i18n: 'navAbout',    key: 'about' },
     { href: 'projects',      i18n: 'navProjects', key: 'projects' },
-    { href: 'contact',       i18n: 'navContact',  key: 'contact' },
     { href: 'making-spaces', i18n: 'navMaking',   key: 'making-spaces' },
+    { href: 'contact',       i18n: 'navContact',  key: 'contact' },
   ];
   const el = document.getElementById('site-header');
   if (!el) return;
