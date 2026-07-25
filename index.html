@@ -10,6 +10,7 @@
 </head>
 <body>
 <header id="site-header"></header>
+<div id="filter-bar"></div>
 
 <!-- 3단계: (1) Where are you from? 가운데 크게 → (2) 사진 랜덤 등장 → (3) Liquid Cities. 가운데 크게 -->
 <section class="zoomflow" id="zoomflow">
@@ -31,6 +32,11 @@
 <script>
 renderHeader('');
 applyI18n();
+// 첫 화면에도 About 하위 메뉴(Projects/Research)를 노출 — 클릭 시 about 페이지의 해당 하위로 이동
+renderFilterBar('filter-bar', [
+  { key: 'projects', i18n: 'afProjects' },
+  { key: 'research', i18n: 'afResearch' },
+], '', (key) => { location.href = 'about?filter=' + key; });
 (async () => {
   const flow = document.getElementById('zoomflow');
   const stage = document.getElementById('zoomStage');
