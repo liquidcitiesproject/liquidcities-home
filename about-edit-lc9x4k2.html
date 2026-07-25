@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>About Editor — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260725l">
+<link rel="stylesheet" href="style.css?v=20260725m">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260725l"></script>
+<script src="app.js?v=20260725m"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -119,22 +119,25 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       } else {
         html += '<article class="story">' + defaultBody + '</article>';
       }
-      // 2) 프로젝트 섹션들
-      for (const p of sections) {
+      // 2) 섹션 + 미작성 플레이스홀더를 목록 순서대로 병합 —
+      //    아직 안 쓴 섹션도 제자리에 'Coming soon'으로 표시 (맨 뒤에 몰리지 않게)
+      const used = new Set();
+      PLACEHOLDERS.forEach((name, idx) => {
+        const p = sections.find(x => (x.title || '').trim().toLowerCase() === name.toLowerCase());
+        if (p) {
+          used.add(p.id);
+          metas.push({ type: 'section', post: p });
+          html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
+        } else {
+          metas.push({ type: 'placeholder', name, index: idx });
+          html += storyHtml(name, t('projComingSoon'), null, null);
+        }
+      });
+      // 목록에 없는 제목의 글은 뒤에 날짜순
+      sections.filter(p => !used.has(p.id)).forEach(p => {
         metas.push({ type: 'section', post: p });
-        // 날짜는 표시하지 않음 (created_at은 섹션 순서 정렬에만 사용)
-        html += storyHtml(pickLangTitle(p), null, p.cover,
-          renderMarkdown(pickLangBody(p)));
-      }
-      // 3) 플레이스홀더 — 글이 하나도 없으면 모두에게 레이아웃 노출,
-      //    일부만 있으면 아직 안 쓴 섹션을 관리자에게만 노출(이어서 쓰도록)
-      const remaining = PLACEHOLDERS.filter(name =>
-        !sections.some(p => (p.title || '').trim().toLowerCase() === name.toLowerCase()));
-      const showPh = sections.length ? (adminUid ? remaining : []) : PLACEHOLDERS;
-      for (const name of showPh) {
-        metas.push({ type: 'placeholder', name, index: PLACEHOLDERS.indexOf(name) });
-        html += storyHtml(name, t('projComingSoon'), null, null);
-      }
+        html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
+      });
       body.innerHTML = '<div class="stories" id="storiesWrap">' + html + '</div>';
       if (!page) applyI18n(body); // 정적 소개글 다국어
       // 관리자: 각 칼럼에 ✎ Edit 버튼
