@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260726h">
+<link rel="stylesheet" href="style.css?v=20260726i">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -35,7 +35,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260726h"></script>
+<script src="app.js?v=20260726i"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -53,21 +53,25 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
 
 (async () => {
   const defaultBody = document.getElementById('aboutBody').innerHTML; // 정적 소개글(data-i18n 포함)
-  // 소개글(page) + 프로젝트 섹션 글(kind='project') 로드.
-  // 섹션 순서 = postDate(created_at) 오름차순 — 관리자가 날짜로 순서를 지정한다.
-  // 섹션 표시 순서 = 이 목록의 순서. 목록에 없는 제목은 맨 뒤에 날짜순.
-  const PLACEHOLDERS = ['Background', 'Research Question', 'Theoretical Framework',
+  // 섹션 표시 순서 = 목록 순서. 목록에 없는 제목은 맨 뒤에 날짜순.
+  const PROJ_SECTIONS = ['Background', 'Research Question', 'Theoretical Framework',
     'Methodology', 'Fieldwork Labs & Expansion', 'Manifesto'];
+  const RES_SECTIONS = ['Jane Park', 'About', 'Education', 'Awards', 'Contact'];
   // 화면에서 제외할 섹션 (글은 남아 있음 — manage에서 삭제 가능)
   const HIDDEN = ['how it works'];
-  const orderOf = p => {
-    const i = PLACEHOLDERS.findIndex(n => n.toLowerCase() === (p.title || '').trim().toLowerCase());
-    return i === -1 ? PLACEHOLDERS.length : i;
+  const canonSort = (posts, names) => {
+    const orderOf = p => {
+      const i = names.findIndex(n => n.toLowerCase() === (p.title || '').trim().toLowerCase());
+      return i === -1 ? names.length : i;
+    };
+    return posts.slice()
+      .filter(p => !HIDDEN.includes((p.title || '').trim().toLowerCase()))
+      .sort((a, b) => (orderOf(a) - orderOf(b)) || (new Date(a.created_at) - new Date(b.created_at)));
   };
-  const [page, projectPosts] = await Promise.all([loadPage(), loadPosts('project')]);
-  const sections = projectPosts.slice()
-    .filter(p => !HIDDEN.includes((p.title || '').trim().toLowerCase()))
-    .sort((a, b) => (orderOf(a) - orderOf(b)) || (new Date(a.created_at) - new Date(b.created_at)));
+  const [page, projPosts, resPosts] = await Promise.all([
+    loadPage(), loadPosts('project'), loadPosts('researcher')]);
+  const projSections = canonSort(projPosts, PROJ_SECTIONS);
+  const resSections = canonSort(resPosts, RES_SECTIONS);
 
   function storyHtml(title, dateline, cover, bodyHtml) {
     return '<article class="story">' +
@@ -78,52 +82,50 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       '</article>';
   }
 
-  function draw(filter) {
-    currentFilter = filter;
+  // 가로 매거진 렌더 — Project(소개글 포함)/Researcher 공용
+  function renderMagazine(secs, names, withIntro) {
     const main = document.getElementById('aboutMain');
     const body = document.getElementById('aboutBody');
-    if (filter === 'projects') {
-      // 가로 읽기 매거진 — narrow wrap 해제(풀폭), 세로 스크롤 없음
-      main.className = '';
-      let html = '';
-      // 1) 소개글 = 첫 칼럼 그룹
+    main.className = '';
+    let html = '';
+    if (withIntro) {
       if (page) {
         html += storyHtml(pickLangTitle(page) || 'About', null, page.cover,
           renderMarkdown(pickLangBody(page)));
       } else {
         html += '<article class="story">' + defaultBody + '</article>';
       }
-      // 2) 프로젝트 섹션들 (없으면 5개 섹션명 플레이스홀더로 레이아웃 노출)
-      if (sections.length) {
-        for (const p of sections) {
-          // 날짜는 표시하지 않음 (created_at은 섹션 순서 정렬에만 사용)
-          html += storyHtml(pickLangTitle(p), null, p.cover,
-            renderMarkdown(pickLangBody(p)));
-        }
-      } else {
-        for (const name of PLACEHOLDERS) {
-          html += storyHtml(name, t('projComingSoon'), null, null);
-        }
-      }
-      body.innerHTML = '<div class="stories" id="storiesWrap">' + html + '</div>';
-      if (!page) applyI18n(body); // 정적 소개글 다국어
-      // 데스크톱 휠: 커서가 있는 섹션이 세로로 더 스크롤되면 그걸 우선(기본 동작),
-      // 섹션 끝에 닿으면 가로 스크롤로 전환
-      const wrap = document.getElementById('storiesWrap');
-      wrap.addEventListener('wheel', (e) => {
-        const story = e.target.closest && e.target.closest('.story');
-        if (story) {
-          const canDown = story.scrollTop + story.clientHeight < story.scrollHeight - 1;
-          const canUp = story.scrollTop > 0;
-          if ((e.deltaY > 0 && canDown) || (e.deltaY < 0 && canUp)) return;
-        }
-        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { wrap.scrollLeft += e.deltaY; e.preventDefault(); }
-      }, { passive: false });
-    } else {
-      // Research — 별도 콘텐츠는 추후. 지금은 준비 중.
-      main.className = 'wrap narrow article';
-      body.innerHTML = '<p class="sub">' + t('researchSoon') + '</p>';
     }
+    // 섹션들 (글이 하나도 없으면 섹션명 플레이스홀더로 레이아웃 노출)
+    if (secs.length) {
+      for (const p of secs) {
+        html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
+      }
+    } else {
+      for (const name of names) {
+        html += storyHtml(name, t('projComingSoon'), null, null);
+      }
+    }
+    body.innerHTML = '<div class="stories" id="storiesWrap">' + html + '</div>';
+    if (withIntro && !page) applyI18n(body); // 정적 소개글 다국어
+    // 데스크톱 휠: 커서가 있는 섹션이 세로로 더 스크롤되면 그걸 우선(기본 동작),
+    // 섹션 끝에 닿으면 가로 스크롤로 전환
+    const wrap = document.getElementById('storiesWrap');
+    wrap.addEventListener('wheel', (e) => {
+      const story = e.target.closest && e.target.closest('.story');
+      if (story) {
+        const canDown = story.scrollTop + story.clientHeight < story.scrollHeight - 1;
+        const canUp = story.scrollTop > 0;
+        if ((e.deltaY > 0 && canDown) || (e.deltaY < 0 && canUp)) return;
+      }
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { wrap.scrollLeft += e.deltaY; e.preventDefault(); }
+    }, { passive: false });
+  }
+
+  function draw(filter) {
+    currentFilter = filter;
+    if (filter === 'research') renderMagazine(resSections, RES_SECTIONS, false);
+    else renderMagazine(projSections, PROJ_SECTIONS, true);
   }
 
   function onSelect(key) {

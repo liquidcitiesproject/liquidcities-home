@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>About Editor — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260726h">
+<link rel="stylesheet" href="style.css?v=20260726i">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260726h"></script>
+<script src="app.js?v=20260726i"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -54,25 +54,30 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
 
 (async () => {
   const defaultBody = document.getElementById('aboutBody').innerHTML; // 정적 소개글(data-i18n 포함)
-  // 섹션 표시 순서 = 이 목록의 순서. 목록에 없는 제목은 맨 뒤에 날짜순.
-  const PLACEHOLDERS = ['Background', 'Research Question', 'Theoretical Framework',
+  // 섹션 표시 순서 = 목록 순서. 목록에 없는 제목은 맨 뒤에 날짜순.
+  const PROJ_SECTIONS = ['Background', 'Research Question', 'Theoretical Framework',
     'Methodology', 'Fieldwork Labs & Expansion', 'Manifesto'];
+  const RES_SECTIONS = ['Jane Park', 'About', 'Education', 'Awards', 'Contact'];
   // 화면에서 제외할 섹션 (글은 남아 있음 — manage에서 삭제 가능)
   const HIDDEN = ['how it works'];
-  const orderOf = p => {
-    const i = PLACEHOLDERS.findIndex(n => n.toLowerCase() === (p.title || '').trim().toLowerCase());
-    return i === -1 ? PLACEHOLDERS.length : i;
-  };
-
-  // 소개글(page) + 프로젝트 섹션 글(kind='project') 로드.
-  // 섹션 순서 = postDate(created_at) 오름차순 — 관리자가 날짜로 순서를 지정한다.
-  let page = null, sections = [];
-  async function loadData() {
-    const [p, posts] = await Promise.all([loadPage(), loadPosts('project')]);
-    page = p;
-    sections = posts.slice()
+  const canonSort = (posts, names) => {
+    const orderOf = p => {
+      const i = names.findIndex(n => n.toLowerCase() === (p.title || '').trim().toLowerCase());
+      return i === -1 ? names.length : i;
+    };
+    return posts.slice()
       .filter(p => !HIDDEN.includes((p.title || '').trim().toLowerCase()))
       .sort((a, b) => (orderOf(a) - orderOf(b)) || (new Date(a.created_at) - new Date(b.created_at)));
+  };
+
+  // 소개글(page) + Project(kind='project') + Researcher(kind='researcher') 글 로드
+  let page = null, projSections = [], resSections = [];
+  async function loadData() {
+    const [p, projPosts, resPosts] = await Promise.all([
+      loadPage(), loadPosts('project'), loadPosts('researcher')]);
+    page = p;
+    projSections = canonSort(projPosts, PROJ_SECTIONS);
+    resSections = canonSort(resPosts, RES_SECTIONS);
   }
   await loadData();
 
@@ -107,14 +112,19 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
 
   function draw(filter) {
     currentFilter = filter;
+    if (filter === 'research') buildMagazine(resSections, RES_SECTIONS, false, 'researcher');
+    else buildMagazine(projSections, PROJ_SECTIONS, true, 'project');
+  }
+
+  // 가로 매거진 + 현장 편집 (Project/Researcher 공용)
+  function buildMagazine(secs, names, withIntro, kind) {
     const main = document.getElementById('aboutMain');
     const body = document.getElementById('aboutBody');
-    if (filter === 'projects') {
-      // 가로 읽기 매거진 — narrow wrap 해제(풀폭), 세로 스크롤 없음
-      main.className = '';
-      metas = [];
-      let html = '';
-      // 1) 소개글 = 첫 칼럼 그룹
+    main.className = '';
+    metas = [];
+    let html = '';
+    // 1) 소개글 = 첫 칼럼 그룹 (Project 탭만)
+    if (withIntro) {
       metas.push({ type: 'intro', post: page });
       if (page) {
         html += storyHtml(pickLangTitle(page) || 'About', null, page.cover,
@@ -122,55 +132,51 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       } else {
         html += '<article class="story">' + defaultBody + '</article>';
       }
-      // 2) 섹션 + 미작성 플레이스홀더를 목록 순서대로 병합 —
-      //    아직 안 쓴 섹션도 제자리에 'Coming soon'으로 표시 (맨 뒤에 몰리지 않게)
-      const used = new Set();
-      PLACEHOLDERS.forEach((name, idx) => {
-        const p = sections.find(x => (x.title || '').trim().toLowerCase() === name.toLowerCase());
-        if (p) {
-          used.add(p.id);
-          metas.push({ type: 'section', post: p });
-          html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
-        } else {
-          metas.push({ type: 'placeholder', name, index: idx });
-          html += storyHtml(name, t('projComingSoon'), null, null);
-        }
-      });
-      // 목록에 없는 제목의 글은 뒤에 날짜순
-      sections.filter(p => !used.has(p.id)).forEach(p => {
+    }
+    // 2) 섹션 + 미작성 플레이스홀더를 목록 순서대로 병합 —
+    //    아직 안 쓴 섹션도 제자리에 'Coming soon'으로 표시
+    const used = new Set();
+    names.forEach((name, idx) => {
+      const p = secs.find(x => (x.title || '').trim().toLowerCase() === name.toLowerCase());
+      if (p) {
+        used.add(p.id);
         metas.push({ type: 'section', post: p });
         html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
-      });
-      body.innerHTML = '<div class="stories" id="storiesWrap">' + html + '</div>';
-      if (!page) applyI18n(body); // 정적 소개글 다국어
-      // 관리자: 각 칼럼에 ✎ Edit 버튼
-      if (adminUid) {
-        body.querySelectorAll('.story').forEach((s, i) => {
-          const b = document.createElement('button');
-          b.className = 'story-edit';
-          b.textContent = '✎ Edit';
-          b.addEventListener('click', () => openEditor(i));
-          s.prepend(b);
-        });
+      } else {
+        metas.push({ type: 'placeholder', name, index: idx, kind });
+        html += storyHtml(name, t('projComingSoon'), null, null);
       }
-      // 데스크톱 휠: 커서가 있는 섹션이 세로로 더 스크롤되면 그걸 우선(기본 동작),
-      // 섹션 끝에 닿으면 가로 스크롤로 전환. 편집 폼 위에서는 변환하지 않음.
-      const wrap = document.getElementById('storiesWrap');
-      wrap.addEventListener('wheel', (e) => {
-        if (e.target.closest && e.target.closest('.story.editing')) return;
-        const story = e.target.closest && e.target.closest('.story');
-        if (story) {
-          const canDown = story.scrollTop + story.clientHeight < story.scrollHeight - 1;
-          const canUp = story.scrollTop > 0;
-          if ((e.deltaY > 0 && canDown) || (e.deltaY < 0 && canUp)) return;
-        }
-        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { wrap.scrollLeft += e.deltaY; e.preventDefault(); }
-      }, { passive: false });
-    } else {
-      // Research — 별도 콘텐츠는 추후. 지금은 준비 중.
-      main.className = 'wrap narrow article';
-      body.innerHTML = '<p class="sub">' + t('researchSoon') + '</p>';
+    });
+    // 목록에 없는 제목의 글은 뒤에 날짜순
+    secs.filter(p => !used.has(p.id)).forEach(p => {
+      metas.push({ type: 'section', post: p });
+      html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
+    });
+    body.innerHTML = '<div class="stories" id="storiesWrap">' + html + '</div>';
+    if (withIntro && !page) applyI18n(body); // 정적 소개글 다국어
+    // 관리자: 각 칼럼에 ✎ Edit 버튼
+    if (adminUid) {
+      body.querySelectorAll('.story').forEach((s, i) => {
+        const b = document.createElement('button');
+        b.className = 'story-edit';
+        b.textContent = '✎ Edit';
+        b.addEventListener('click', () => openEditor(i));
+        s.prepend(b);
+      });
     }
+    // 데스크톱 휠: 커서가 있는 섹션이 세로로 더 스크롤되면 그걸 우선(기본 동작),
+    // 섹션 끝에 닿으면 가로 스크롤로 전환. 편집 폼 위에서는 변환하지 않음.
+    const wrap = document.getElementById('storiesWrap');
+    wrap.addEventListener('wheel', (e) => {
+      if (e.target.closest && e.target.closest('.story.editing')) return;
+      const story = e.target.closest && e.target.closest('.story');
+      if (story) {
+        const canDown = story.scrollTop + story.clientHeight < story.scrollHeight - 1;
+        const canUp = story.scrollTop > 0;
+        if ((e.deltaY > 0 && canDown) || (e.deltaY < 0 && canUp)) return;
+      }
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { wrap.scrollLeft += e.deltaY; e.preventDefault(); }
+    }, { passive: false });
   }
 
   // ---- 현장 편집 (관리자 전용) ----
@@ -300,7 +306,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     ed.appendChild(btnRow); ed.appendChild(st);
     s.appendChild(ed);
 
-    cancelBtn.addEventListener('click', () => draw('projects'));
+    cancelBtn.addEventListener('click', () => draw(currentFilter));
     saveBtn.addEventListener('click', async () => {
       const client = sb();
       if (!client) { st.textContent = '연결 없음'; return; }
@@ -321,7 +327,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
           row.author_id = adminUid;
           row.published = true;
           if (m.type === 'placeholder') {
-            row.kind = 'project';
+            row.kind = m.kind || 'project';
             // 순서 자동 지정 — 섹션 인덱스를 날짜(1월 1일+i)로 변환 (오름차순 정렬 기준)
             row.created_at = new Date(Date.UTC(2026, 0, 1 + m.index, 12)).toISOString();
           } else {
@@ -331,7 +337,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
         }
         if (error) throw error;
         await loadData();
-        draw('projects');
+        draw(currentFilter);
       } catch (e) { st.textContent = '저장 실패 — ' + (e.message || e); }
     });
   }
