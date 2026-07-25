@@ -52,6 +52,18 @@ const I18N = {
   contactInsta: { en: 'Instagram →',   ko: '인스타그램 →' },
   cfEmail:     { en: 'Email',     ko: 'Email' },
   cfInstagram: { en: 'Instagram', ko: 'Instagram' },
+  // Archiving (앱 기록 아카이브)
+  archDate:    { en: 'Date',            ko: '날짜' },
+  archMass:    { en: 'Mass',            ko: '매스' },
+  archAddr:    { en: 'Address',         ko: '주소' },
+  archThought: { en: 'Thought',         ko: '생각' },
+  archEmotion: { en: 'Emotion',         ko: '감정' },
+  archAmen:    { en: 'Surroundings',    ko: '주변 환경' },
+  archTransit: { en: 'Nearest transit', ko: '가까운 대중교통' },
+  archFood:    { en: 'Restaurants / cafes within 1km', ko: '1km 안 식당 / 카페' },
+  archParks:   { en: 'Parks within 5km', ko: '5km 안 공원' },
+  archSearch:  { en: 'Search',          ko: '검색' },
+  archNoResults:{ en: 'No results.',    ko: '결과가 없어요.' },
   // index (홈)
   introQ:     { en: 'Where are you from?', ko: '당신은 어디에서 왔나요?' },
   outro:      { en: 'Liquid Cities.',       ko: 'Liquid Cities.' },
@@ -129,6 +141,23 @@ function pickLangTitle(p) {
 }
 function pickLangBody(p) {
   return (LANG === 'ko' && p.body_ko && p.body_ko.trim()) ? p.body_ko : p.body;
+}
+
+/* ---- 공유 보드(아카이브 데이터) 로드 — Archiving 페이지에서 사용 ---- */
+async function loadSharedBoard() {
+  const client = sb();
+  if (!client || !FEATURED_BOARD_UID) return null;
+  const { data, error } = await client.from('shared_boards')
+    .select('payload').eq('user_id', FEATURED_BOARD_UID).single();
+  if (error || !data || !data.payload) return null;
+  return { records: data.payload.records || [], massNames: data.payload.massNames || {} };
+}
+// 앱과 같은 매스 키 — massNames 매칭용 (앱 massKeyOf의 소형 복제)
+function massKeyOf(rec) {
+  if (rec.massOsmId != null && rec.massOsmId !== '') return 'osm:' + rec.massOsmId;
+  const la = isFinite(rec.lat) ? rec.lat.toFixed(4) : '?';
+  const lo = isFinite(rec.lon) ? rec.lon.toFixed(4) : '?';
+  return 'geo:' + la + ',' + lo;
 }
 
 /* ---- 공통 헤더 렌더 ---- */

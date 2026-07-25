@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727d">
+<link rel="stylesheet" href="style.css?v=20260727e">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">Liquid Cities Project</div>
 
-<script src="app.js?v=20260727d"></script>
+<script src="app.js?v=20260727e"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -27,9 +27,42 @@ const FILTERS = [
 ];
 let currentFilter = new URLSearchParams(location.search).get('filter') || 'exhibitions';
 if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'exhibitions';
+// Archiving 상세: &rec=<savedAt>
+const recParam = new URLSearchParams(location.search).get('rec');
+
+// 아카이브 데이터 (공유 보드) — 최초 1회 로드 후 캐시
+let board = null, boardLoaded = false;
+async function ensureBoard() {
+  if (!boardLoaded) {
+    try { board = await loadSharedBoard(); } catch (e) { board = null; }
+    boardLoaded = true;
+  }
+  return board;
+}
+function archWord(r) {
+  return (LANG === 'ko' ? (r.momentWord || r.momentWordEn) : (r.momentWordEn || r.momentWord)) || '·';
+}
+function archMassName(r) {
+  const names = (board && board.massNames) || {};
+  const n = names[massKeyOf(r)];
+  if (n) return n;
+  // 폴백: 주소 앞부분 — 첫 토막이 번지수(숫자)뿐이면 다음 토막(거리명)까지 붙인다
+  const parts = (r.address || '').split(',').map(x => x.trim()).filter(Boolean);
+  let a = parts[0] || '';
+  if (/^\d+[A-Za-z-]*$/.test(a) && parts[1]) a = a + ' ' + parts[1];
+  return a || '—';
+}
+function archDate(r) { return fmtDate(r.mediaDate || r.savedAt); }
+function archRecs() {
+  const rs = (board && board.records || []).filter(r => r && r.savedAt);
+  // 날짜 오름차순 (오래된 기록부터)
+  return rs.slice().sort((a, b) =>
+    new Date(a.mediaDate || a.savedAt) - new Date(b.mediaDate || b.savedAt));
+}
 
 function draw(filter) {
   currentFilter = filter;
+  closeArchPanel(true);
   const main = document.getElementById('projects-content');
   const old = document.getElementById('projMapFrame');
   if (old) old.remove();
@@ -54,10 +87,217 @@ function draw(filter) {
         '" target="_blank" rel="noopener">' + t('openApp') + '</a></div>';
     }
   } else {
-    // 전시(Exhibitions) — 콘텐츠는 추후
-    main.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
+    // Archiving — 앱 기록(공유 보드) 자동 연동: 왼쪽 인덱스 목록 + 오른쪽 이미지 그리드
+    main.className = '';
+    main.innerHTML = '';
+    ensureBoard().then(() => {
+      if (currentFilter !== 'exhibitions') return; // 로드 중 필터 전환 대비
+      const recs = archRecs();
+      if (!recs.length) {
+        main.className = 'wrap narrow';
+        main.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
+        return;
+      }
+      drawArchList(main, recs);
+      const rec = recs.find(r => String(r.savedAt) === String(recParam));
+      if (rec) openArchPanel(rec); // 딥링크: 로드 시 패널 열기
+    });
   }
 }
+
+// ---- Archiving 목록 (Tambourine 스타일: 좌 인덱스 / 우 그리드) ----
+function drawArchList(main, recs) {
+  const split = document.createElement('div');
+  split.className = 'arch-split';
+  const listCol = document.createElement('div');
+  listCol.className = 'arch-list';
+  const grid = document.createElement('div');
+  grid.className = 'arch-grid';
+
+  // 검색창 — 목록 상단 고정. 모든 정보(단어·매스·주소·날짜·생각·감정)를 즉시 필터
+  const searchWrap = document.createElement('div');
+  searchWrap.className = 'arch-search';
+  const input = document.createElement('input');
+  input.type = 'search';
+  input.placeholder = t('archSearch');
+  searchWrap.appendChild(input);
+  listCol.appendChild(searchWrap);
+  const rowsBox = document.createElement('div');
+  listCol.appendChild(rowsBox);
+
+  // 기록당 검색용 문자열 1회 생성 후 캐시
+  const searchText = r => (r._searchText != null ? r._searchText : (r._searchText = [
+    r.momentWord, r.momentWordEn, archMassName(r), r.address, archDate(r),
+    r.momentThought, Array.isArray(r.emoTags) ? r.emoTags.join(' ') : ''
+  ].filter(Boolean).join(' ').toLowerCase()));
+
+  function renderItems(q) {
+    const tokens = (q || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const shown = tokens.length
+      ? recs.filter(r => tokens.every(tk => searchText(r).includes(tk)))
+      : recs;
+    rowsBox.innerHTML = '';
+    grid.innerHTML = '';
+    if (!shown.length) {
+      rowsBox.innerHTML = '<div class="arch-empty">' + t('archNoResults') + '</div>';
+      return;
+    }
+    shown.forEach(r => {
+      const href = 'projects?filter=exhibitions&rec=' + encodeURIComponent(r.savedAt);
+      // 왼쪽 행: 단어 / 매스이름 / 날짜 / 화살표
+      const row = document.createElement('a');
+      row.className = 'arch-row';
+      row.href = href;
+      row.addEventListener('click', (e) => { e.preventDefault(); openArchPanel(r); });
+      row.innerHTML =
+        '<span class="w">' + escapeHtml(archWord(r)) + '</span>' +
+        '<span class="m">' + escapeHtml(archMassName(r)) + '</span>' +
+        '<span class="d">' + escapeHtml(archDate(r)) + '</span>' +
+        '<span class="arr">→</span>';
+      rowsBox.appendChild(row);
+      // 오른쪽 그리드 셀: 썸네일 + 단어 캡션
+      const cell = document.createElement('a');
+      cell.className = 'arch-cell';
+      cell.href = href;
+      cell.addEventListener('click', (e) => { e.preventDefault(); openArchPanel(r); });
+      cell.innerHTML =
+        (r.massThumb ? '<img src="' + r.massThumb + '" alt="">' : '<div class="noimg"></div>') +
+        '<div class="cap">' + escapeHtml(archWord(r)) + '</div>';
+      grid.appendChild(cell);
+    });
+  }
+  input.addEventListener('input', () => renderItems(input.value));
+  renderItems('');
+
+  split.appendChild(listCol);
+  split.appendChild(grid);
+  main.appendChild(split);
+}
+
+// ---- Archiving 상세 — 오른쪽 반 패널(왼쪽 목록 유지) ----
+// 감정 태그 라벨 (앱과 동일)
+const EMO_LABELS = {
+  en: { calm: 'Calm', overwhelmed: 'Overwhelmed', strangeness: 'Strangeness', relief: 'Relief',
+        longing: 'Longing', unfamiliar: 'Unfamiliar', comfort: 'Comfort',
+        excited: 'Excited', moved: 'Moved', lonely: 'Lonely', anxious: 'Anxious', weary: 'Weary', cozy: 'Cozy' },
+  ko: { calm: '고요함', overwhelmed: '벅참', strangeness: '이질감', relief: '안도',
+        longing: '그리움', unfamiliar: '낯섦', comfort: '편안함',
+        excited: '설렘', moved: '벅참', lonely: '쓸쓸', anxious: '불안', weary: '지침', cozy: '편안' },
+};
+// 감정 좌표 문장 (앱 emoCoordText와 동일 로직)
+function emoCoordText(x, y) {
+  const L = LANG === 'ko'
+    ? { s: '조금', q: '꽤', v: '아주', xn: '낯섦', xp: '편안함', yn: '고요함', yp: '격렬함', mid: '중간 어디쯤' }
+    : { s: 'slightly', q: 'quite', v: 'very', xn: 'unfamiliar', xp: 'comfortable', yn: 'calm', yp: 'intense', mid: 'somewhere in the middle' };
+  const word = (v, neg, pos) => {
+    const mag = Math.abs(v);
+    if (mag < 0.12) return null;
+    const deg = mag < 0.4 ? L.s : mag < 0.72 ? L.q : L.v;
+    return deg + ' ' + (v >= 0 ? pos : neg);
+  };
+  const parts = [word(x, L.xn, L.xp), word(y, L.yn, L.yp)].filter(Boolean);
+  return parts.length ? parts.join(', ') : L.mid;
+}
+// 앱과 동일한 촬영시각 표기 (UTC 고정)
+function fmtDateTimeGMT(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const z = n => String(n).padStart(2, '0');
+  return z(d.getUTCMonth() + 1) + '/' + z(d.getUTCDate()) + '/' + d.getUTCFullYear() +
+    ' ' + z(d.getUTCHours()) + ':' + z(d.getUTCMinutes()) + ' GMT';
+}
+
+function buildArchDetailHtml(r) {
+  const rows = [];
+  const add = (k, v) => { if (v != null && v !== '') rows.push([k, v]); };
+  // 감정 (태그 라벨)
+  const labels = EMO_LABELS[LANG] || EMO_LABELS.en;
+  if (Array.isArray(r.emoTags) && r.emoTags.length) {
+    add('By emotion', r.emoTags.map(id => labels[id] || id).join(' · '));
+  } else if (r.momentEmotion) add('By emotion', r.momentEmotion);
+  if (isFinite(r.emoX) && isFinite(r.emoY)) add('How it felt', emoCoordText(r.emoX, r.emoY));
+  const cap = r.mediaDate ? fmtDateTimeGMT(r.mediaDate) : '';
+  add('Captured', cap);
+  add('Mass', archMassName(r)); // 주소는 앱 방문자 뷰어와 동일하게 비노출
+  if (typeof r.gpsDistM === 'number') {
+    add('Distance', r.gpsDistM >= 1000 ? (r.gpsDistM / 1000).toFixed(1) + 'km' : r.gpsDistM + 'm');
+  }
+  // 반경별 정보 (앱 radiusLinesFor와 동일)
+  const a = r.amenities;
+  const num = v => (v == null ? '—' : v);
+  add('Immediate (~200m)', a && a.transitDistM != null ? 'Nearest transit ' + a.transitDistM + 'm' : 'Nearest transit —');
+  add('Walkable (~1km)', a ? 'Restaurants ' + num(a.restaurants) + ', cafes ' + num(a.cafes) : 'Restaurants —');
+  add('Neighborhood (~3-5km)', a ? 'Parks & green space: ' + num(a.parks) : 'Parks —');
+  const renewMap = { kr: '9.2%', sg: '4.1%', gb: '46%', us: '23%' };
+  add('City-wide', 'Renewable energy: ' + (renewMap[r.countryCode] || '—'));
+
+  const table = rows.map(([k, v]) =>
+    '<div class="arch-field"><span class="lbl">' + escapeHtml(k) + '</span>' +
+    '<span class="val">' + escapeHtml(v) + '</span></div>').join('');
+  return '<div class="arch-media">' +
+      (r.massThumb ? '<img class="arch-photo" src="' + r.massThumb + '" alt="">' : '') +
+    '</div>' +
+    '<h1 class="arch-word">' + escapeHtml(archWord(r)) + '</h1>' +
+    (r.momentThought ? '<p class="arch-thought">' + escapeHtml(r.momentThought) + '</p>' : '') +
+    (cap ? '<p class="arch-cap">' + escapeHtml(cap) + '</p>' : '') +
+    '<div class="arch-detail">' + table + '</div>';
+}
+
+// 산출물(비공개 버킷) — 앱 뷰어와 동일하게 anon으로 내려받아 재생/표시
+async function fetchOutputUrl(savedAt, kind) {
+  try {
+    const client = sb();
+    if (!client) return null;
+    const { data, error } = await client.storage.from('outputs')
+      .download(FEATURED_BOARD_UID + '/' + savedAt + '-' + kind);
+    if (error || !data) return null;
+    return URL.createObjectURL(data);
+  } catch (e) { return null; }
+}
+
+function openArchPanel(r) {
+  closeArchPanel(true);
+  history.replaceState(null, '', 'projects?filter=exhibitions&rec=' + encodeURIComponent(r.savedAt));
+  const panel = document.createElement('div');
+  panel.className = 'arch-panel';
+  panel.id = 'archPanel';
+  panel.innerHTML =
+    '<div class="arch-panel-top"><button class="arch-close" aria-label="close">×</button></div>' +
+    buildArchDetailHtml(r);
+  panel.querySelector('.arch-close').addEventListener('click', () => closeArchPanel());
+  document.body.appendChild(panel);
+  panel.scrollTop = 0;
+  // 미디어 업그레이드 — 영상이면 매핑 영상(out5→out1) 재생, 이미지면 고화질(out4)로 교체
+  const media = panel.querySelector('.arch-media');
+  (async () => {
+    if (r.mediaType === 'video') {
+      // 앱 상세와 같은 우선순위: 매핑 영상(out5) → 릴스(out1) → 원본(out0)
+      const url = (await fetchOutputUrl(r.savedAt, 'out5'))
+        || (await fetchOutputUrl(r.savedAt, 'out1'))
+        || (await fetchOutputUrl(r.savedAt, 'out0'));
+      if (url && panel.isConnected) {
+        media.innerHTML = '<video class="arch-photo" src="' + url +
+          '" autoplay muted loop playsinline></video>';
+        // 컨트롤은 평소 숨김 — 호버(터치는 탭)할 때만 표시
+        const vid = media.querySelector('video');
+        vid.addEventListener('mouseenter', () => vid.setAttribute('controls', ''));
+        vid.addEventListener('mouseleave', () => vid.removeAttribute('controls'));
+        vid.addEventListener('touchstart', () => vid.setAttribute('controls', ''), { passive: true });
+      }
+    } else {
+      const url = await fetchOutputUrl(r.savedAt, 'out4');
+      const img = media.querySelector('img');
+      if (url && img && panel.isConnected) img.src = url;
+    }
+  })();
+}
+function closeArchPanel(silent) {
+  const p = document.getElementById('archPanel');
+  if (!p) return;
+  p.remove();
+  if (!silent) history.replaceState(null, '', 'projects?filter=exhibitions');
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeArchPanel(); });
 
 function onSelect(key) {
   history.replaceState(null, '', 'projects?filter=' + key);
