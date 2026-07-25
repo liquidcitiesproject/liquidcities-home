@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fieldwork — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260726w">
+<link rel="stylesheet" href="style.css?v=20260726x">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -16,15 +16,23 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260726w"></script>
+<script src="app.js?v=20260726x"></script>
 <script>
 renderHeader('fieldwork');
 applyI18n();
 
 // 필드워크 도시 목록 — 가로 선으로 구분된 행. 도시가 늘면 여기에 추가.
 const CITIES = [
-  { key: 'seoul', en: 'Seoul', ko: '서울' },
+  { key: 'seoul',     en: 'Seoul',     ko: '서울' },
+  { key: 'london',    en: 'London',    ko: '런던' },
+  { key: 'singapore', en: 'Singapore', ko: '싱가포르' },
+  { key: 'shanghai',  en: 'Shanghai',  ko: '상하이' },
 ];
+// 마지막 행 — 궁금증을 유발하는 문구
+const TEASER = {
+  en: 'And the next city… might be the one you\'re standing in.',
+  ko: '그리고 다음 도시는… 지금 당신이 서 있는 그곳일지도 모릅니다.',
+};
 
 function draw() {
   const list = document.getElementById('fieldList');
@@ -35,6 +43,10 @@ function draw() {
     row.textContent = (LANG === 'ko' ? c.ko : c.en);
     list.appendChild(row);
   });
+  const tz = document.createElement('div');
+  tz.className = 'field-teaser';
+  tz.textContent = (LANG === 'ko' ? TEASER.ko : TEASER.en);
+  list.appendChild(tz);
 }
 draw();
 window._lcRerender = draw;
