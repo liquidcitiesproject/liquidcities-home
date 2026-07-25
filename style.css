@@ -101,6 +101,16 @@ body { padding-top: var(--hdrH, 96px); }
 .story-editor label { display: block; font-size: 12px; color: var(--dim); margin: 12px 0 4px; }
 .story-editor textarea { min-height: 180px; }
 
+/* Emotional map 소개 한 줄 (필터 바 아래 고정) */
+#mapCaption { position: fixed; left: 0; right: 0;
+  top: calc(var(--hdrH, 96px) + var(--filterH, 40px)); z-index: 900;
+  background: var(--bg); border-bottom: 1px solid var(--ink);
+  padding: 9px 20px; font-size: 13px; }
+.map-frame-inline.with-caption {
+  top: calc(var(--hdrH, 96px) + var(--filterH, 40px) + 36px) !important;
+  height: calc(100vh - var(--hdrH, 96px) - var(--filterH, 40px) - 36px) !important; }
+@media (max-width: 640px) { #mapCaption { font-size: 12px; padding: 8px 18px; } }
+
 /* Projects의 감정맵 iframe — 헤더 + 필터 바 아래 화면을 채움
    (map.html의 .map-frame과 달리 헤더/필터 바를 남긴다) */
 .map-frame-inline { position: fixed; left: 0; right: 0; bottom: 0;

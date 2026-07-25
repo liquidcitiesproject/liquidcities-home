@@ -38,6 +38,8 @@ const I18N = {
   pfExhibitions:  { en: 'Archiving', ko: 'Archiving' },
   pfHowTo:        { en: 'How to?',   ko: 'How to?' },
   pfInsight:      { en: 'Insight',   ko: 'Insight' },
+  mapCaption:     { en: 'Emotional map — moments of feeling. Their sum becomes an identity.',
+                    ko: 'Emotional map — 순간의 감정들. 그 총합이 정체성이 됩니다.' },
   pfEmotionalMap: { en: 'Emotional map', ko: 'Emotional map' },
   pfVol1:         { en: 'Vol.1',         ko: 'Vol.1' },
   projComingSoon: { en: 'Coming soon.',  ko: '준비 중입니다.' },
