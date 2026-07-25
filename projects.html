@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727i">
+<link rel="stylesheet" href="style.css?v=20260727j">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">Liquid Cities Project</div>
 
-<script src="app.js?v=20260727i"></script>
+<script src="app.js?v=20260727j"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -75,7 +75,9 @@ function draw(filter) {
       const iframe = document.createElement('iframe');
       iframe.id = 'projMapFrame';
       iframe.className = 'map-frame-inline';
-      iframe.src = APP_BASE + '?board=' + encodeURIComponent(FEATURED_BOARD_UID);
+      // 날짜 버전 파라미터 — 앱 새 배포가 캐시에 가려 옛 화면이 뜨는 것 방지(하루 단위 갱신)
+      iframe.src = APP_BASE + '?board=' + encodeURIComponent(FEATURED_BOARD_UID) +
+        '&v=' + new Date().toISOString().slice(0, 10);
       iframe.setAttribute('title', 'Liquid Cities shared board');
       iframe.setAttribute('loading', 'lazy');
       document.body.appendChild(iframe);
