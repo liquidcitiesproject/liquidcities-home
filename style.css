@@ -67,9 +67,8 @@ body { padding-top: var(--hdrH, 96px); }
 .story { background: #fff; border-right: 1px solid var(--ink); } /* 톤 교차 대신 선으로 구분 */
 .story:last-child { border-right: none; }
 .story .story-title { font-size: 26px; font-weight: 500; letter-spacing: -0.01em;
-  line-height: 1.15; margin: 2px 0 10px; text-align: left;
-  min-height: 60px; display: flex; align-items: center; justify-content: flex-start; }
-  /* 위아래 ~1cm · 긴 타이틀 두 줄 줄바꿈 · 높이 고정(2줄 기준) → 본문 시작 위치 동일 */
+  line-height: 1.15; margin: 2px 0 10px; text-align: left; white-space: nowrap; }
+  /* 한 줄 고정 — 긴 타이틀은 JS가 폰트를 줄여 맞춤 → 본문 시작 위치 동일 */
 .story .story-date { font-size: 12px; color: var(--dim); margin: 0 0 20px;
   font-family: ui-monospace, Menlo, monospace; }
 .story { color: #000; } /* 스토리 텍스트는 순수 블랙 */

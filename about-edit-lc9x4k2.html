@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>About Editor — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260726k">
+<link rel="stylesheet" href="style.css?v=20260726l">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260726k"></script>
+<script src="app.js?v=20260726l"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -116,6 +116,18 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     else buildMagazine(projSections, PROJ_SECTIONS, true, 'project');
   }
 
+
+  // 긴 타이틀은 폰트를 줄여 한 줄에 맞춘다 (본문 시작선 유지)
+  function fitTitles(root) {
+    root.querySelectorAll('.story-title').forEach(el => {
+      el.style.fontSize = '';
+      let fs = parseFloat(getComputedStyle(el).fontSize) || 26;
+      while (el.scrollWidth > el.clientWidth && fs > 18) {
+        fs -= 1;
+        el.style.fontSize = fs + 'px';
+      }
+    });
+  }
   // 가로 매거진 + 현장 편집 (Project/Researcher 공용)
   function buildMagazine(secs, names, withIntro, kind) {
     const main = document.getElementById('aboutMain');
@@ -154,6 +166,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     });
     body.innerHTML = '<div class="stories" id="storiesWrap">' + html + '</div>';
     if (withIntro && !page) applyI18n(body); // 정적 소개글 다국어
+    fitTitles(body);
     // 관리자: 각 칼럼에 ✎ Edit 버튼
     if (adminUid) {
       body.querySelectorAll('.story').forEach((s, i) => {
