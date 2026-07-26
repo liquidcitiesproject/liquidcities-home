@@ -350,3 +350,6 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
 .story--rq .article-body strong { display: block; font-size: 26px; font-weight: 300;
   font-style: italic; text-align: center; line-height: 1.5; }
 @media (max-width: 640px) { .story--rq .article-body strong { font-size: 22px; } }
+
+/* 매거진 티저 칼럼 (Who's next? 등) — 연한 회색, 클릭 없음 */
+.story--teaser .story-title { color: #c9ccd0; }

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728t">
+<link rel="stylesheet" href="style.css?v=20260728u">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -37,7 +37,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728t"></script>
+<script src="app.js?v=20260728u"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -130,7 +130,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     });
   }
   // 가로 매거진 렌더 — Project(소개글 포함)/Researcher 공용
-  function renderMagazine(secs, names, withIntro) {
+  function renderMagazine(secs, names, withIntro, teaserTitle) {
     const main = document.getElementById('aboutMain');
     const body = document.getElementById('aboutBody');
     main.className = '';
@@ -160,6 +160,11 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
         html += storyHtml(name, t('projComingSoon'), null, null);
       }
     }
+    // 마지막 티저 칼럼 (예: Researcher의 Who's next?)
+    if (teaserTitle) {
+      html += '<article class="story story--teaser"><h2 class="story-title">' +
+        escapeHtml(teaserTitle) + '</h2></article>';
+    }
     body.innerHTML = '<div class="stories" id="storiesWrap">' + html + '</div>';
     if (withIntro && !page) applyI18n(body); // 정적 소개글 다국어
     fitTitles(body);
@@ -179,7 +184,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
 
   function draw(filter) {
     currentFilter = filter;
-    if (filter === 'research') renderMagazine(resSections, RES_SECTIONS, false);
+    if (filter === 'research') renderMagazine(resSections, RES_SECTIONS, false, "Who's next?");
     else if (filter === 'manifesto') renderManifesto();
     else renderMagazine(projSections, PROJ_SECTIONS, true);
   }
