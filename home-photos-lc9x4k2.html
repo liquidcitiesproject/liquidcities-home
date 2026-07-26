@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Home Photos — Liquid Cities Project</title>
+<link rel="stylesheet" href="style.css?v=20260728z">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+.hp-wrap { padding: 24px 26px 90px; }
+.hp-sub { font-size: 14px; color: #555; margin-top: 6px; }
+.hp-bar { display: flex; gap: 10px; align-items: center; position: sticky; top: 0;
+  background: #fff; padding: 12px 0; z-index: 5; border-bottom: 1px solid var(--ink); }
+.hp-bar button { padding: 7px 16px; font-size: 13px; cursor: pointer;
+  border: 1px solid var(--ink); background: #000; color: #fff; }
+.hp-bar button.secondary { background: #fff; color: var(--ink); }
+.hp-status { font-size: 13px; }
+.hp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px; margin-top: 18px; }
+.hp-cell { position: relative; cursor: pointer; border: 1px solid #ddd; padding: 6px; background: #fff; }
+.hp-cell img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.hp-cell .hp-meta { font-size: 11px; margin-top: 5px; color: #333; }
+.hp-cell.sel { border: 2px solid #000; padding: 5px; }
+.hp-badge { position: absolute; top: 4px; left: 4px; background: #000; color: #fff;
+  font-size: 12px; width: 22px; height: 22px; display: flex; align-items: center;
+  justify-content: center; border-radius: 50%; z-index: 2; }
+</style>
+</head>
+<body>
+<header id="site-header"></header>
+<main class="hp-wrap" id="hpMain">
+  <h1 style="font-size:22px; font-weight:500">메인 화면 사진 선택</h1>
+  <p class="hp-sub">누르는 순서대로 메인 화면에 등장합니다 (최대 12장).
+    하나도 선택하지 않고 저장하면 지금처럼 최신 10장이 자동 표시됩니다.</p>
+  <div class="hp-bar">
+    <button id="hpSave">저장</button>
+    <button id="hpClear" class="secondary">선택 모두 해제</button>
+    <span class="hp-status" id="hpStatus"></span>
+  </div>
+  <div class="hp-grid" id="hpGrid"></div>
+</main>
+<div class="footer">©2026 Liquid Cities Project</div>
+<script src="app.js?v=20260728z"></script>
+<script>
+renderHeader('');
+(async () => {
+  const main = document.getElementById('hpMain');
+  const grid = document.getElementById('hpGrid');
+  const st = document.getElementById('hpStatus');
+  const client = sb();
+  let uid = null;
+  try {
+    const { data } = await client.auth.getSession();
+    uid = data && data.session ? data.session.user.id : null;
+  } catch (e) {}
+  if (!uid) {
+    main.innerHTML = '<h1 style="font-size:22px; font-weight:500">Home Photos</h1>' +
+      '<p class="hp-sub">관리자 로그인이 필요합니다. ' +
+      '<a href="manage-lc9x4k2" style="text-decoration:underline">로그인하러 가기 →</a></p>';
+    return;
+  }
+
+  st.textContent = '불러오는 중…';
+  const [photos, cfg] = await Promise.all([loadSharedPhotos(500), loadHomePhotoConfig()]);
+  st.textContent = '';
+  // 여러 보드에 같은 기록이 있을 수 있어 key로 중복 제거
+  const seen = new Set();
+  const uniq = photos.filter(p => { if (seen.has(p.key)) return false; seen.add(p.key); return true; });
+  if (!uniq.length) { st.textContent = '공유된 사진이 없어요.'; return; }
+  let selected = (cfg && Array.isArray(cfg.keys))
+    ? cfg.keys.filter(k => uniq.some(p => p.key === k)) : [];
+
+  function render() {
+    grid.innerHTML = '';
+    uniq.forEach(p => {
+      const idx = selected.indexOf(p.key);
+      const c = document.createElement('div');
+      c.className = 'hp-cell' + (idx >= 0 ? ' sel' : '');
+      c.innerHTML = (idx >= 0 ? '<span class="hp-badge">' + (idx + 1) + '</span>' : '') +
+        '<img loading="lazy" src="' + p.thumb + '" alt="">' +
+        '<div class="hp-meta">' + escapeHtml(p.word || '—') +
+        (p.savedAt ? ' · ' + new Date(p.savedAt).toISOString().slice(0, 10) : '') + '</div>';
+      c.addEventListener('click', () => {
+        const i = selected.indexOf(p.key);
+        if (i >= 0) selected.splice(i, 1);
+        else {
+          if (selected.length >= 12) { st.textContent = '최대 12장까지 선택할 수 있어요'; return; }
+          selected.push(p.key);
+        }
+        st.textContent = '';
+        render();
+      });
+      grid.appendChild(c);
+    });
+  }
+  render();
+
+  document.getElementById('hpClear').addEventListener('click', () => { selected = []; st.textContent = ''; render(); });
+  document.getElementById('hpSave').addEventListener('click', async () => {
+    st.textContent = '저장 중…';
+    try {
+      const body = JSON.stringify({ keys: selected });
+      const { data, error: selErr } = await client.from('posts').select('id')
+        .eq('kind', 'page').eq('title', HOME_PHOTO_CFG_TITLE).limit(1);
+      if (selErr) throw selErr;
+      let error;
+      if (data && data.length) {
+        ({ error } = await client.from('posts').update({
+          body, updated_at: new Date().toISOString(),
+        }).eq('id', data[0].id));
+      } else {
+        ({ error } = await client.from('posts').insert({
+          kind: 'page', title: HOME_PHOTO_CFG_TITLE, body,
+          published: true, author_id: uid,
+        }));
+      }
+      if (error) throw error;
+      st.textContent = selected.length
+        ? '저장 완료 — 메인 화면에 ' + selected.length + '장이 이 순서대로 나옵니다'
+        : '저장 완료 — 선택이 없어 최신 10장이 자동 표시됩니다';
+    } catch (e) { st.textContent = '저장 실패 — ' + (e.message || e); }
+  });
+})();
+</script>
+</body>
+</html>

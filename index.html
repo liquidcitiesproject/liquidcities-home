@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Liquid Cities Project</title>
 <meta name="description" content="Liquid Cities — where are you from? A living map of moments mapped onto the buildings of the city.">
-<link rel="stylesheet" href="style.css?v=20260728y">
+<link rel="stylesheet" href="style.css?v=20260728z">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -25,7 +25,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728y"></script>
+<script src="app.js?v=20260728z"></script>
 <script>
 renderHeader('');
 applyI18n();
@@ -42,7 +42,7 @@ renderFilterBar('filter-bar', [
   const introText = document.getElementById('introText');
   const outroText = document.getElementById('outroText');
   const scrollHint = document.getElementById('scrollHint');
-  const photos = await loadSharedPhotos(10); // 최대 10개
+  const photos = await loadCuratedPhotos(12); // 관리자 선택본, 없으면 최신 10장
   if (!photos.length) {
     status.textContent = t('noMoments');
     window._lcRerender = () => { status.textContent = t('noMoments'); };

@@ -262,6 +262,7 @@ async function loadSharedPhotos(limit = 60) {
       const recs = (row.payload && row.payload.records) || [];
       recs.forEach(r => {
         if (r.massThumb) out.push({
+          key: String(r.savedAt || 0) + '|' + (r.momentWordEn || r.momentWord || ''),
           thumb: r.massThumb,
           word: r.momentWordEn || r.momentWord || '',
           address: r.address || '',
@@ -276,6 +277,31 @@ async function loadSharedPhotos(limit = 60) {
     console.warn('loadSharedPhotos failed:', e.message);
     return [];
   }
+}
+
+// 메인 화면 사진 큐레이션 — 관리자가 고른 사진 키 목록 (posts에 설정 행으로 저장)
+const HOME_PHOTO_CFG_TITLE = '_config:home-photos';
+async function loadHomePhotoConfig() {
+  const client = sb();
+  if (!client) return null;
+  try {
+    const { data, error } = await client.from('posts').select('body')
+      .eq('kind', 'page').eq('title', HOME_PHOTO_CFG_TITLE).limit(1);
+    if (error) throw error;
+    if (!data || !data.length) return null;
+    return JSON.parse(data[0].body || '{}');
+  } catch (e) { return null; }
+}
+// 큐레이션이 있으면 그 순서대로, 없으면 최신순 — 메인 화면 전용
+async function loadCuratedPhotos(limit = 12) {
+  const [all, cfg] = await Promise.all([loadSharedPhotos(500), loadHomePhotoConfig()]);
+  if (cfg && Array.isArray(cfg.keys) && cfg.keys.length) {
+    const byKey = new Map();
+    all.forEach(p => { if (!byKey.has(p.key)) byKey.set(p.key, p); });
+    const sel = cfg.keys.map(k => byKey.get(k)).filter(Boolean);
+    if (sel.length) return sel.slice(0, limit);
+  }
+  return all.slice(0, Math.min(limit, 10));
 }
 
 /* ---- posts(블로그·에세이) ---- */
@@ -310,6 +336,7 @@ async function loadPage() {
   try {
     const { data, error } = await client.from('posts').select('*')
       .eq('kind', 'page').eq('published', true)
+      .neq('title', HOME_PHOTO_CFG_TITLE)
       .order('updated_at', { ascending: false }).limit(1);
     if (error) throw error;
     return (data && data[0]) || null;
