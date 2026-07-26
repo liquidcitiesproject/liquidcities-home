@@ -7,6 +7,7 @@
 * { box-sizing: border-box; }
 html, body {
   margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+  word-break: keep-all; overflow-wrap: break-word; /* 한국어 단어 중간 끊김 방지 */
   /* 영문은 Helvetica 계열, 한글 글리프는 Noto Sans KR로 폴백 */
   font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans KR", sans-serif;
   font-weight: 400; -webkit-font-smoothing: antialiased;
