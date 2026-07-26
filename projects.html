@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728q">
+<link rel="stylesheet" href="style.css?v=20260728r">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728q"></script>
+<script src="app.js?v=20260728r"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -147,14 +147,14 @@ function draw(filter) {
   if (filter === 'emotional-map') {
     if (FEATURED_BOARD_UID) {
       document.body.classList.add('proj-map'); // 푸터 숨김(전체화면 iframe)
-      // 맵 소개 한 줄 — 감정(순간)과 정체성(총합)의 관계
-      const cap = document.createElement('div');
-      cap.id = 'mapCaption';
-      cap.textContent = t('mapCaption');
-      document.body.appendChild(cap);
+      // 맵 소개 한 줄 — 잠시 숨김 (요청 시 복원)
+      // const cap = document.createElement('div');
+      // cap.id = 'mapCaption';
+      // cap.textContent = t('mapCaption');
+      // document.body.appendChild(cap);
       const iframe = document.createElement('iframe');
       iframe.id = 'projMapFrame';
-      iframe.className = 'map-frame-inline with-caption';
+      iframe.className = 'map-frame-inline';
       // 날짜 버전 파라미터 — 앱 새 배포가 캐시에 가려 옛 화면이 뜨는 것 방지(하루 단위 갱신)
       iframe.src = APP_BASE + '?board=' + encodeURIComponent(FEATURED_BOARD_UID) +
         '&v=' + new Date().toISOString().slice(0, 10);
