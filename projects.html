@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728v">
+<link rel="stylesheet" href="style.css?v=20260728w">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728v"></script>
+<script src="app.js?v=20260728w"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -81,6 +81,8 @@ function draw(filter) {
   closeArchPanel(true);
   const main = document.getElementById('projects-content');
   const old = document.getElementById('projMapFrame');
+  const oldShade = document.getElementById('mapBlurShade');
+  if (oldShade) oldShade.remove();
   if (old) old.remove();
   const oldCap = document.getElementById('mapCaption');
   if (oldCap) oldCap.remove();
@@ -155,13 +157,18 @@ function draw(filter) {
       // document.body.appendChild(cap);
       const iframe = document.createElement('iframe');
       iframe.id = 'projMapFrame';
-      iframe.className = 'map-frame-inline lc-blurred'; // 잠시 블러·비활성 (요청 시 복원)
+      iframe.className = 'map-frame-inline'; // 크로스오리진 iframe에 filter 직접 적용 시 렌더 실패 → 오버레이로 블러
       // 날짜 버전 파라미터 — 앱 새 배포가 캐시에 가려 옛 화면이 뜨는 것 방지(하루 단위 갱신)
       iframe.src = APP_BASE + '?board=' + encodeURIComponent(FEATURED_BOARD_UID) +
         '&v=' + new Date().toISOString().slice(0, 10);
       iframe.setAttribute('title', 'Liquid Cities shared board');
       iframe.setAttribute('loading', 'lazy');
       document.body.appendChild(iframe);
+      // 잠시 블러·비활성 (요청 시 복원)
+      const shade = document.createElement('div');
+      shade.id = 'mapBlurShade';
+      shade.className = 'lc-blur-shade map-frame-inline';
+      document.body.appendChild(shade);
     } else {
       main.innerHTML =
         '<p class="sub">' + t('mapNotConn') + '</p>' +
