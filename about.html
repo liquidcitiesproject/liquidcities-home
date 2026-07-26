@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260729c">
+<link rel="stylesheet" href="style.css?v=20260729d">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -37,7 +37,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260729c"></script>
+<script src="app.js?v=20260729d"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -100,7 +100,8 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       return storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
     }
     return parts
-      .filter(x => x.title || x.body.join('').trim())
+      // 인트로(첫 파트)는 본문이 비어 있으면 빈 칼럼이 되므로 표시하지 않는다
+      .filter(x => x.first ? x.body.join('').trim() : (x.title || x.body.join('').trim()))
       .map(x => '<article class="story">' +
         '<h2 class="story-title">' + escapeHtml(x.title) + '</h2>' +
         (x.first && p.cover ? '<img src="' + escapeHtml(p.cover) + '">' : '') +
