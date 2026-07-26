@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728l">
+<link rel="stylesheet" href="style.css?v=20260728m">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728l"></script>
+<script src="app.js?v=20260728m"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -25,7 +25,7 @@ const FILTERS = [
   { key: 'howto',         i18n: 'pfHowTo' },
   { key: 'emotional-map', i18n: 'pfEmotionalMap' },
   { key: 'exhibitions',   i18n: 'pfExhibitions' },
-  { key: 'insight',       i18n: 'pfInsight' },
+  // { key: 'insight',    i18n: 'pfInsight' }, // 잠시 숨김 (요청 시 복원)
 ];
 let currentFilter = new URLSearchParams(location.search).get('filter') || 'emotional-map';
 if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'emotional-map';
