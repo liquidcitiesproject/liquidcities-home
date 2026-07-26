@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>About Editor — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728z">
+<link rel="stylesheet" href="style.css?v=20260729a">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728z"></script>
+<script src="app.js?v=20260729a"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -244,12 +244,21 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       metas.push({ type: 'section', post: p });
       html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
     });
+    // 관리자: 마지막에 섹션 추가 칼럼
+    if (adminUid) {
+      html += '<article class="story story--add"><button class="story-add-btn" type="button">+ 섹션 추가</button></article>';
+    }
     body.innerHTML = '<div class="stories" id="storiesWrap">' + html + '</div>';
     if (withIntro && !page) applyI18n(body); // 정적 소개글 다국어
     fitTitles(body);
     // 관리자: 각 칼럼에 ✎ Edit 버튼
     if (adminUid) {
-      body.querySelectorAll('.story').forEach((s, i) => {
+      const addBtn = body.querySelector('.story-add-btn');
+      if (addBtn) addBtn.addEventListener('click', () => {
+        metas.push({ type: 'new', kind: kind || 'project' });
+        openEditor(metas.length - 1); // 추가 칼럼 자리가 곧 새 폼
+      });
+      body.querySelectorAll('.story:not(.story--add)').forEach((s, i) => {
         const b = document.createElement('button');
         b.className = 'story-edit';
         b.textContent = '✎ Edit';
@@ -304,7 +313,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       bodyKoEl = field('본문 KO (Markdown) — 이 항목만, 비우면 EN으로 표시', 'textarea', koSegs[m.seg] || '');
     } else {
       titleEl = field('Title (EN)', 'input',
-        post ? post.title : (m.type === 'placeholder' ? m.name : 'About'));
+        post ? post.title : (m.type === 'placeholder' ? m.name : (m.type === 'new' ? '' : 'About')));
       titleKoEl = field('제목 (KO) — 비우면 EN으로 표시', 'input', post && post.title_ko);
       coverEl = field('Cover 이미지 URL (선택)', 'input', post && post.cover);
       bodyEl = field('본문 EN (Markdown)', 'textarea', post && post.body,
@@ -406,6 +415,26 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     cancelBtn.className = 'secondary';
     cancelBtn.textContent = '취소';
     btnRow.appendChild(saveBtn); btnRow.appendChild(cancelBtn);
+    // 섹션 삭제 — 실수 방지로 두 번 눌러 확정 (소개글·TF 항목 폼에는 비노출)
+    if (m.type === 'section' && post && post.id) {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'secondary';
+      delBtn.textContent = '삭제';
+      delBtn.style.cssText = 'margin-left:auto; color:#c00; border-color:#c00';
+      let armed = false;
+      delBtn.addEventListener('click', async () => {
+        if (!armed) { armed = true; delBtn.textContent = '정말 삭제 (한 번 더)'; return; }
+        st.textContent = '삭제 중…';
+        try {
+          const client = sb();
+          const { error } = await client.from('posts').delete().eq('id', post.id);
+          if (error) throw error;
+          await loadData();
+          draw(currentFilter);
+        } catch (e) { st.textContent = '삭제 실패 — ' + (e.message || e); }
+      });
+      btnRow.appendChild(delBtn);
+    }
     ed.appendChild(btnRow); ed.appendChild(st);
     s.appendChild(ed);
 
@@ -414,6 +443,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       const client = sb();
       if (!client) { st.textContent = '연결 없음'; return; }
       st.textContent = '저장 중…';
+      if (m.type === 'new' && !titleEl.value.trim()) { st.textContent = '섹션 제목(EN)을 입력해 주세요'; return; }
       let row;
       if (isPart) {
         const enS = enSegs.slice(); enS[m.seg] = bodyEl.value;
@@ -443,6 +473,8 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
             row.kind = m.kind || 'project';
             // 순서 자동 지정 — 섹션 인덱스를 날짜(1월 1일+i)로 변환 (오름차순 정렬 기준)
             row.created_at = new Date(Date.UTC(2026, 0, 1 + m.index, 12)).toISOString();
+          } else if (m.type === 'new') {
+            row.kind = m.kind || 'project'; // 기본 섹션들 뒤에 만든 순서대로 붙는다
           } else {
             row.kind = 'page';
           }
