@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260730a">
+<link rel="stylesheet" href="style.css?v=20260730b">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260730a"></script>
+<script src="app.js?v=20260730b"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -28,9 +28,7 @@ const FILTERS = [
   // { key: 'insight',    i18n: 'pfInsight' }, // 잠시 숨김 (요청 시 복원)
 ];
 let currentFilter = new URLSearchParams(location.search).get('filter') || 'emotional-map';
-// 숨긴 탭도 URL 직접 접근은 허용 — 탭·링크는 어디에도 없으니 주소를 아는 사람만 본다
-const HIDDEN_OK = ['howto', 'insight'];
-if (!FILTERS.some(f => f.key === currentFilter) && !HIDDEN_OK.includes(currentFilter)) currentFilter = 'emotional-map';
+if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'emotional-map';
 // Archiving 상세: &rec=<savedAt>
 const recParam = new URLSearchParams(location.search).get('rec');
 
