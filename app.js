@@ -71,7 +71,7 @@ const I18N = {
   archFood:    { en: 'Restaurants / cafes within 1km', ko: '1km 안 식당 / 카페' },
   archParks:   { en: 'Parks within 5km', ko: '5km 안 공원' },
   archSearch:  { en: 'Search',          ko: '검색' },
-  blurNotice:  { en: 'See you at the exhibition.', ko: '전시에서 만나요' },
+  blurNotice:  { en: 'On view at the exhibition.', ko: '전시에서 확인하실 수 있습니다' },
   archNoResults:{ en: 'No results.',    ko: '결과가 없어요.' },
   // index (홈)
   introQ:     { en: 'Where are you from?', ko: '당신은 어디에서 왔나요?' },
