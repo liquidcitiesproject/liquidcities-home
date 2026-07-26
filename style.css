@@ -369,3 +369,8 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
 .story-admin-row { display: flex; gap: 6px; margin: 0 0 12px; }
 .story-admin-row .story-edit { margin: 0; }
 .story-del { color: #c00; border-color: #c00; }
+
+/* 블러 위 안내 문구 — 선명하게 중앙 표시 */
+.lc-blur-msg { position: fixed; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+  text-align: center; z-index: 600; pointer-events: none;
+  font-size: 18px; font-weight: 500; color: var(--ink); }

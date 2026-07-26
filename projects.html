@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260729e">
+<link rel="stylesheet" href="style.css?v=20260729f">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260729e"></script>
+<script src="app.js?v=20260729f"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -83,6 +83,8 @@ function draw(filter) {
   const old = document.getElementById('projMapFrame');
   const oldShade = document.getElementById('mapBlurShade');
   if (oldShade) oldShade.remove();
+  const oldMsg = document.getElementById('archBlurMsg');
+  if (oldMsg) oldMsg.remove();
   if (old) old.remove();
   const oldCap = document.getElementById('mapCaption');
   if (oldCap) oldCap.remove();
@@ -168,6 +170,10 @@ function draw(filter) {
       const shade = document.createElement('div');
       shade.id = 'mapBlurShade';
       shade.className = 'lc-blur-shade map-frame-inline';
+      const msg = document.createElement('div');
+      msg.className = 'lc-blur-msg';
+      msg.textContent = t('blurNotice');
+      shade.appendChild(msg);
       document.body.appendChild(shade);
     } else {
       main.innerHTML =
@@ -181,6 +187,11 @@ function draw(filter) {
     main.className = '';
     main.innerHTML = '';
     main.classList.add('lc-blurred'); // 잠시 블러·비활성 (요청 시 복원)
+    const archMsg = document.createElement('div');
+    archMsg.id = 'archBlurMsg';
+    archMsg.className = 'lc-blur-msg';
+    archMsg.textContent = t('blurNotice');
+    document.body.appendChild(archMsg); // main은 blur 필터가 걸려 있어 밖에 얹는다
     ensureBoard().then(() => {
       if (currentFilter !== 'exhibitions') return; // 로드 중 필터 전환 대비
       const recs = archRecs();
