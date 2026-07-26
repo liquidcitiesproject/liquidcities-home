@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728u">
+<link rel="stylesheet" href="style.css?v=20260728v">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728u"></script>
+<script src="app.js?v=20260728v"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -85,6 +85,7 @@ function draw(filter) {
   const oldCap = document.getElementById('mapCaption');
   if (oldCap) oldCap.remove();
   document.body.classList.remove('proj-map');
+  main.classList.remove('lc-blurred');
   main.innerHTML = '';
 
   if (filter === 'howto') {
@@ -154,7 +155,7 @@ function draw(filter) {
       // document.body.appendChild(cap);
       const iframe = document.createElement('iframe');
       iframe.id = 'projMapFrame';
-      iframe.className = 'map-frame-inline';
+      iframe.className = 'map-frame-inline lc-blurred'; // 잠시 블러·비활성 (요청 시 복원)
       // 날짜 버전 파라미터 — 앱 새 배포가 캐시에 가려 옛 화면이 뜨는 것 방지(하루 단위 갱신)
       iframe.src = APP_BASE + '?board=' + encodeURIComponent(FEATURED_BOARD_UID) +
         '&v=' + new Date().toISOString().slice(0, 10);
@@ -172,6 +173,7 @@ function draw(filter) {
     // Archiving — 앱 기록(공유 보드) 자동 연동: 왼쪽 인덱스 목록 + 오른쪽 이미지 그리드
     main.className = '';
     main.innerHTML = '';
+    main.classList.add('lc-blurred'); // 잠시 블러·비활성 (요청 시 복원)
     ensureBoard().then(() => {
       if (currentFilter !== 'exhibitions') return; // 로드 중 필터 전환 대비
       const recs = archRecs();

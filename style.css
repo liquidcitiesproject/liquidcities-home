@@ -353,3 +353,6 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
 
 /* 매거진 티저 칼럼 (Who's next? 등) — 연한 회색, 클릭 없음 */
 .story--teaser .story-title { color: #c9ccd0; }
+
+/* 잠시 가림 처리 — 블러 + 상호작용 차단 */
+.lc-blurred { filter: blur(8px); pointer-events: none; user-select: none; }
