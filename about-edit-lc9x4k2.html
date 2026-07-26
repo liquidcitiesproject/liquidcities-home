@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>About Editor — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728k">
+<link rel="stylesheet" href="style.css?v=20260728l">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728k"></script>
+<script src="app.js?v=20260728l"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -47,7 +47,7 @@ applyI18n();
 const FILTERS = [
   { key: 'projects', i18n: 'afProjects' },
   { key: 'research', i18n: 'afResearch' },
-  { key: 'manifesto', i18n: 'afManifesto' },
+  // { key: 'manifesto', i18n: 'afManifesto' }, // 잠시 숨김 (요청 시 복원)
 ];
 // About 클릭 시 하위 Projects가 기본 선택된 채 랜딩 (소개글은 Projects 하위에 표시)
 let currentFilter = new URLSearchParams(location.search).get('filter') || 'projects';
