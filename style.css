@@ -158,8 +158,9 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.7; }
    .zoomflow가 세로로 긴 스크롤 길이를 갖고, 그 안 .zoom-stage가 sticky로
    화면에 고정되며, JS가 스크롤 진행도로 현재 사진과 scale을 정한다. */
 .zoomflow { position: relative; }
-.zoom-stage { position: sticky; top: 0;
-  height: calc(100vh - var(--hdrH, 96px) - 52px); overflow: hidden;
+.zoom-stage { position: sticky; top: calc(var(--hdrH, 96px) + var(--filterH, 45px));
+  /* 헤더+필터 바로 아래에 처음부터 고정 — 스크롤해도 텍스트·사진 위치 불변 */
+  height: calc(100vh - var(--hdrH, 96px) - var(--filterH, 45px) - 40px); overflow: hidden;
   display: flex; align-items: center; justify-content: center; background: var(--bg); }
 .zoom-photo { position: absolute; text-align: center; will-change: transform, opacity;
   opacity: 0; pointer-events: none; }
@@ -167,7 +168,7 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.7; }
 .zoom-photo img { display: block; margin: 0 auto; max-width: 18vw; max-height: 20vh;
   width: auto; height: auto; background: transparent; } /* 투명 PNG · 격자 분산(겹침·잘림 없음) */
 @media (max-width: 600px) {
-  .zoom-photo img { max-width: 40vw; max-height: 18vh; }
+  .zoom-photo img { max-width: 40vw; max-height: 16vh; }
 }
 /* 시퀀스 대형 텍스트 (인트로/아웃트로) — 무대 중앙 고정 */
 .seq-text { position: absolute; inset: 0;

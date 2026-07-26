@@ -10,6 +10,10 @@ const APP_BASE = 'https://liquidcities.io/';
 // Map에 노출할 대표 보드 uid — 값이 없으면 map 페이지가 안내를 표시.
 const FEATURED_BOARD_UID = '310d9356-cd15-42cd-8c85-4e9988233a64'; // thinkjanepark 대표 보드
 
+// 페이지 이동·복귀 시 항상 맨 위부터 (모바일 스크롤 위치 복원 방지)
+try { history.scrollRestoration = 'manual'; } catch (e) {}
+window.addEventListener('pageshow', (e) => { if (e.persisted) window.scrollTo(0, 0); });
+
 let _sb = null;
 function sb() {
   if (!_sb && window.supabase) _sb = window.supabase.createClient(SB_URL, SB_KEY);
@@ -67,7 +71,7 @@ const I18N = {
   archFood:    { en: 'Restaurants / cafes within 1km', ko: '1km 안 식당 / 카페' },
   archParks:   { en: 'Parks within 5km', ko: '5km 안 공원' },
   archSearch:  { en: 'Search',          ko: '검색' },
-  blurNotice:  { en: 'On view at the exhibition.', ko: '전시에서 확인하실 수 있습니다' },
+  blurNotice:  { en: 'See you at the exhibition.', ko: '전시에서 만나요' },
   archNoResults:{ en: 'No results.',    ko: '결과가 없어요.' },
   // index (홈)
   introQ:     { en: 'Where are you from?', ko: '당신은 어디에서 왔나요?' },

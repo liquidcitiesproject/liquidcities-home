@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Liquid Cities Project</title>
 <meta name="description" content="Liquid Cities — where are you from? A living map of moments mapped onto the buildings of the city.">
-<link rel="stylesheet" href="style.css?v=20260729h">
+<link rel="stylesheet" href="style.css?v=20260729i">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -25,7 +25,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260729h"></script>
+<script src="app.js?v=20260729i"></script>
 <script>
 renderHeader('');
 applyI18n();
@@ -68,7 +68,7 @@ renderFilterBar('filter-bar', [
 
   // 미리 정해둔 균형 잡힌 고정 배치 (랜덤 아님) — 중앙(텍스트 자리)은 비우고
   // 화면 안에 확실히 들어오게. [dx(vw), dy(vh)]. 등장은 이 순서대로.
-  const LAYOUT = [
+  const LAYOUT_DESK = [
     [-34, -18], [ 34, -18],   // 위 좌우
     [-38,   2], [ 38,   2],   // 중간 바깥 좌우
     [-16, -20], [ 16, -20],   // 위 안쪽 좌우
@@ -77,6 +77,11 @@ renderFilterBar('filter-bar', [
     [  0,  24],               // 아래 중앙
     [-16,  20], [ 16,  20],   // 아래 안쪽 좌우 (11,12번째) — 위 안쪽과 같은 정렬
   ];
+  // 모바일: 데스크톱 좌표는 겹침·잘림·텍스트 오버레이 발생 → 4자리 순환 배치
+  // (오래된 사진은 사라지고, 마지막 4장은 남아 아웃트로와 함께 보인다)
+  const MOBILE = window.matchMedia('(max-width: 600px)').matches;
+  const LAYOUT_CYCLE = [[-24, -18], [24, -18], [24, 18], [-24, 18]];
+  const LAYOUT = MOBILE ? LAYOUT_CYCLE : LAYOUT_DESK;
   els.forEach((el, i) => {
     const [dx, dy] = LAYOUT[i % LAYOUT.length];
     el.dataset.dx = String(dx);
@@ -98,7 +103,10 @@ renderFilterBar('filter-bar', [
       if (local < 0) { el.style.opacity = 0; return; }
       const t = Math.min(1, local);
       const scale = MIN + (MAX - MIN) * t;
-      const op = local < 0.18 ? (local / 0.18) : 1;
+      let op = local < 0.18 ? (local / 0.18) : 1;
+      // 모바일 순환: 4구간 지난 사진은 서서히 사라져 자리를 비운다.
+      // 단, 마지막 4장은 남겨 아웃트로(Liquid Cities.)에서 4자리가 모두 차 있게.
+      if (MOBILE && i < N - 4 && local > 3) op = Math.max(0, 1 - (local - 3) / 0.7);
       const dx = el.dataset.dx || 0, dy = el.dataset.dy || 0;
       el.style.opacity = op;
       el.style.transform = 'translate(' + dx + 'vw,' + dy + 'vh) scale(' + scale.toFixed(3) + ')';
