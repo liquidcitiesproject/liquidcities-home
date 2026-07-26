@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728h">
+<link rel="stylesheet" href="style.css?v=20260728i">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -35,7 +35,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728h"></script>
+<script src="app.js?v=20260728i"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -79,6 +79,31 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
   const maniSections = canonSort(projPosts.filter(isManifesto), MANI_SECTIONS);
   const resSections = canonSort(resPosts, RES_SECTIONS);
 
+  // 본문을 번호 제목(01. 02. …) 단위로 나눠 여러 칼럼으로 (How to?와 동일 방식)
+  function splitNumberedStories(p) {
+    const raw = (pickLangBody(p) || '').replace(/\r\n/g, '\n');
+    const parts = [];
+    let cur = { title: pickLangTitle(p), body: [], first: true };
+    raw.split('\n').forEach(line => {
+      const m = line.match(/^\s*(?:#{1,3}\s*)?(?:\*\*)?\s*(\d{1,2})[.)]\s*(.+?)(?:\*\*)?\s*$/);
+      if (m && line.trim().length < 140) {
+        parts.push(cur);
+        cur = { title: m[1].padStart(2, '0'), body: ['**' + m[2] + '**'], first: false };
+      } else cur.body.push(line);
+    });
+    parts.push(cur);
+    if (parts.length <= 1) {
+      return storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
+    }
+    return parts
+      .filter(x => x.title || x.body.join('').trim())
+      .map(x => '<article class="story">' +
+        '<h2 class="story-title">' + escapeHtml(x.title) + '</h2>' +
+        (x.first && p.cover ? '<img src="' + escapeHtml(p.cover) + '">' : '') +
+        '<div class="article-body">' + renderMarkdown(x.body.join('\n')) + '</div></article>')
+      .join('');
+  }
+
   function storyHtml(title, dateline, cover, bodyHtml) {
     return '<article class="story">' +
       (title ? '<h2 class="story-title">' + escapeHtml(title) + '</h2>' : '') +
@@ -117,7 +142,12 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     // 섹션들 (글이 하나도 없으면 섹션명 플레이스홀더로 레이아웃 노출)
     if (secs.length) {
       for (const p of secs) {
-        html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
+        // Theoretical Framework는 본문의 번호(01. 02. …) 기준으로 칼럼 분할 표시
+        if ((p.title || '').trim().toLowerCase() === 'theoretical framework') {
+          html += splitNumberedStories(p);
+        } else {
+          html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
+        }
       }
     } else {
       for (const name of names) {
