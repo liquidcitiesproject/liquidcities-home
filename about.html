@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728f">
+<link rel="stylesheet" href="style.css?v=20260728h">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -33,9 +33,9 @@
   </div>
 </main>
 
-<div class="footer">Liquid Cities Project</div>
+<div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728f"></script>
+<script src="app.js?v=20260728h"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -55,8 +55,8 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
 (async () => {
   const defaultBody = document.getElementById('aboutBody').innerHTML; // 정적 소개글(data-i18n 포함)
   // 섹션 표시 순서 = 목록 순서. 목록에 없는 제목은 맨 뒤에 날짜순.
-  const PROJ_SECTIONS = ['Background', 'Research Question', 'Theoretical Framework',
-    'Fieldwork Labs']; // Methodology는 Research > How to? 로 이동
+  const PROJ_SECTIONS = ['Background', 'Research Question',
+    'Theoretical Framework']; // Methodology·Fieldwork Labs는 Research > How to? 로 이동
   const MANI_SECTIONS = ['Manifesto']; // Manifesto는 별도 탭
   const RES_SECTIONS = ['Jane Park', 'About', 'Education', 'Awards', 'Contact'];
   // 화면에서 제외할 섹션 (글은 남아 있음 — manage에서 삭제 가능)
@@ -74,7 +74,8 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     loadPage(), loadPosts('project'), loadPosts('researcher')]);
   const isManifesto = p => (p.title || '').trim().toLowerCase() === 'manifesto';
   const isMethodology = p => (p.title || '').trim().toLowerCase() === 'methodology';
-  const projSections = canonSort(projPosts.filter(p => !isManifesto(p) && !isMethodology(p)), PROJ_SECTIONS);
+  const isFieldworkLabs = p => (p.title || '').trim().toLowerCase() === 'fieldwork labs';
+  const projSections = canonSort(projPosts.filter(p => !isManifesto(p) && !isMethodology(p) && !isFieldworkLabs(p)), PROJ_SECTIONS);
   const maniSections = canonSort(projPosts.filter(isManifesto), MANI_SECTIONS);
   const resSections = canonSort(resPosts, RES_SECTIONS);
 

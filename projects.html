@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728f">
+<link rel="stylesheet" href="style.css?v=20260728h">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -13,9 +13,9 @@
 
 <main id="projects-content" class="wrap narrow"></main>
 
-<div class="footer" id="projFooter">Liquid Cities Project</div>
+<div class="footer" id="projFooter">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728f"></script>
+<script src="app.js?v=20260728h"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -67,8 +67,11 @@ async function loadHowto() {
   if (_howtoCache === undefined) {
     try {
       const posts = await loadPosts('project');
-      _howtoCache = posts.find(x => (x.title || '').trim().toLowerCase() === 'methodology') || null;
-    } catch (e) { _howtoCache = null; }
+      _howtoCache = {
+        method: posts.find(x => (x.title || '').trim().toLowerCase() === 'methodology') || null,
+        labs: posts.find(x => (x.title || '').trim().toLowerCase() === 'fieldwork labs') || null,
+      };
+    } catch (e) { _howtoCache = { method: null, labs: null }; }
   }
   return _howtoCache;
 }
@@ -88,17 +91,17 @@ function draw(filter) {
     // How to? — About에서 이동해 온 Methodology 글 (kind='project', 제목 Methodology)
     main.className = '';
     main.innerHTML = '';
-    loadHowto().then(p => {
+    loadHowto().then(({ method: p, labs }) => {
       if (currentFilter !== 'howto') return;
-      if (!p) {
+      if (!p && !labs) {
         main.className = 'wrap narrow';
         main.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
         return;
       }
       // 번호(01. 02. …) 단위로 세로 칼럼 섹션 분리 — 칼럼 타이틀은 번호, 소제목은 본문 첫 줄 볼드
-      const raw = (pickLangBody(p) || '').replace(/\r\n/g, '\n');
+      const raw = p ? (pickLangBody(p) || '').replace(/\r\n/g, '\n') : '';
       const secs = [];
-      let cur = { title: pickLangTitle(p), body: [] };
+      let cur = { title: p ? pickLangTitle(p) : '', body: [] };
       raw.split('\n').forEach(line => {
         const m = line.match(/^\s*(?:#{1,3}\s*)?(?:\*\*)?\s*(\d{1,2})[.)]\s*(.+?)(?:\*\*)?\s*$/);
         if (m && line.trim().length < 140) {
@@ -107,12 +110,19 @@ function draw(filter) {
         } else cur.body.push(line);
       });
       secs.push(cur);
-      const html = secs
+      let html = secs
         .filter(sec => sec.title || sec.body.join('').trim())
         .map(sec => '<article class="story">' +
           '<h2 class="story-title">' + escapeHtml(sec.title) + '</h2>' +
           '<div class="article-body">' + renderMarkdown(sec.body.join('\n')) + '</div></article>')
         .join('');
+      // Fieldwork Labs — 마지막 칼럼으로 (About > Project에서 이동)
+      if (labs) {
+        html += '<article class="story">' +
+          '<h2 class="story-title">' + escapeHtml(pickLangTitle(labs)) + '</h2>' +
+          (labs.cover ? '<img src="' + escapeHtml(labs.cover) + '">' : '') +
+          '<div class="article-body">' + renderMarkdown(pickLangBody(labs)) + '</div></article>';
+      }
       main.innerHTML = '<div class="stories" id="howtoStories">' + html + '</div>';
       // 데스크톱 휠: 섹션 세로 우선, 끝나면 가로 (About 매거진과 동일)
       const wrap = document.getElementById('howtoStories');
