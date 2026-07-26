@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>About Editor — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260729b">
+<link rel="stylesheet" href="style.css?v=20260729c">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260729b"></script>
+<script src="app.js?v=20260729c"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -259,11 +259,51 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
         openEditor(metas.length - 1); // 추가 칼럼 자리가 곧 새 폼
       });
       body.querySelectorAll('.story:not(.story--add)').forEach((s, i) => {
+        const m = metas[i];
+        const rowEl = document.createElement('div');
+        rowEl.className = 'story-admin-row';
         const b = document.createElement('button');
         b.className = 'story-edit';
         b.textContent = '✎ Edit';
         b.addEventListener('click', () => openEditor(i));
-        s.prepend(b);
+        rowEl.appendChild(b);
+        // 각 항목 삭제 버튼 — 두 번 눌러 확정 (섹션 글 = 글 삭제, TF 번호 항목 = 그 구간만 제거)
+        if (m && (m.type === 'section' || m.type === 'tfpart') && m.post && m.post.id) {
+          const d = document.createElement('button');
+          d.className = 'story-edit story-del';
+          d.textContent = '삭제';
+          let armed = false;
+          d.addEventListener('click', async () => {
+            if (!armed) {
+              armed = true; d.textContent = '정말 삭제 (한 번 더)';
+              setTimeout(() => { armed = false; d.textContent = '삭제'; }, 4000);
+              return;
+            }
+            d.disabled = true; d.textContent = '삭제 중…';
+            try {
+              const client = sb();
+              if (m.type === 'tfpart') {
+                const enS = splitRawSegments(m.post.body);
+                const koS = splitRawSegments(m.post.body_ko);
+                if (m.seg < enS.length) enS.splice(m.seg, 1);
+                const upd = { body: enS.join('\n'), updated_at: new Date().toISOString() };
+                if ((m.post.body_ko || '').trim() && m.seg < koS.length) {
+                  koS.splice(m.seg, 1);
+                  upd.body_ko = koS.join('\n');
+                }
+                const { error } = await client.from('posts').update(upd).eq('id', m.post.id);
+                if (error) throw error;
+              } else {
+                const { error } = await client.from('posts').delete().eq('id', m.post.id);
+                if (error) throw error;
+              }
+              await loadData();
+              draw(currentFilter);
+            } catch (e) { d.disabled = false; d.textContent = '삭제 실패 — 다시'; }
+          });
+          rowEl.appendChild(d);
+        }
+        s.prepend(rowEl);
       });
     }
     // 데스크톱 휠: 커서가 있는 섹션이 세로로 더 스크롤되면 그걸 우선(기본 동작),

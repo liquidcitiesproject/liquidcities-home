@@ -364,3 +364,8 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
 .story--add { display: flex; align-items: center; justify-content: center; }
 .story-add-btn { font-size: 15px; padding: 10px 18px; border: 1px dashed var(--ink);
   background: #fff; cursor: pointer; }
+
+/* About 편집 — 칼럼 상단 관리 버튼 줄 (Edit + 삭제) */
+.story-admin-row { display: flex; gap: 6px; margin: 0 0 12px; }
+.story-admin-row .story-edit { margin: 0; }
+.story-del { color: #c00; border-color: #c00; }
