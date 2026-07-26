@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>About Editor — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728x">
+<link rel="stylesheet" href="style.css?v=20260728y">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728x"></script>
+<script src="app.js?v=20260728y"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -119,12 +119,25 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     });
     parts.push(cur);
     if (parts.length <= 1) return null;
+    parts.forEach((x, si) => { x.seg = si; });
     return parts
       .filter(x => x.title || x.body.join('').trim())
-      .map(x => '<article class="story">' +
+      .map(x => ({ seg: x.seg, html: '<article class="story">' +
         '<h2 class="story-title">' + escapeHtml(x.title) + '</h2>' +
         (x.first && p.cover ? '<img src="' + escapeHtml(p.cover) + '">' : '') +
-        '<div class="article-body">' + renderMarkdown(x.body.join('\n')) + '</div></article>');
+        '<div class="article-body">' + renderMarkdown(x.body.join('\n')) + '</div></article>' }));
+  }
+
+  // 본문 원문을 번호 제목 경계로 구간 분할 — 구간 편집 후 join('\n')하면 원문 복원
+  function splitRawSegments(text) {
+    const lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
+    const segs = [[]];
+    lines.forEach(line => {
+      const m = line.match(/^\s*(?:#{1,3}\s*)?(?:\*\*)?\s*(\d{1,2})[.)]\s*(.+?)(?:\*\*)?\s*$/);
+      if (m && line.trim().length < 140) segs.push([line]);
+      else segs[segs.length - 1].push(line);
+    });
+    return segs.map(a => a.join('\n'));
   }
 
   function storyHtml(title, dateline, cover, bodyHtml) {
@@ -212,11 +225,11 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       const p = secs.find(x => (x.title || '').trim().toLowerCase() === name.toLowerCase());
       if (p) {
         used.add(p.id);
-        // Theoretical Framework는 공개 페이지처럼 번호 칼럼 분할 — 각 칼럼 Edit는 같은 글로
+        // Theoretical Framework는 공개 페이지처럼 번호 칼럼 분할 — 각 칼럼 Edit는 해당 항목만
         const parts = (p.title || '').trim().toLowerCase() === 'theoretical framework'
           ? splitNumberedParts(p) : null;
         if (parts) {
-          parts.forEach(ph => { metas.push({ type: 'section', post: p }); html += ph; });
+          parts.forEach(ph => { metas.push({ type: 'tfpart', post: p, seg: ph.seg }); html += ph.html; });
         } else {
           metas.push({ type: 'section', post: p });
           html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
@@ -281,13 +294,23 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       ed.appendChild(l); ed.appendChild(el);
       return el;
     }
-    const titleEl = field('Title (EN)', 'input',
-      post ? post.title : (m.type === 'placeholder' ? m.name : 'About'));
-    const titleKoEl = field('제목 (KO) — 비우면 EN으로 표시', 'input', post && post.title_ko);
-    const coverEl = field('Cover 이미지 URL (선택)', 'input', post && post.cover);
-    const bodyEl = field('본문 EN (Markdown)', 'textarea', post && post.body,
-      m.type === 'intro' && !post ? '저장하면 기본 소개글 대신 이 내용이 표시됩니다' : '');
-    const bodyKoEl = field('본문 KO (Markdown) — 비우면 EN으로 표시', 'textarea', post && post.body_ko);
+    // TF 번호 칼럼 — 그 항목의 구간만 편집, 저장 시 원문에서 해당 구간만 교체
+    const isPart = m.type === 'tfpart';
+    const enSegs = isPart ? splitRawSegments(post.body) : null;
+    const koSegs = isPart ? splitRawSegments(post.body_ko) : null;
+    let titleEl = null, titleKoEl = null, coverEl = null, bodyEl, bodyKoEl;
+    if (isPart) {
+      bodyEl = field('본문 EN (Markdown) — 이 항목만', 'textarea', enSegs[m.seg] || '');
+      bodyKoEl = field('본문 KO (Markdown) — 이 항목만, 비우면 EN으로 표시', 'textarea', koSegs[m.seg] || '');
+    } else {
+      titleEl = field('Title (EN)', 'input',
+        post ? post.title : (m.type === 'placeholder' ? m.name : 'About'));
+      titleKoEl = field('제목 (KO) — 비우면 EN으로 표시', 'input', post && post.title_ko);
+      coverEl = field('Cover 이미지 URL (선택)', 'input', post && post.cover);
+      bodyEl = field('본문 EN (Markdown)', 'textarea', post && post.body,
+        m.type === 'intro' && !post ? '저장하면 기본 소개글 대신 이 내용이 표시됩니다' : '');
+      bodyKoEl = field('본문 KO (Markdown) — 비우면 EN으로 표시', 'textarea', post && post.body_ko);
+    }
 
     // 서식 툴바 — 마크다운을 선택 영역에 적용 (B=**볼드**, I=*이탤릭*, 사이즈=# 제목 단계)
     function addToolbar(ta) {
@@ -362,7 +385,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
     }
     const upRow = document.createElement('div');
     upRow.style.cssText = 'display:flex; gap:8px; margin-top:10px; flex-wrap:wrap';
-    upRow.appendChild(fileBtn('커버 업로드', async (f) => {
+    if (!isPart) upRow.appendChild(fileBtn('커버 업로드', async (f) => {
       const url = await uploadImage(f);
       if (url) coverEl.value = url;
     }));
@@ -391,14 +414,24 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       const client = sb();
       if (!client) { st.textContent = '연결 없음'; return; }
       st.textContent = '저장 중…';
-      const row = {
-        title: titleEl.value.trim() || (m.type === 'placeholder' ? m.name : 'About'),
-        title_ko: titleKoEl.value.trim() || null,
-        body: bodyEl.value,
-        body_ko: bodyKoEl.value.trim() || null,
-        cover: coverEl.value.trim() || null,
-        updated_at: new Date().toISOString(),
-      };
+      let row;
+      if (isPart) {
+        const enS = enSegs.slice(); enS[m.seg] = bodyEl.value;
+        row = { body: enS.join('\n'), updated_at: new Date().toISOString() };
+        if ((post.body_ko || '').trim()) {
+          const koS = koSegs.slice(); koS[m.seg] = bodyKoEl.value;
+          row.body_ko = koS.join('\n');
+        }
+      } else {
+        row = {
+          title: titleEl.value.trim() || (m.type === 'placeholder' ? m.name : 'About'),
+          title_ko: titleKoEl.value.trim() || null,
+          body: bodyEl.value,
+          body_ko: bodyKoEl.value.trim() || null,
+          cover: coverEl.value.trim() || null,
+          updated_at: new Date().toISOString(),
+        };
+      }
       try {
         let error;
         if (post && post.id) {
