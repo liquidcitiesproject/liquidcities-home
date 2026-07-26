@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>About Editor — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728b">
+<link rel="stylesheet" href="style.css?v=20260728c">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260728b"></script>
+<script src="app.js?v=20260728c"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -118,8 +118,39 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
   function draw(filter) {
     currentFilter = filter;
     if (filter === 'research') buildMagazine(resSections, RES_SECTIONS, false, 'researcher');
-    else if (filter === 'manifesto') buildMagazine(maniSections, MANI_SECTIONS, false, 'project');
+    else if (filter === 'manifesto') renderManifestoEditView();
     else buildMagazine(projSections, PROJ_SECTIONS, true, 'project');
+  }
+
+  // Manifesto — 공개 홈페이지와 동일한 번호 필드 레이아웃 + 상단 Edit 버튼.
+  // Edit를 누르면 기존 편집 폼(매거진 에디터)으로 전환, 저장/취소 시 필드 뷰로 복귀.
+  function renderManifestoEditView() {
+    const main = document.getElementById('aboutMain');
+    const body = document.getElementById('aboutBody');
+    const p = maniSections[0];
+    if (!p) { buildMagazine(maniSections, MANI_SECTIONS, false, 'project'); return; }
+    const raw = (pickLangBody(p) || '').replace(/\r\n/g, '\n');
+    const items = [];
+    raw.split('\n').forEach(line => {
+      const m = line.match(/^\s*(\d+)[.)]\s*(.*)$/);
+      if (m) items.push({ n: m[1], text: m[2] });
+      else if (line.trim() && items.length) items[items.length - 1].text += ' ' + line.trim();
+    });
+    if (!items.length) { buildMagazine(maniSections, MANI_SECTIONS, false, 'project'); return; }
+    main.className = 'wrap';
+    body.innerHTML = '<div class="mani-list">' +
+      items.map(it =>
+        '<div class="mani-item"><span class="mani-num">' + escapeHtml(it.n) + '</span>' +
+        '<p class="mani-text">' + escapeHtml(it.text) + '</p></div>').join('') +
+      '</div>';
+    const b = document.createElement('button');
+    b.className = 'story-edit';
+    b.textContent = '✎ Edit';
+    b.addEventListener('click', () => {
+      buildMagazine(maniSections, MANI_SECTIONS, false, 'project');
+      openEditor(0); // 유일한 스토리 = Manifesto 편집 폼
+    });
+    body.prepend(b);
   }
 
 
