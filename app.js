@@ -170,8 +170,8 @@ function renderHeader(active) {
   // 로고(→ Liquid Cities Project)가 곧 홈 링크 — 메뉴에 별도 Home 없음
   const links = [
     { href: 'about',         i18n: 'navAbout',    key: 'about' },
-    { href: 'projects',      i18n: 'navProjects', key: 'projects' },
     { href: 'fieldwork',     i18n: 'navFieldwork', key: 'fieldwork' },
+    { href: 'projects',      i18n: 'navProjects', key: 'projects' },
     // { href: 'making-spaces', i18n: 'navMaking', key: 'making-spaces' }, // 잠시 숨김 (요청 시 복원)
     { href: 'contact',       i18n: 'navContact',  key: 'contact' },
   ];
