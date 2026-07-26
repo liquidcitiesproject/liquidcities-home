@@ -345,6 +345,7 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
 .fw-event-row:hover { opacity: 0.6; }
 @media (max-width: 640px) { .fw-event-row { padding: 14px 18px; } }
 
-/* Research Question — 볼드 문장(질문)을 타이틀 크기 + 얇은 굵기로 */
-.story--rq .article-body strong { font-size: 26px; font-weight: 300; line-height: 1.5; }
+/* Research Question — 볼드 문장(질문): 타이틀 크기 + 얇은 굵기 + 이탤릭 + 가운데 */
+.story--rq .article-body strong { display: block; font-size: 26px; font-weight: 300;
+  font-style: italic; text-align: center; line-height: 1.5; }
 @media (max-width: 640px) { .story--rq .article-body strong { font-size: 22px; } }
