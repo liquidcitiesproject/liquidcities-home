@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260730b">
+<link rel="stylesheet" href="style.css?v=20260730c">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260730b"></script>
+<script src="app.js?v=20260730c"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -350,7 +350,7 @@ function buildArchDetailHtml(r) {
   add('Immediate (~200m)', a && a.transitDistM != null ? 'Nearest transit ' + a.transitDistM + 'm' : 'Nearest transit —');
   add('Walkable (~1km)', a ? 'Restaurants ' + num(a.restaurants) + ', cafes ' + num(a.cafes) : 'Restaurants —');
   add('Neighborhood (~3-5km)', a ? 'Parks & green space: ' + num(a.parks) : 'Parks —');
-  const renewMap = { kr: '9.2%', sg: '4.1%', gb: '46%', us: '23%' };
+  const renewMap = { kr: '9.2%', sg: '4.1%', gb: '46%', us: '23%', cn: '31%' };
   add('City-wide', 'Renewable energy: ' + (renewMap[r.countryCode] || '—'));
 
   const table = rows.map(([k, v]) =>
