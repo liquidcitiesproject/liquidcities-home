@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728m">
+<link rel="stylesheet" href="style.css?v=20260728n">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -37,7 +37,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728m"></script>
+<script src="app.js?v=20260728n"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -64,7 +64,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
   const MANI_SECTIONS = ['Manifesto']; // Manifesto는 별도 탭
   const RES_SECTIONS = ['Jane Park', 'About', 'Education', 'Awards', 'Contact'];
   // 화면에서 제외할 섹션 (글은 남아 있음 — manage에서 삭제 가능)
-  const HIDDEN = ['how it works'];
+  const HIDDEN = ['how it works', 'background']; // background: 잠시 숨김 (편집 화면에는 표시)
   const canonSort = (posts, names) => {
     const orderOf = p => {
       const i = names.findIndex(n => n.toLowerCase() === (p.title || '').trim().toLowerCase());
