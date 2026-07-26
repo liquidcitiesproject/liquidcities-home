@@ -172,7 +172,7 @@ function renderHeader(active) {
     { href: 'about',         i18n: 'navAbout',    key: 'about' },
     { href: 'projects',      i18n: 'navProjects', key: 'projects' },
     { href: 'fieldwork',     i18n: 'navFieldwork', key: 'fieldwork' },
-    { href: 'making-spaces', i18n: 'navMaking',   key: 'making-spaces' },
+    // { href: 'making-spaces', i18n: 'navMaking', key: 'making-spaces' }, // 잠시 숨김 (요청 시 복원)
     { href: 'contact',       i18n: 'navContact',  key: 'contact' },
   ];
   const el = document.getElementById('site-header');
