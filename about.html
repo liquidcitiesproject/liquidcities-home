@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728n">
+<link rel="stylesheet" href="style.css?v=20260728o">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -37,7 +37,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728n"></script>
+<script src="app.js?v=20260728o"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -108,8 +108,8 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       .join('');
   }
 
-  function storyHtml(title, dateline, cover, bodyHtml) {
-    return '<article class="story">' +
+  function storyHtml(title, dateline, cover, bodyHtml, extraClass) {
+    return '<article class="story' + (extraClass ? ' ' + extraClass : '') + '">' +
       (title ? '<h2 class="story-title">' + escapeHtml(title) + '</h2>' : '') +
       (dateline ? '<p class="story-date">' + escapeHtml(dateline) + '</p>' : '') +
       (cover ? '<img src="' + escapeHtml(cover) + '">' : '') +
@@ -150,7 +150,9 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
         if ((p.title || '').trim().toLowerCase() === 'theoretical framework') {
           html += splitNumberedStories(p);
         } else {
-          html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)));
+          // Research Question: 볼드 문장을 타이틀 크기(얇은 굵기)로 키우는 스타일 클래스
+          const cls = (p.title || '').trim().toLowerCase() === 'research question' ? 'story--rq' : '';
+          html += storyHtml(pickLangTitle(p), null, p.cover, renderMarkdown(pickLangBody(p)), cls);
         }
       }
     } else {
