@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260729f">
+<link rel="stylesheet" href="style.css?v=20260729g">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
 
 <div class="footer" id="projFooter">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260729f"></script>
+<script src="app.js?v=20260729g"></script>
 <script>
 renderHeader('projects');
 applyI18n();
@@ -85,6 +85,8 @@ function draw(filter) {
   if (oldShade) oldShade.remove();
   const oldMsg = document.getElementById('archBlurMsg');
   if (oldMsg) oldMsg.remove();
+  const oldMapMsg = document.getElementById('mapBlurMsg');
+  if (oldMapMsg) oldMapMsg.remove();
   if (old) old.remove();
   const oldCap = document.getElementById('mapCaption');
   if (oldCap) oldCap.remove();
@@ -170,11 +172,12 @@ function draw(filter) {
       const shade = document.createElement('div');
       shade.id = 'mapBlurShade';
       shade.className = 'lc-blur-shade map-frame-inline';
+      document.body.appendChild(shade);
       const msg = document.createElement('div');
+      msg.id = 'mapBlurMsg';
       msg.className = 'lc-blur-msg';
       msg.textContent = t('blurNotice');
-      shade.appendChild(msg);
-      document.body.appendChild(shade);
+      document.body.appendChild(msg); // shade 안에 두면 backdrop-filter 때문에 기준이 밀린다
     } else {
       main.innerHTML =
         '<p class="sub">' + t('mapNotConn') + '</p>' +
