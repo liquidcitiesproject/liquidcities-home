@@ -326,7 +326,7 @@ function renderMarkdown(md) {
   const inline = (t) => escapeHtml(t)
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, url) =>
       /\.(mp4|webm|mov)(\?|#|$)/i.test(url)
-        ? '<video src="' + url + '" controls playsinline preload="metadata" style="width:100%; max-width:480px; display:block; margin:12px auto; background:#fff"></video>'
+        ? '<video src="' + url + '" autoplay muted loop controls playsinline preload="metadata" style="width:100%; max-width:480px; display:block; margin:12px auto; background:#fff"></video>'
         : '<img alt="' + alt + '" src="' + url + '">')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
