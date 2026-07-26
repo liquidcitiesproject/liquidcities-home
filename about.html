@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260728w">
+<link rel="stylesheet" href="style.css?v=20260728x">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -37,7 +37,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260728w"></script>
+<script src="app.js?v=20260728x"></script>
 <script>
 renderHeader('about');
 applyI18n();
@@ -92,7 +92,7 @@ if (!FILTERS.some(f => f.key === currentFilter)) currentFilter = 'projects';
       const m = line.match(/^\s*(?:#{1,3}\s*)?(?:\*\*)?\s*(\d{1,2})[.)]\s*(.+?)(?:\*\*)?\s*$/);
       if (m && line.trim().length < 140) {
         parts.push(cur);
-        cur = { title: 'TF ' + m[1].padStart(2, '0'), body: ['**' + m[2] + '**'], first: false };
+        cur = { title: 'Theoretical Framework ' + m[1].padStart(2, '0'), body: ['**' + m[2] + '**'], first: false };
       } else cur.body.push(line);
     });
     parts.push(cur);
