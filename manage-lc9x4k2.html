@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Admin — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727u">
+<link rel="stylesheet" href="style.css?v=20260727v">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   .adm-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
@@ -67,7 +67,7 @@
         Upload cover <input type="file" id="coverFile" accept="image/*" style="display:none">
       </label>
       <label class="btn secondary" style="flex:0 0 auto; text-align:center">
-        Insert image into body <input type="file" id="bodyFile" accept="image/*" style="display:none">
+        Insert image/video into body <input type="file" id="bodyFile" accept="image/*,video/*" style="display:none">
       </label>
       <span class="status" id="uploadStatus" style="margin:0"></span>
     </div>
@@ -86,7 +86,7 @@
   </div>
 </main>
 
-<script src="app.js?v=20260727u"></script>
+<script src="app.js?v=20260727v"></script>
 <script>
 renderHeader('');
 applyI18n();

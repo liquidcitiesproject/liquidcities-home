@@ -324,7 +324,10 @@ function renderMarkdown(md) {
   const lines = String(md || '').replace(/\r\n/g, '\n').split('\n');
   let html = '', inList = false, inQuote = false;
   const inline = (t) => escapeHtml(t)
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2">')
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, url) =>
+      /\.(mp4|webm|mov)(\?|#|$)/i.test(url)
+        ? '<video src="' + url + '" controls playsinline preload="metadata" style="max-width:100%; display:block; background:#fff"></video>'
+        : '<img alt="' + alt + '" src="' + url + '">')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em>$1</em>');
