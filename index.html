@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Liquid Cities Project</title>
 <meta name="description" content="Liquid Cities — where are you from? A living map of moments mapped onto the buildings of the city.">
-<link rel="stylesheet" href="style.css?v=20260729a">
+<link rel="stylesheet" href="style.css?v=20260729b">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -25,7 +25,7 @@
 
 <div class="footer">©2026 Liquid Cities Project</div>
 
-<script src="app.js?v=20260729a"></script>
+<script src="app.js?v=20260729b"></script>
 <script>
 renderHeader('');
 applyI18n();
@@ -75,7 +75,7 @@ renderFilterBar('filter-bar', [
     [-34,  22], [ 34,  22],   // 아래 좌우
     [  0, -21],               // 위 중앙
     [  0,  24],               // 아래 중앙
-    [-24,  20], [ 24,  20],   // 여유 (11,12번째)
+    [-16,  20], [ 16,  20],   // 아래 안쪽 좌우 (11,12번째) — 위 안쪽과 같은 정렬
   ];
   els.forEach((el, i) => {
     const [dx, dy] = LAYOUT[i % LAYOUT.length];
