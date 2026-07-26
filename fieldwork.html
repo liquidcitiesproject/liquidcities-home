@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fieldwork — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727t">
+<link rel="stylesheet" href="style.css?v=20260727u">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260727t"></script>
+<script src="app.js?v=20260727u"></script>
 <script>
 renderHeader('fieldwork');
 applyI18n();
@@ -24,7 +24,7 @@ applyI18n();
 // 도시별 이벤트(랩·전시) 목록 — 도시 상세에서 가로줄 리스트로 표시
 const CITY_EVENTS = {
   seoul: [
-    { title: '07.28 - 07.29 /2026' },
+    { key: 'seoul-202607', title: '07.28 - 07.29 /2026' },
   ],
 };
 
@@ -38,17 +38,54 @@ const CITIES = [
 ];
 
 let cityPosts = [];
-// ?city=seoul 이면 목록 대신 도시 상세 뷰
-const cityParam = new URLSearchParams(location.search).get('city');
+// ?city=seoul → 도시 상세, ?event=키 → 이벤트 상세
+const _fwq = new URLSearchParams(location.search);
+const cityParam = _fwq.get('city');
+const eventParam = _fwq.get('event');
 
-function postFor(c) {
-  return cityPosts.find(p => (p.title || '').trim().toLowerCase() === c.en.toLowerCase());
+function postByTitle(title) {
+  return cityPosts.find(p => (p.title || '').trim().toLowerCase() === title.toLowerCase());
+}
+function postFor(c) { return postByTitle(c.en); }
+function findEvent(key) {
+  for (const ck of Object.keys(CITY_EVENTS)) {
+    const ev = CITY_EVENTS[ck].find(e => e.key === key);
+    if (ev) return { cityKey: ck, ev };
+  }
+  return null;
 }
 
 function draw() {
   const list = document.getElementById('fieldList');
   const city = CITIES.find(c => c.key === cityParam);
   list.innerHTML = '';
+  // 이벤트 상세 — manage에서 kind=Fieldwork, 제목을 이벤트 제목과 동일하게 쓰면 표시됨
+  const hit = eventParam ? findEvent(eventParam) : null;
+  if (hit) {
+    const back = document.createElement('a');
+    back.className = 'field-back';
+    back.href = 'fieldwork?city=' + hit.cityKey;
+    back.textContent = t('back');
+    list.appendChild(back);
+    const title = document.createElement('div');
+    title.className = 'field-row';
+    title.style.cursor = 'default';
+    title.textContent = hit.ev.title;
+    list.appendChild(title);
+    const body = document.createElement('div');
+    body.className = 'field-body';
+    const p = postByTitle(hit.ev.title);
+    if (p) {
+      body.innerHTML =
+        (p.cover ? '<img src="' + escapeHtml(p.cover) + '">' : '') +
+        '<div class="article-body">' + renderMarkdown(pickLangBody(p)) + '</div>';
+    } else {
+      body.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
+    }
+    body.style.borderBottom = 'none';
+    list.appendChild(body);
+    return;
+  }
   if (city) {
     // 도시 상세 페이지
     const back = document.createElement('a');
@@ -64,8 +101,11 @@ function draw() {
     // 이벤트(랩·전시) 리스트 — 헤더와 같은 간격의 가로줄 행
     const events = CITY_EVENTS[city.key] || [];
     events.forEach(ev => {
-      const row = document.createElement('div');
+      const row = document.createElement('a');
       row.className = 'fw-event-row';
+      row.href = 'fieldwork?event=' + ev.key;
+      row.style.display = 'block';
+      row.style.textDecoration = 'none';
       row.textContent = ev.title;
       list.appendChild(row);
     });

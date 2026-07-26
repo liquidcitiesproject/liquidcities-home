@@ -340,5 +340,6 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
 
 /* 도시 상세의 이벤트 행 — 헤더와 같은 간격(상하 14px·좌우 20px), 가로줄 구분 */
 .fw-event-row { padding: 14px 20px; border-bottom: 1px solid var(--ink);
-  font-size: 14px; font-weight: 500; }
+  font-size: 14px; font-weight: 500; color: var(--ink); cursor: pointer; }
+.fw-event-row:hover { opacity: 0.6; }
 @media (max-width: 640px) { .fw-event-row { padding: 14px 18px; } }
