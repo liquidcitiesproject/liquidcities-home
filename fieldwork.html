@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fieldwork — Liquid Cities Project</title>
-<link rel="stylesheet" href="style.css?v=20260727s">
+<link rel="stylesheet" href="style.css?v=20260727t">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
@@ -16,10 +16,17 @@
 
 <div class="footer">Liquid Cities Project</div>
 
-<script src="app.js?v=20260727s"></script>
+<script src="app.js?v=20260727t"></script>
 <script>
 renderHeader('fieldwork');
 applyI18n();
+
+// 도시별 이벤트(랩·전시) 목록 — 도시 상세에서 가로줄 리스트로 표시
+const CITY_EVENTS = {
+  seoul: [
+    { title: '07.28 - 07.29 /2026' },
+  ],
+};
 
 // 필드워크 도시 목록 — 가로 선으로 구분된 행. 도시가 늘면 여기에 추가.
 // 내용은 posts(kind='fieldwork', 제목=영문 도시명)로 관리 — 행을 누르면 펼쳐진다.
@@ -54,6 +61,14 @@ function draw() {
     title.style.cursor = 'default';
     title.textContent = (LANG === 'ko' ? city.ko : city.en);
     list.appendChild(title);
+    // 이벤트(랩·전시) 리스트 — 헤더와 같은 간격의 가로줄 행
+    const events = CITY_EVENTS[city.key] || [];
+    events.forEach(ev => {
+      const row = document.createElement('div');
+      row.className = 'fw-event-row';
+      row.textContent = ev.title;
+      list.appendChild(row);
+    });
     const body = document.createElement('div');
     body.className = 'field-body';
     const p = postFor(city);
@@ -61,7 +76,7 @@ function draw() {
       body.innerHTML =
         (p.cover ? '<img src="' + escapeHtml(p.cover) + '">' : '') +
         '<div class="article-body">' + renderMarkdown(pickLangBody(p)) + '</div>';
-    } else {
+    } else if (!events.length) {
       body.innerHTML = '<p class="sub">' + t('projComingSoon') + '</p>';
     }
     body.style.borderBottom = 'none';
