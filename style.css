@@ -260,7 +260,7 @@ body.map-page { padding-top: 0; padding-bottom: 0; }
   text-decoration: underline; text-underline-offset: 3px; }
 .field-row:hover { opacity: 0.6; }
 .field-body { padding: 6px 28px 40px; border-bottom: 1px solid var(--ink); }
-.field-body > * { max-width: 680px; }
+.field-body > * { max-width: 680px; margin-left: auto; margin-right: auto; } /* 본문 컬럼 페이지 중앙 */
 .field-body img { max-width: 100%; display: block; margin: 12px 0; }
 .field-body .article-body { font-size: 14px; line-height: 1.8; color: #000; }
 @media (max-width: 640px) { .field-body { padding: 6px 18px 32px; } }
